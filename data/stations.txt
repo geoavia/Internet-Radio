@@ -1,3 +1,6 @@
 http://wbgo.streamguys.net/thejazzstream,The Jass Stream
 http://uk3.internet-radio.com:8405/live,Live Stream
 http://157.90.197.157:8010/stream,Hearbeat FM
+http://uk7.internet-radio.com:8226/live,UK Dance radio
+http://us5.internet-radio.com:8201/stream,WCJS Radio
+http://us5.internet-radio.com:8166/stream,Top 70'th 
