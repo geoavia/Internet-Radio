@@ -5,6 +5,9 @@
 
 #define MAX_STATIONS 128
 
+// Radio Volume
+uint8_t PlayerVolume = 80;
+
 // saved network credentials
 struct RADIO_STATION
 {

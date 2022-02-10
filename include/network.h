@@ -6,6 +6,7 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h>
 
 WiFiClient client;
 AsyncWebServer server(80);
@@ -425,6 +426,7 @@ void handle_NotFound(AsyncWebServerRequest *request)
 
 const char *AP_SSID = "Internet-Radio";
 const char *PARAM_MP3_URL = "mp3url";
+const char *PARAM_VOLUME = "volume";
 
 void start_ap_server()
 {
@@ -529,6 +531,13 @@ void start_radio_server()
         html += "<form action=\"/get\">MP3 Radio URL: <input type=\"text\" name=\"mp3url\">";
         html += "&nbsp;<input type=\"submit\" value=\"Play\">";
         html += "</form><br>";
+
+        html += "<form action=\"/vol\"><input type=\"submit\" value=\"Set Volume\">&nbsp;";
+        html += "<input type=\"range\" name=\"volume\" min=\"0\" max=\"100\" value=\"";
+        html += PlayerVolume;
+        html += "\">";
+        html += "</form><br>";
+
         html += "<p>Playlist</p>";
 
         html += "<table><tr><th>#</th><th>Station</th><th>URL</th><th></th></tr>";
@@ -570,11 +579,29 @@ void start_radio_server()
                 request->redirect("/?msg=Failed to connect to radio");
             }
         }
+        else 
+        {
+            request->redirect("/?msg=Incorrect Param");
+        }
     });
+    server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if (request->hasParam(PARAM_VOLUME))
+        {
+            PlayerVolume = request->getParam(PARAM_VOLUME)->value().toInt();
+            request->redirect("/");
+        }
+        else 
+        {
+            request->redirect("/?msg=Incorrect Param");
+        }
+    });
+
     server.on("/radio.css", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/radio.css", "text/css");
     });    
     server.onNotFound(handle_NotFound);
+
+    AsyncElegantOTA.begin(&server); // Start ElegantOTA
     server.begin();
 
     Serial.println("Radio HTTP server started");

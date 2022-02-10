@@ -7,9 +7,6 @@
 #define VS1053_DCS 26  //16
 #define VS1053_DREQ 27 //4
 
-// Default volume
-uint8_t PlayerVolume = 80;
-
 VS1053 player(VS1053_CS, VS1053_DCS, VS1053_DREQ);
 
 uint8_t mp3buff[32] __attribute__((aligned(4)));
