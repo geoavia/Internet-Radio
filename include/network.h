@@ -146,14 +146,14 @@ bool connect_ssid(String ssid, String password)
             display.println("\nConnection Error!");
             display.display();
             WiFi.disconnect();
-            delay(3000);
+            delay(1000);
             return false;
         }
     }
     Serial.println("");
     display.println("\nConnected");
     display.display();
-    delay(1000);
+    //delay(1000);
     return true;
 }
 
