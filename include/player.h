@@ -11,6 +11,24 @@ VS1053 player(VS1053_CS, VS1053_DCS, VS1053_DREQ);
 
 uint8_t mp3buff[32] __attribute__((aligned(4)));
 
+void PlayStation(RADIO_STATION station)
+{
+    CurrentStation = station;
+    if (NetworkConnectRadioUrl(CurrentStation.url))
+    {
+        DisplayHeader();
+        display.setTextWrap(true);
+        display.println("Now Playing:");
+        display.println(CurrentStation.name); // todo get from icy-metadata
+        display.display();
+        display.setTextWrap(false);
+        display.drawFastHLine(0,52,128,SSD1306_WHITE);
+        display.setCursor(0, 56);
+        display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
+        display.display();
+    }
+}
+
 void PlayerInit()
 {
 
@@ -25,7 +43,7 @@ void PlayerInit()
     player.switchToMp3Mode();
     player.setVolume(PlayerVolume);
 
-    NetworkConnectRadioUrl(CurrentStation.url);
+    PlayStation(CurrentStation);
 }
 
 void PlayerJob()

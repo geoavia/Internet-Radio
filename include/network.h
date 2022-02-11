@@ -25,6 +25,8 @@ WIFI_NETWORK curnet, networks[MAX_NETWORKS];
 uint n_networks = 0;
 uint n_SSID = 0;
 
+String asyncUrl = "";
+
 Preferences preferences;
 
 // load all saved wifi credentials
@@ -151,7 +153,7 @@ bool connect_ssid(String ssid, String password)
     Serial.println("");
     display.println("\nConnected");
     display.display();
-    delay(3000);
+    delay(1000);
     return true;
 }
 
@@ -389,7 +391,6 @@ bool NetworkConnectRadioUrl(String radio_url)
 {
     URL url;
     parseURL(radio_url, &url);
-
     Serial.print("Connecting ");
     Serial.print(url.host);
     Serial.print(":");
@@ -398,22 +399,11 @@ bool NetworkConnectRadioUrl(String radio_url)
     Serial.println("...");
     if (client.connect(url.host.c_str(), url.port))
     {
+        asyncUrl = radio_url;
         client.print(String("GET ") + url.path + " HTTP/1.1\r\n" +
             "Host: " + url.host + "\r\n" +
             //"Icy-MetaData: 1\r\n" +
             "Connection: close\r\n\r\n");
-
-        DisplayHeader();
-        display.setCursor(0, 32);
-        display.setTextWrap(true);
-        display.println("Now Playing:");
-        display.println(CurrentStation.name); // todo get from icy-metadata
-        display.display();
-        display.setTextWrap(false);
-        display.drawFastHLine(0,52,128,SSD1306_WHITE);
-        display.setCursor(0, 56);
-        display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
-        display.display();
         return true;
     }
     return false;
@@ -570,8 +560,7 @@ void start_radio_server()
             String url = request->getParam(PARAM_MP3_URL)->value();
             if (NetworkConnectRadioUrl(url))
             {
-                CurrentStation.url = url;
-                CurrentStation.name = "";
+                delay(1000); // for NetworkJob to finish
                 request->redirect("/");
             }
             else 
@@ -584,6 +573,7 @@ void start_radio_server()
             request->redirect("/?msg=Incorrect Param");
         }
     });
+
     server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
         if (request->hasParam(PARAM_VOLUME))
         {
@@ -654,7 +644,24 @@ void NetworkInit()
 
 void NetworkJob()
 {
-    // todo
+    if (asyncUrl != CurrentStation.url)
+    {
+        CurrentStation.name = asyncUrl;
+        CurrentStation.url = asyncUrl;
+        GetStationByUrl(CurrentStation.url, CurrentStation);
+        DisplayHeader();
+        display.setTextWrap(true);
+        display.println("Now Playing:");
+        display.println(CurrentStation.name); // todo get from icy-metadata
+        display.display();
+        display.setTextWrap(false);
+        display.drawFastHLine(0,52,128,SSD1306_WHITE);
+        display.setCursor(0, 56);
+        display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
+        display.display();
+    }
+
+
 }
 
 

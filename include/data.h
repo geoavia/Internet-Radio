@@ -113,5 +113,15 @@ void SetStationNumber(uint n)
         CurrentStation = Stations[n];
 }
 
+bool GetStationByUrl(String url, RADIO_STATION &station)
+{
+    for (uint i = 0; i < n_stations; i++)
+        if (Stations[i].url == url)
+        {
+            station = Stations[i];
+            return true;
+        }
+    return false;
+}
 
 #endif //__DATA__

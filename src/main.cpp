@@ -42,62 +42,62 @@ void loop()
         if (RemoteCode == KEY_LEFT && !IsRepeat)
         {
             NextStation(false);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_RIGHT && !IsRepeat)
         {
             NextStation(true);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_1)
         {
             SetStationNumber(1);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_2)
         {
             SetStationNumber(2);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_3)
         {
             SetStationNumber(3);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_4)
         {
             SetStationNumber(4);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_5)
         {
             SetStationNumber(5);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_6)
         {
             SetStationNumber(6);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_7)
         {
             SetStationNumber(7);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_8)
         {
             SetStationNumber(8);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_9)
         {
             SetStationNumber(9);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_0)
         {
             SetStationNumber(0);
-            NetworkConnectRadioUrl(CurrentStation.url);
+            PlayStation(CurrentStation);
         }
     }
 
