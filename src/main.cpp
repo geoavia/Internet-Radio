@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
-#include "helper.h"
-#include "remote.h"
-#include "display.h"
-#include "data.h"
-#include "network.h"
-#include "player.h"
+#include "helper.hpp"
+#include "remote.hpp"
+#include "display.hpp"
+#include "data.hpp"
+#include "network.hpp"
+#include "player.hpp"
 
 void setup()
 {
