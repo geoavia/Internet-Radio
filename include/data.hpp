@@ -7,6 +7,7 @@
 
 // Radio Volume
 uint8_t PlayerVolume = 80;
+uint8_t asyncVolume = 80;
 
 // saved network credentials
 struct RADIO_STATION

@@ -560,7 +560,7 @@ void start_radio_server()
             String url = request->getParam(PARAM_MP3_URL)->value();
             if (NetworkConnectRadioUrl(url))
             {
-                delay(1000); // for NetworkJob to finish
+                delay(1000); // for Job to finish
                 request->redirect("/");
             }
             else 
@@ -577,7 +577,8 @@ void start_radio_server()
     server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
         if (request->hasParam(PARAM_VOLUME))
         {
-            PlayerVolume = request->getParam(PARAM_VOLUME)->value().toInt();
+            asyncVolume = request->getParam(PARAM_VOLUME)->value().toInt();
+            delay(1000); // for Job to finish
             request->redirect("/");
         }
         else 

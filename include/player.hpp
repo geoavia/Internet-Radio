@@ -62,6 +62,13 @@ void PlayerJob()
             player.playChunk(mp3buff, bytesread);
         }
     }
+
+    if (asyncVolume != PlayerVolume)
+    {
+        PlayerVolume = asyncVolume;
+        player.setVolume(PlayerVolume);
+    }
+    
 }
 
 #endif //__PLAYER__
