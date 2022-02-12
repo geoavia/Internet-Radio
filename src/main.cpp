@@ -53,52 +53,52 @@ void loop()
         }
         if (RemoteCode == KEY_1)
         {
-            SetStationNumber(1);
+            SetCurrentStation(1);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_2)
         {
-            SetStationNumber(2);
+            SetCurrentStation(2);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_3)
         {
-            SetStationNumber(3);
+            SetCurrentStation(3);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_4)
         {
-            SetStationNumber(4);
+            SetCurrentStation(4);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_5)
         {
-            SetStationNumber(5);
+            SetCurrentStation(5);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_6)
         {
-            SetStationNumber(6);
+            SetCurrentStation(6);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_7)
         {
-            SetStationNumber(7);
+            SetCurrentStation(7);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_8)
         {
-            SetStationNumber(8);
+            SetCurrentStation(8);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_9)
         {
-            SetStationNumber(9);
+            SetCurrentStation(9);
             PlayStation(CurrentStation);
         }
         if (RemoteCode == KEY_0)
         {
-            SetStationNumber(0);
+            SetCurrentStation(0);
             PlayStation(CurrentStation);
         }
     }

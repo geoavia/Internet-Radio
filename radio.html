@@ -10,7 +10,10 @@
 <body>
     <p>Internet Radio Player</p>
     <p>Now listening: <b>http://wbgo.streamguys.net/thejazzstream</b></p>
-    <form action="/get">MP3 Radio URL: <input type="text" name="mp3url">&nbsp;<input type="submit" value="Play"></form>
+    <form action="/play">MP3 Radio URL: <input type="text" name="mp3url">&nbsp;
+        <input type="submit" value="Play" name="play">
+        <input type="submit" value="Add" name="add">
+    </form>
     <form action="/vol"><input type="submit" value="Set Volume"> 
     <input type="range" min="0" max="100" value="50" name="vol" id="vol">
         

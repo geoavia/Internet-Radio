@@ -48,13 +48,37 @@ void LoadRadioStations()
     CurrentStation = Stations[0];
 }
 
-void AddStation(String url, String name)
+void AddStation(String url, String name = "")
 {
     if (n_stations < MAX_STATIONS)
     {
         Stations[n_stations].url = url;
         Stations[n_stations].name = name;
         n_stations++;
+    }
+}
+
+void RemoveStation(uint index)
+{
+    if (index < n_stations)
+    {
+        for (uint i = index; i < n_stations - 1; i++)
+        {
+            Stations[i] = Stations[i + 1];
+        }
+        n_stations--;
+    }
+}
+
+void RemoveStationByUrl(String url)
+{
+    for (uint i = 0; i < n_stations; i++)
+    {
+        if (Stations[i].url == url)
+        {
+            RemoveStation(i);
+            break;
+        }
     }
 }
 
@@ -85,7 +109,7 @@ void SaveRadioStations()
     file.close();
 }
 
-void NextStation(bool next)
+void NextStation(bool next = true)
 {
     for (uint i = 0; i < n_stations; i++)
         if (Stations[i].url == CurrentStation.url)
@@ -108,13 +132,13 @@ void NextStation(bool next)
         }
 }
 
-void SetStationNumber(uint n)
+void SetCurrentStation(uint n)
 {
     if (n < n_stations)
         CurrentStation = Stations[n];
 }
 
-bool GetStationByUrl(String url, RADIO_STATION &station)
+bool FindStationByUrl(String url, RADIO_STATION &station)
 {
     for (uint i = 0; i < n_stations; i++)
         if (Stations[i].url == url)

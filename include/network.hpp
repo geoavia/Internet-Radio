@@ -518,12 +518,13 @@ void start_radio_server()
             html += CurrentStation.url;
             html += "</b></p>";
         }
-        html += "<form action=\"/get\">MP3 Radio URL: <input type=\"text\" name=\"mp3url\">";
-        html += "&nbsp;<input type=\"submit\" value=\"Play\">";
-        html += "</form><br>";
+        html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
+&nbsp;<input type="submit" value="Play" name="play">
+&nbsp;<input type="submit" value="Add" name="add">
+</form><br>)===";
 
-        html += "<form action=\"/vol\"><input type=\"submit\" value=\"Set Volume\">&nbsp;";
-        html += "<input type=\"range\" name=\"volume\" min=\"0\" max=\"100\" value=\"";
+        html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
+<input type="range" name="volume" min="0" max="100" value=")===";
         html += PlayerVolume;
         html += "\">";
         html += "</form><br>";
@@ -554,19 +555,41 @@ void start_radio_server()
     });
 
     server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
-        // GET input1 value on <ESP_IP>/get?input1=<inputMessage>
         if (request->hasParam(PARAM_MP3_URL))
         {
             String url = request->getParam(PARAM_MP3_URL)->value();
-            if (NetworkConnectRadioUrl(url))
+            if (request->hasParam("play"))
             {
-                delay(1000); // for Job to finish
-                request->redirect("/");
+                if (NetworkConnectRadioUrl(url))
+                {
+                    delay(1000); // for Job to finish
+                    request->redirect("/");
+                }
+                else 
+                {
+                    request->redirect("/?msg=Failed to connect to radio");
+                }
             }
-            else 
+            if (request->hasParam("add")) 
             {
-                request->redirect("/?msg=Failed to connect to radio");
+                AddStation(url);
+                SaveRadioStations();
             }
+            request->redirect("/");
+        }
+        else 
+        {
+            request->redirect("/?msg=Incorrect Param");
+        }
+    });
+
+    server.on("/del", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if (request->hasParam(PARAM_MP3_URL))
+        {
+            String url = request->getParam(PARAM_MP3_URL)->value();
+            RemoveStationByUrl(url);
+            SaveRadioStations();
+            request->redirect("/");
         }
         else 
         {
@@ -647,9 +670,9 @@ void NetworkJob()
 {
     if (asyncUrl != CurrentStation.url)
     {
-        CurrentStation.name = asyncUrl;
+        CurrentStation.name = "";
         CurrentStation.url = asyncUrl;
-        GetStationByUrl(CurrentStation.url, CurrentStation);
+        FindStationByUrl(CurrentStation.url, CurrentStation);
         DisplayHeader();
         display.setTextWrap(true);
         display.println("Now Playing:");
