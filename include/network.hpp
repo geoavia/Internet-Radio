@@ -416,6 +416,7 @@ void handle_NotFound(AsyncWebServerRequest *request)
 
 const char *AP_SSID = "Internet-Radio";
 const char *PARAM_MP3_URL = "mp3url";
+const char *PARAM_MP3_NAME = "mp3name";
 const char *PARAM_VOLUME = "volume";
 
 void start_ap_server()
@@ -519,8 +520,8 @@ void start_radio_server()
             html += "</b></p>";
         }
         html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
-&nbsp;<input type="submit" value="Play" name="play">
-&nbsp;<input type="submit" value="Add" name="add">
+&nbsp;<input type="submit" value="Play" name="play">&nbsp;
+Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" name="add">
 </form><br>)===";
 
         html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
@@ -536,7 +537,7 @@ void start_radio_server()
         {
             if (CurrentStation.url == Stations[i].url) html += "<tr class='curr'><td>";
             else html += "<tr><td>";
-            html += (i+1);
+            html += i;
             html += "</td><td><a href=\"/get?mp3url=";
             html += EncodeUrl(Stations[i].url);
             html += "\">";
@@ -558,7 +559,22 @@ void start_radio_server()
         if (request->hasParam(PARAM_MP3_URL))
         {
             String url = request->getParam(PARAM_MP3_URL)->value();
-            if (request->hasParam("play"))
+            if (request->hasParam("add")) 
+            {
+                String name = "";
+                if (request->hasParam(PARAM_MP3_NAME))
+                    name = request->getParam(PARAM_MP3_NAME)->value();
+                name.trim();
+                if (name == "")
+                {
+                    name = "Station ";
+                    name += n_stations;
+                }
+                
+                AddStation(url, name);
+                SaveRadioStations();
+            } 
+            else // play
             {
                 if (NetworkConnectRadioUrl(url))
                 {
@@ -569,11 +585,6 @@ void start_radio_server()
                 {
                     request->redirect("/?msg=Failed to connect to radio");
                 }
-            }
-            if (request->hasParam("add")) 
-            {
-                AddStation(url);
-                SaveRadioStations();
             }
             request->redirect("/");
         }
@@ -670,7 +681,7 @@ void NetworkJob()
 {
     if (asyncUrl != CurrentStation.url)
     {
-        CurrentStation.name = "";
+        CurrentStation.name = "Noname";
         CurrentStation.url = asyncUrl;
         FindStationByUrl(CurrentStation.url, CurrentStation);
         DisplayHeader();
