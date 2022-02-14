@@ -1,13 +1,16 @@
-#include <Arduino.h>
+#include "main.hpp"
 
 // all in one hpp files (for simplicity)
 // preserve order!
 #include "helper.hpp"
 #include "remote.hpp"
-#include "display.hpp"
 #include "data.hpp"
+#include "display.hpp"
 #include "network.hpp"
 #include "player.hpp"
+
+// state auto save interval
+#define AUTOSAVE_INTERVAL_MS 9000
 
 void setup()
 {
@@ -36,6 +39,7 @@ void loop()
 				asyncVolume = --PlayerVolume;
 				player.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
+				SetStateChanged();
 			}
 		}
 		if (RemoteCode == KEY_RIGHT)
@@ -45,68 +49,75 @@ void loop()
 				asyncVolume = ++PlayerVolume;
 				player.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
+				SetStateChanged();
 			}
 		}
 		if (RemoteCode == KEY_DOWN && !IsRepeat)
 		{
 			NextStation(false);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_UP && !IsRepeat)
 		{
 			NextStation(true);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_1)
 		{
 			SetCurrentStation(1);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_2)
 		{
 			SetCurrentStation(2);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_3)
 		{
 			SetCurrentStation(3);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_4)
 		{
 			SetCurrentStation(4);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_5)
 		{
 			SetCurrentStation(5);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_6)
 		{
 			SetCurrentStation(6);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_7)
 		{
 			SetCurrentStation(7);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_8)
 		{
 			SetCurrentStation(8);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_9)
 		{
 			SetCurrentStation(9);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
 		if (RemoteCode == KEY_0)
 		{
 			SetCurrentStation(0);
-			PlayStation(CurrentStation);
+			PlayCurrentStation();
 		}
+	}
+
+	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
+	{
+		SaveRadioState();
+		StateChanged = false;
 	}
 
 	NetworkJob();

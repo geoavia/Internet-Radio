@@ -21,47 +21,60 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 {
-    int nb = Get4BarsFromRSSI(rssi);
-    for (int b = 0; b < nb; b++)
-    {
-        display.drawFastHLine(x, y-b*2, b+1, color);
-    }
+	int nb = Get4BarsFromRSSI(rssi);
+	for (int b = 0; b < nb; b++)
+	{
+		display.drawFastHLine(x, y-b*2, b+1, color);
+	}
 }
 
 void DisplayVolume(int volume)
 {
-    display.fillRect(14, 60, volume+14, 3, SSD1306_WHITE);    
-    display.fillRect(volume+15, 60, 115-volume, 3, SSD1306_BLACK);
-    display.display();
+	display.fillRect(14, 60, volume+14, 3, SSD1306_WHITE);    
+	display.fillRect(volume+15, 60, 115-volume, 3, SSD1306_BLACK);
+	display.display();
 }
 
 void DisplayHeader()
 {
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println(F("WWW Radio"));
-    display.setTextSize(1);
-    display.println(F("Version: 1.0"));
-    display.drawFastHLine(0,28,128,SSD1306_WHITE);
-    display.setCursor(0, 32);
-    display.display();
+	display.clearDisplay();
+	display.setTextSize(2);
+	display.setTextColor(SSD1306_WHITE);
+	display.setCursor(0, 0);
+	display.println(F("WWW Radio"));
+	display.setTextSize(1);
+	display.println(F("Version: 1.0"));
+	display.drawFastHLine(0,28,128,SSD1306_WHITE);
+	display.setCursor(0, 32);
+	display.display();
+}
+
+void DisplayCurrentStation()
+{
+	DisplayHeader();
+	display.setTextWrap(true);
+	display.println("Now Playing:");
+	display.println(CurrentStation.name); // todo get from icy-metadata
+	display.display();
+	display.setTextWrap(false);
+	display.drawFastHLine(0,52,128,SSD1306_WHITE);
+	display.setCursor(0, 56);
+	display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
+	display.display();
 }
 
 void DisplayInit()
 {
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-    {
-        Serial.println(F("SSD1306 allocation failed"));
-        for (;;)
-            ; // Don't proceed, loop forever
-    }
+	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+	{
+		Serial.println(F("SSD1306 allocation failed"));
+		while(true) delay(1); // Don't proceed, loop forever
+	}
 
-    // Show initial display buffer contents on the screen --
-    // the library initializes this with an Adafruit splash screen.
+	// Show initial display buffer contents on the screen --
+	// the library initializes this with an Adafruit splash screen.
 
-    display.setRotation(2);
+	display.setRotation(2);
 }
 
 #endif //__DISPLAY__
