@@ -10,6 +10,11 @@
 #define IR_RECEIVE_PIN 33
 #define FBUTTON_PIN 32
 
+
+#define REMOTE_TYPE_1
+
+#ifdef REMOTE_TYPE_1
+
 #define KEY_1 0x45
 #define KEY_2 0x46
 #define KEY_3 0x47
@@ -27,6 +32,34 @@
 #define KEY_RIGHT 0x5A
 #define KEY_UP 0x18
 #define KEY_DOWN 0x52
+
+#else
+
+#define KEY_1 0xC
+#define KEY_2 0x18
+#define KEY_3 0x5E
+#define KEY_4 0x8
+#define KEY_5 0x1C
+#define KEY_6 0x5A
+#define KEY_7 0x42
+#define KEY_8 0x52
+#define KEY_9 0x4A
+#define KEY_0 0x16
+#define KEY_100 0x19
+#define KEY_200 0xD
+#define KEY_MINUS 0x7
+#define KEY_PLUS 0x15
+#define KEY_PREV 0x44
+#define KEY_NEXT 0x40
+#define KEY_EQ 0x9
+#define KEY_PLAYPAUSE 0x43
+#define KEY_CH_MINUS 0x45
+#define KEY_CH_PLUS 0x47
+#define KEY_CH 0x46
+
+#endif
+
+
 
 #define KEY_REPEAT_INTERVAL_MS 1000
 
