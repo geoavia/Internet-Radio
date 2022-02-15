@@ -118,6 +118,7 @@ void loop()
 	{
 		SaveRadioState();
 		StateChanged = false;
+		DisplayCurrentStation();
 	}
 
 	NetworkJob();

@@ -30,8 +30,10 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayVolume(int volume)
 {
-	display.fillRect(14, 60, volume+14, 3, SSD1306_WHITE);    
-	display.fillRect(volume+15, 60, 115-volume, 3, SSD1306_BLACK);
+	display.fillRect(0, 54, 128, 10, SSD1306_BLACK);    
+	display.fillRect(24, 58, volume, 4, SSD1306_WHITE);    
+	display.setCursor(2, 56);
+	display.print(volume);
 	display.display();
 }
 
@@ -53,7 +55,16 @@ void DisplayCurrentStation()
 {
 	DisplayHeader();
 	display.setTextWrap(true);
-	display.println("Now Playing:");
+	display.print(">> Playing ");
+	if (CurrentStation.name == "Noname")
+	{
+		display.println("Custom");
+	}
+	else 
+	{
+		display.print("Station ");
+		display.println(GetCurrentStationIndex());
+	}
 	display.println(CurrentStation.name); // todo get from icy-metadata
 	display.display();
 	display.setTextWrap(false);
