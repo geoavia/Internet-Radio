@@ -12,6 +12,14 @@
 
 #include "cbuf.h"
 
+#include <VS1053.h>
+
+#define VS1053_CS 25
+#define VS1053_DCS 26
+#define VS1053_DREQ 27
+
+VS1053 player(VS1053_CS, VS1053_DCS, VS1053_DREQ);
+
 #ifdef BOARD_HAS_PSRAM
 #define CIRC_BUFFER_SIZE 150000 // Divide by 32 to see how many 2mS samples this can store
 #else
