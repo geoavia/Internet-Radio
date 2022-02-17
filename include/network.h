@@ -687,14 +687,14 @@ void NetworkJob()
 
 		if (client.available() > 0)
 		{
-			//uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
-			//player.playChunk(mp3buff, bytesread);
+			uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
+			player.playChunk(mp3buff, bytesread);
 
-			if (circBuffer.room() >= MP3_BUFFER_SIZE) 
+			/*if (circBuffer.room() >= MP3_BUFFER_SIZE) 
 			{
 				uint8_t bytesread = client.read((uint8_t *)readBuffer, READ_BUFFER_SIZE);
 				circBuffer.write(readBuffer, bytesread);
-			}
+			}*/
 		}
 	}
 

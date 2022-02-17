@@ -34,8 +34,9 @@ TaskHandle_t playMusicTaskHandle;
 bool playMusicFromRingBuffer()
 {
 	bool dataPanic = false;
-	if (circBuffer.available() >= MP3_BUFFER_SIZE && player.data_request())
+	if (circBuffer.available() >= MP3_BUFFER_SIZE)
 	{
+		//if (player.data_request())
 		int bytesRead = circBuffer.read((char *)mp3buff, MP3_BUFFER_SIZE);
 		if (bytesRead != MP3_BUFFER_SIZE)
 		{

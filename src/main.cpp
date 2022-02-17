@@ -28,7 +28,7 @@ void setup()
 	PlayerInit();
 
 	// standalone cpu task 
-	StartPlayerTask();
+	//StartPlayerTask();
 }
 
 void loop()
