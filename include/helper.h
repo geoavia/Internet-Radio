@@ -104,4 +104,4 @@ int Get4BarsFromRSSI(int32_t rssi)
     return 4;
 }
 
-#endif //__HELPER__
+#endif //__HELPER_H__

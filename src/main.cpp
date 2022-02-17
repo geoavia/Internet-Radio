@@ -2,12 +2,12 @@
 
 // all in one hpp files (for simplicity)
 // preserve order!
-#include "helper.hpp"
-#include "remote.hpp"
-#include "data.hpp"
-#include "display.hpp"
-#include "network.hpp"
-#include "player.hpp"
+#include "helper.h"
+#include "remote.h"
+#include "data.h"
+#include "display.h"
+#include "network.h"
+#include "player.h"
 
 // state auto save interval
 #define AUTOSAVE_INTERVAL_MS 9000
@@ -26,6 +26,9 @@ void setup()
 	DataInit();
 	NetworkInit();
 	PlayerInit();
+
+	// standalone cpu task 
+	StartPlayerTask();
 }
 
 void loop()
@@ -52,66 +55,18 @@ void loop()
 				SetStateChanged();
 			}
 		}
-		if (RemoteCode == KEY_DOWN && !IsRepeat)
-		{
-			NextStation(false);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_UP && !IsRepeat)
-		{
-			NextStation(true);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_1)
-		{
-			SetCurrentStation(1);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_2)
-		{
-			SetCurrentStation(2);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_3)
-		{
-			SetCurrentStation(3);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_4)
-		{
-			SetCurrentStation(4);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_5)
-		{
-			SetCurrentStation(5);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_6)
-		{
-			SetCurrentStation(6);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_7)
-		{
-			SetCurrentStation(7);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_8)
-		{
-			SetCurrentStation(8);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_9)
-		{
-			SetCurrentStation(9);
-			PlayCurrentStation();
-		}
-		if (RemoteCode == KEY_0)
-		{
-			SetCurrentStation(0);
-			PlayCurrentStation();
-		}
+		if (RemoteCode == KEY_DOWN && !IsRepeat) NextStation(false);
+		if (RemoteCode == KEY_UP && !IsRepeat) NextStation(true);
+		if (RemoteCode == KEY_0) SetCurrentStation(0);
+		if (RemoteCode == KEY_1) SetCurrentStation(1);
+		if (RemoteCode == KEY_2) SetCurrentStation(2);
+		if (RemoteCode == KEY_3) SetCurrentStation(3);
+		if (RemoteCode == KEY_4) SetCurrentStation(4);
+		if (RemoteCode == KEY_5) SetCurrentStation(5);
+		if (RemoteCode == KEY_6) SetCurrentStation(6);
+		if (RemoteCode == KEY_7) SetCurrentStation(7);
+		if (RemoteCode == KEY_8) SetCurrentStation(8);
+		if (RemoteCode == KEY_9) SetCurrentStation(9);
 	}
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))

@@ -1,5 +1,5 @@
-#ifndef __REMOTE__
-#define __REMOTE__
+#ifndef __REMOTE_H__
+#define __REMOTE_H__
 
 #define SEND_PWM_BY_TIMER // to disable warning
 #define RECORD_GAP_MICROS 12000
@@ -111,4 +111,4 @@ bool GetRemoteCode()
 	return false;
 }
 
-#endif //__REMOTE__
+#endif //__REMOTE_H__

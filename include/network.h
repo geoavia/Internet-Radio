@@ -1,5 +1,5 @@
-#ifndef __NETWORK__
-#define __NETWORK__
+#ifndef __NETWORK_H__
+#define __NETWORK_H__
 
 #include "main.hpp"
 
@@ -19,8 +19,6 @@ WIFI_NETWORK curnet, networks[MAX_NETWORKS];
 
 uint n_networks = 0;
 uint n_SSID = 0;
-
-String asyncUrl = "";
 
 Preferences preferences;
 
@@ -394,7 +392,6 @@ bool NetworkConnectRadioUrl(String radio_url)
 	Serial.println("...");
 	if (client.connect(url.host.c_str(), url.port))
 	{
-		asyncUrl = radio_url;
 		client.print(String("GET ") + url.path + " HTTP/1.1\r\n" +
 			"Host: " + url.host + "\r\n" +
 			//"Icy-MetaData: 1\r\n" +
@@ -571,15 +568,9 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 			} 
 			else // play
 			{
-				if (NetworkConnectRadioUrl(url))
-				{
-					delay(1000); // for Job to finish
-					request->redirect("/");
-				}
-				else 
-				{
-					request->redirect("/?msg=Failed to connect to radio");
-				}
+				CurrentStation.name = "Noname";
+				CurrentStation.url = url;
+				delay(1000); // for Job to finish
 			}
 			request->redirect("/");
 		}
@@ -674,17 +665,40 @@ void NetworkInit()
 
 void NetworkJob()
 {
-	if (asyncUrl != CurrentStation.url)
+	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
-		CurrentStation.name = "Noname";
-		CurrentStation.url = asyncUrl;
-		FindStationByUrl(CurrentStation.url, CurrentStation);
-		DisplayCurrentStation();
-		SetStateChanged();
-	}
+		if (CurrentStation.url != previousUrl)
+		{
+			if (NetworkConnectRadioUrl(CurrentStation.url))
+			{
+				circBuffer.flush();
+				previousUrl = CurrentStation.url;
+				FindStationByUrl(CurrentStation.url, CurrentStation);
+				DisplayCurrentStation();
+				SetStateChanged();
+			}
+		}
 
+		if (!client.connected())
+		{
+			// reconnecting
+			NetworkConnectRadioUrl(CurrentStation.url);
+		}
+
+		if (client.available() > 0)
+		{
+			//uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
+			//player.playChunk(mp3buff, bytesread);
+
+			if (circBuffer.room() >= MP3_BUFFER_SIZE) 
+			{
+				uint8_t bytesread = client.read((uint8_t *)readBuffer, READ_BUFFER_SIZE);
+				circBuffer.write(readBuffer, bytesread);
+			}
+		}
+	}
 
 }
 
 
-#endif //__NETWORK__
+#endif //__NETWORK_H__

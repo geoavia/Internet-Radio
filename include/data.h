@@ -1,5 +1,5 @@
-#ifndef __DATA__
-#define __DATA__
+#ifndef __DATA_H__
+#define __DATA_H__
 
 #include "SPIFFS.h"
 
@@ -191,4 +191,4 @@ void DataInit()
 }
 
 
-#endif //__DATA__
+#endif //__DATA_H__

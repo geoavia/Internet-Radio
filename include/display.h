@@ -1,5 +1,5 @@
-#ifndef __DISPLAY__
-#define __DISPLAY__
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
 
 #include <SPI.h>
 #include <Wire.h>
@@ -88,4 +88,4 @@ void DisplayInit()
 	display.setRotation(2);
 }
 
-#endif //__DISPLAY__
+#endif //__DISPLAY_H__
