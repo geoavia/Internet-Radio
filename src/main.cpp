@@ -67,6 +67,7 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
+		if (RemoteCode == KEY_OK) DisplayCurrentStation();
 	}
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
@@ -75,6 +76,9 @@ void loop()
 		StateChanged = false;
 		DisplayCurrentStation();
 	}
+
+	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
+	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
 
 	NetworkJob();
 	PlayerJob();

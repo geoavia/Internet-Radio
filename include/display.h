@@ -19,6 +19,21 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+bool dimmed = false;
+bool saver = false;
+
+#define IDLE_DIMM_MS 3000
+#define IDLE_SAVER_MS 30000
+
+void DisplayDim(bool dim)
+{
+	if (dimmed != dim)
+	{
+		display.dim(dim);
+		dimmed = dim;
+	}
+}
+
 void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 {
 	int nb = Get4BarsFromRSSI(rssi);
@@ -51,27 +66,51 @@ void DisplayHeader()
 	display.display();
 }
 
-void DisplayCurrentStation()
+void DisplayCurrentStation(bool simple = false)
 {
-	DisplayHeader();
-	display.setTextWrap(true);
-	display.print(">> Playing ");
-	if (CurrentStation.name == "Noname")
-	{
-		display.println("Custom");
+	if (simple) {
+		display.clearDisplay();
+		display.setTextWrap(false);
+		display.setTextSize(2);
+		display.setTextColor(SSD1306_WHITE);
+		display.setCursor(0, 2);
+		if (CurrentStation.name == "Noname")
+		{
+			display.println("Custom");
+		}
+		else 
+		{
+			display.print("Station ");
+			display.println(GetCurrentStationIndex());
+		}
+		display.drawFastHLine(0,25,128,SSD1306_WHITE);
+		display.setCursor(0, 32);
+		display.println(CurrentStation.name); // todo get from icy-metadata
+		display.display();
+		display.setCursor(0, 32);
+		display.startscrollright(0x00,0x04);
+	} else {
+		display.stopscroll();
+		DisplayHeader();
+		display.setTextWrap(true);
+		display.print(">> Playing ");
+		if (CurrentStation.name == "Noname")
+		{
+			display.println("Custom");
+		}
+		else 
+		{
+			display.print("Station ");
+			display.println(GetCurrentStationIndex());
+		}
+		display.println(CurrentStation.name); // todo get from icy-metadata
+		display.display();
+		display.setTextWrap(false);
+		display.drawFastHLine(0,52,128,SSD1306_WHITE);
+		display.setCursor(0, 56);
+		display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
+		display.display();
 	}
-	else 
-	{
-		display.print("Station ");
-		display.println(GetCurrentStationIndex());
-	}
-	display.println(CurrentStation.name); // todo get from icy-metadata
-	display.display();
-	display.setTextWrap(false);
-	display.drawFastHLine(0,52,128,SSD1306_WHITE);
-	display.setCursor(0, 56);
-	display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
-	display.display();
 }
 
 void DisplayInit()
@@ -87,5 +126,15 @@ void DisplayInit()
 
 	display.setRotation(2);
 }
+
+void Screensaver(bool ss)
+{
+	if (saver != ss)
+	{
+		DisplayCurrentStation(ss);
+		saver = ss;
+	}
+}
+
 
 #endif //__DISPLAY_H__

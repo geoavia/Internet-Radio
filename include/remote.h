@@ -60,7 +60,6 @@
 #endif
 
 
-
 #define KEY_REPEAT_INTERVAL_MS 1000
 
 uint16_t RemoteCode = 0;
