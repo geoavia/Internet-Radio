@@ -21,6 +21,7 @@ void setup()
 
 	Serial.println("\nInternet Radio, (c) GGM, 2022");
 
+	ButtonsInit();
 	RemoteInit();
 	DisplayInit();
 	DataInit();

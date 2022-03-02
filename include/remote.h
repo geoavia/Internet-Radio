@@ -7,8 +7,13 @@
 
 #include <IRremote.hpp>
 
-#define IR_RECEIVE_PIN 33
-#define FBUTTON_PIN 32
+#define IR_RECEIVE_PIN 35
+
+#define BUTTON_PIN_OK 33
+#define BUTTON_PIN_UP 32
+#define BUTTON_PIN_DOWN 4
+#define BUTTON_PIN_LEFT 13
+#define BUTTON_PIN_RIGHT 14
 
 
 #define REMOTE_TYPE_1
@@ -66,6 +71,58 @@ uint16_t RemoteCode = 0;
 bool IsRepeat = false;
 unsigned long lastKeyTime = 0;
 
+void ButtonsInit()
+{
+	pinMode(BUTTON_PIN_OK, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_LEFT, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_RIGHT, INPUT_PULLUP);
+}
+
+bool ButtonsProcess()
+{
+	bool result = false;
+
+	if (digitalRead(BUTTON_PIN_OK) == LOW)
+	{
+		IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
+		lastKeyTime = millis();
+		if (!IsRepeat) {
+			RemoteCode = KEY_OK;
+			return true;
+		}
+	}
+	
+	if (digitalRead(BUTTON_PIN_UP) == LOW)
+	{
+		RemoteCode = KEY_UP;
+		result = true;
+	}
+	if (digitalRead(BUTTON_PIN_DOWN) == LOW)
+	{
+		RemoteCode = KEY_DOWN;
+		result = true;
+	}
+	if (digitalRead(BUTTON_PIN_LEFT) == LOW)
+	{
+		RemoteCode = KEY_LEFT;
+		result = true;
+	}
+	if (digitalRead(BUTTON_PIN_RIGHT) == LOW)
+	{
+		RemoteCode = KEY_RIGHT;
+		result = true;
+	}
+
+	if (result)
+	{
+		lastKeyTime = millis();
+	}
+
+	return result;
+}
+
 void RemoteInit()
 {
 	IrReceiver.begin(IR_RECEIVE_PIN);
@@ -73,6 +130,11 @@ void RemoteInit()
 
 bool GetRemoteCode()
 {
+	if (ButtonsProcess())
+	{
+		return true;
+	}
+
 	if (IrReceiver.decode())
 	{
 		
