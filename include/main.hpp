@@ -10,15 +10,57 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 
-#include "cbuf.h"
+#include <SPIFFS.h>
 
 #include <VS1053.h>
+
+#include "cbuf.h"
 
 #define VS1053_CS 25
 #define VS1053_DCS 26
 #define VS1053_DREQ 27
 
 VS1053 player(VS1053_CS, VS1053_DCS, VS1053_DREQ);
+
+const char *STATIONS_FILE_NAME = "/stations.csv";
+const char *STATE_FILE_NAME = "/state.csv";
+const char *OTAUP_FILE_NAME = "/otaup.up";
+
+#define MAX_STATIONS 128
+
+// Radio Volume
+uint8_t PlayerVolume = 80;
+uint8_t asyncVolume = 80;
+
+// saved network credentials
+struct RADIO_STATION
+{
+	String url = "";
+	String name = "";
+};
+
+RADIO_STATION CurrentStation, Stations[MAX_STATIONS];
+
+uint n_stations = 0;
+
+// http://wbgo.streamguys.net/thejazzstream - ok
+// http://jenny.torontocast.com:8012/stream - sketchy
+
+// saved network credentials
+struct WIFI_NETWORK
+{
+	String ssid = "";
+	String password = "";
+};
+
+#define MAX_NETWORKS 10
+
+WIFI_NETWORK otaup, curnet, networks[MAX_NETWORKS];
+
+uint n_networks = 0;
+uint n_SSID = 0;
+
+Preferences preferences;
 
 #ifdef BOARD_HAS_PSRAM
 #define CIRC_BUFFER_SIZE 150000 // Divide by 32 to see how many 2mS samples this can store

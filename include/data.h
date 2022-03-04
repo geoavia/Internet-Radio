@@ -1,30 +1,22 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
-#include "SPIFFS.h"
+#include "main.hpp"
 
-const char *STATIONS_FILE_NAME = "/stations.csv";
-const char *STATE_FILE_NAME = "/state.csv";
-
-#define MAX_STATIONS 128
-
-// Radio Volume
-uint8_t PlayerVolume = 80;
-uint8_t asyncVolume = 80;
-
-// saved network credentials
-struct RADIO_STATION
+void LoadOTAUP()
 {
-	String url = "";
-	String name = "";
-};
+	File file = SPIFFS.open(OTAUP_FILE_NAME, "r");
+	if (file)
+	{
+		if (file.available())
+		{
+			otaup.ssid = file.readStringUntil('/');
+			otaup.password = file.readStringUntil('\n');
+		}
+	}
+	file.close();
+}
 
-RADIO_STATION CurrentStation, Stations[MAX_STATIONS];
-
-uint n_stations = 0;
-
-// http://wbgo.streamguys.net/thejazzstream - ok
-// http://jenny.torontocast.com:8012/stream - sketchy
 
 void LoadRadioStations()
 {

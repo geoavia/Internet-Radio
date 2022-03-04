@@ -6,22 +6,6 @@
 WiFiClient client;
 AsyncWebServer server(80);
 
-#define MAX_NETWORKS 10
-
-// saved network credentials
-struct WIFI_NETWORK
-{
-	String ssid = "";
-	String password = "";
-};
-
-WIFI_NETWORK curnet, networks[MAX_NETWORKS];
-
-uint n_networks = 0;
-uint n_SSID = 0;
-
-Preferences preferences;
-
 // load all saved wifi credentials
 void load_networks()
 {
@@ -612,7 +596,8 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 	});    
 	server.onNotFound(handle_NotFound);
 
-	AsyncElegantOTA.begin(&server); // Start ElegantOTA
+	LoadOTAUP();
+	AsyncElegantOTA.begin(&server, otaup.ssid.c_str(), otaup.password.c_str()); // Start ElegantOTA
 	server.begin();
 
 	Serial.println("Radio HTTP server started");

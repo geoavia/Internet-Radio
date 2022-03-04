@@ -118,6 +118,8 @@ bool ButtonsProcess()
 	if (result)
 	{
 		lastKeyTime = millis();
+		Serial.print("RemoteCode: ");
+		Serial.println(RemoteCode, HEX);
 	}
 
 	return result;
