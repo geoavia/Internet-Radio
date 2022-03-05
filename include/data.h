@@ -17,7 +17,6 @@ void LoadOTAUP()
 	file.close();
 }
 
-
 void LoadRadioStations()
 {
 	n_stations = 0;

@@ -15,6 +15,11 @@
 #include <VS1053.h>
 
 #include "cbuf.h"
+#include "time.h"
+
+const char* ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 3600*4; // Georgia
+const int daylightOffset_sec = 0; // Georgia
 
 #define VS1053_CS 25
 #define VS1053_DCS 26

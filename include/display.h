@@ -22,6 +22,15 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 bool dimmed = false;
 bool saver = false;
 
+enum DISPLAY_MODE {
+	DM_NORMAL = 0,
+	DM_SIMPLE,
+	DM_TIME
+};
+
+DISPLAY_MODE DisplayMode = DM_NORMAL;
+
+
 #define IDLE_DIMM_MS 3000
 #define IDLE_SAVER_MS 30000
 
@@ -43,15 +52,6 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 	}
 }
 
-void DisplayVolume(int volume)
-{
-	display.fillRect(0, 54, 128, 10, SSD1306_BLACK);    
-	display.fillRect(24, 58, volume, 4, SSD1306_WHITE);    
-	display.setCursor(2, 56);
-	display.print(volume);
-	display.display();
-}
-
 void DisplayHeader()
 {
 	display.clearDisplay();
@@ -60,15 +60,16 @@ void DisplayHeader()
 	display.setCursor(0, 0);
 	display.println(F("WWW Radio"));
 	display.setTextSize(1);
-	display.println(F("Version: 1.0"));
+	display.println(F("Version: 1.1"));
 	display.drawFastHLine(0,28,128,SSD1306_WHITE);
 	display.setCursor(0, 32);
 	display.display();
 }
 
-void DisplayCurrentStation(bool simple = false)
+void DisplayCurrentMode(DISPLAY_MODE mode = DM_NORMAL)
 {
-	if (simple) {
+	if (mode == DM_SIMPLE) 
+	{
 		display.clearDisplay();
 		display.setTextWrap(false);
 		display.setTextSize(2);
@@ -87,9 +88,10 @@ void DisplayCurrentStation(bool simple = false)
 		display.setCursor(0, 32);
 		display.println(CurrentStation.name); // todo get from icy-metadata
 		display.display();
-		display.setCursor(0, 32);
 		display.startscrollright(0x00,0x04);
-	} else {
+	} 
+	else if (mode == DM_NORMAL) 
+	{
 		display.stopscroll();
 		DisplayHeader();
 		display.setTextWrap(true);
@@ -111,6 +113,36 @@ void DisplayCurrentStation(bool simple = false)
 		display.printf("IP: %s\n", WiFi.localIP().toString().c_str());
 		display.display();
 	}
+	else if (mode == DM_TIME) 
+	{
+		struct tm timeinfo;
+		if (getLocalTime(&timeinfo)) 
+		{
+			display.stopscroll();
+			display.clearDisplay();
+			display.setTextWrap(false);
+			display.setTextSize(4);
+			display.setTextColor(SSD1306_WHITE);
+			display.setCursor(6, 4);
+			display.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
+			display.setTextSize(2);
+			display.setCursor(5, 48);
+			display.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon, 1900 + timeinfo.tm_year);
+			display.display();
+		}
+	}
+
+	DisplayMode = mode;
+}
+
+void DisplayVolume(int volume)
+{
+	if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
+	display.fillRect(0, 54, 128, 10, SSD1306_BLACK);    
+	display.fillRect(24, 58, volume, 4, SSD1306_WHITE);    
+	display.setCursor(2, 56);
+	display.print(volume);
+	display.display();
 }
 
 void DisplayInit()
@@ -131,7 +163,7 @@ void Screensaver(bool ss)
 {
 	if (saver != ss)
 	{
-		DisplayCurrentStation(ss);
+		DisplayCurrentMode(DM_SIMPLE);
 		saver = ss;
 	}
 }

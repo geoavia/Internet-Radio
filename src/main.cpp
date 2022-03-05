@@ -68,14 +68,16 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
-		if (RemoteCode == KEY_OK && !IsRepeat) DisplayCurrentStation();
+		if (RemoteCode == KEY_OK && !IsRepeat) DisplayCurrentMode();
+		if (RemoteCode == KEY_HTAG) DisplayCurrentMode(DM_TIME);
+		if (RemoteCode == KEY_AST) DisplayCurrentMode(DM_SIMPLE);
 	}
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
 	{
 		SaveRadioState();
 		StateChanged = false;
-		DisplayCurrentStation();
+		DisplayCurrentMode();
 	}
 
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);

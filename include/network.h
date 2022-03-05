@@ -646,6 +646,7 @@ void NetworkInit()
 	load_networks();
 	connect_network();
 	start_radio_server();
+	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 void NetworkJob()
@@ -659,7 +660,7 @@ void NetworkJob()
 				circBuffer.flush();
 				previousUrl = CurrentStation.url;
 				FindStationByUrl(CurrentStation.url, CurrentStation);
-				DisplayCurrentStation();
+				DisplayCurrentMode();
 				SetStateChanged();
 			}
 		}
