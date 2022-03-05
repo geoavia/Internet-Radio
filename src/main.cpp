@@ -68,7 +68,7 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
-		if (RemoteCode == KEY_OK) DisplayCurrentStation();
+		if (RemoteCode == KEY_OK && !IsRepeat) DisplayCurrentStation();
 	}
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))

@@ -71,6 +71,8 @@ uint16_t RemoteCode = 0;
 bool IsRepeat = false;
 unsigned long lastKeyTime = 0;
 
+bool oldBstate = false;
+
 void ButtonsInit()
 {
 	pinMode(BUTTON_PIN_OK, INPUT_PULLUP);
@@ -82,47 +84,49 @@ void ButtonsInit()
 
 bool ButtonsProcess()
 {
-	bool result = false;
+	bool bstate = false;
 
 	if (digitalRead(BUTTON_PIN_OK) == LOW)
 	{
-		IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-		lastKeyTime = millis();
-		if (!IsRepeat) {
-			RemoteCode = KEY_OK;
-			return true;
-		}
+		RemoteCode = KEY_OK;
+		bstate = true;
 	}
 	
 	if (digitalRead(BUTTON_PIN_UP) == LOW)
 	{
 		RemoteCode = KEY_UP;
-		result = true;
+		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_DOWN) == LOW)
 	{
 		RemoteCode = KEY_DOWN;
-		result = true;
+		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_LEFT) == LOW)
 	{
 		RemoteCode = KEY_LEFT;
-		result = true;
+		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_RIGHT) == LOW)
 	{
 		RemoteCode = KEY_RIGHT;
-		result = true;
+		bstate = true;
 	}
 
-	if (result)
+	if (bstate != oldBstate)
 	{
-		lastKeyTime = millis();
-		Serial.print("RemoteCode: ");
-		Serial.println(RemoteCode, HEX);
+		oldBstate = bstate;
+		IsRepeat = false;
+		if (bstate)
+		{
+			lastKeyTime = millis();
+		}
+	}
+	else if (bstate) {
+		IsRepeat = true;
 	}
 
-	return result;
+	return bstate;
 }
 
 void RemoteInit()
