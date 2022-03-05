@@ -1,6 +1,6 @@
 # Internet Radio
 
-![Finished in case](https://github.com/geoavia/Internet-Radio/blob/master/photos/radio.jpg)
+![Finished in case](https://github.com/geoavia/Internet-Radio/blob/master/photos/design2.jpg)
 
-![Playing](https://github.com/geoavia/Internet-Radio/blob/master/photos/playing.jpg)
+![Insides](https://github.com/geoavia/Internet-Radio/blob/master/photos/inside2.jpg)
 
