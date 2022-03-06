@@ -66,10 +66,12 @@
 
 
 #define KEY_REPEAT_INTERVAL_MS 1000
+#define KEY_DAMPER_INTERVAL_MS 300
 
 uint16_t RemoteCode = 0;
 bool IsRepeat = false;
 unsigned long lastKeyTime = 0;
+bool IsRemote = false;
 
 bool oldBstate = false;
 
@@ -115,11 +117,15 @@ bool ButtonsProcess()
 
 	if (bstate != oldBstate)
 	{
-		oldBstate = bstate;
-		IsRepeat = false;
-		if (bstate)
+		IsRepeat = ((millis() - lastKeyTime) < KEY_DAMPER_INTERVAL_MS);
+		if (!IsRepeat)
 		{
-			lastKeyTime = millis();
+			oldBstate = bstate;
+			//IsRepeat = false;
+			if (bstate)
+			{
+				lastKeyTime = millis();
+			}
 		}
 	}
 	else if (bstate) {
@@ -138,6 +144,7 @@ bool GetRemoteCode()
 {
 	if (ButtonsProcess())
 	{
+		IsRemote = false;
 		return true;
 	}
 
@@ -162,6 +169,7 @@ bool GetRemoteCode()
 			RemoteCode = IrReceiver.decodedIRData.command;
 			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
 			lastKeyTime = millis();
+			IsRemote = true;
 			return true;
 		}
 
@@ -171,6 +179,7 @@ bool GetRemoteCode()
 			RemoteCode = IrReceiver.decodedIRData.command;
 			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
 			lastKeyTime = millis();
+			IsRemote = true;
 			return true;
 		}
 		

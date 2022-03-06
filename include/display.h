@@ -66,7 +66,7 @@ void DisplayHeader()
 	display.display();
 }
 
-void DisplayCurrentMode(DISPLAY_MODE mode = DM_NORMAL)
+void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{

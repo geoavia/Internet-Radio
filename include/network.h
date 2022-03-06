@@ -209,8 +209,8 @@ bool want_display_ui()
 
 		if (GetRemoteCode()) 
 		{
-			if (RemoteCode == KEY_UP || RemoteCode == KEY_DOWN) dui = !dui;
-			if (RemoteCode == KEY_OK) break;
+			if ((RemoteCode == KEY_UP || RemoteCode == KEY_DOWN) && !IsRepeat) dui = !dui;
+			if (RemoteCode == KEY_OK && !IsRepeat) break;
 		}
 		delay(10);
 	}
@@ -257,17 +257,17 @@ bool get_network_ui()
 
 		if (GetRemoteCode()) 
 		{
-			if (RemoteCode == KEY_UP)
+			if (RemoteCode == KEY_UP && !IsRepeat)
 			{
 				if (yc > 0) yc--;
 				else if (yc == 0 && y0 > 0) y0--;
 			}
-			if (RemoteCode == KEY_DOWN)
+			if (RemoteCode == KEY_DOWN && !IsRepeat)
 			{
 				if (yc < 5 && (yc + 1) < n_SSID) yc++;
 				else if (yc == 5 && y0 + 6 < n_SSID) y0++;
 			}
-			if (RemoteCode == KEY_OK)
+			if (RemoteCode == KEY_OK && !IsRepeat)
 			{
 				curnet.ssid = WiFi.SSID(y0 + yc);
 			}
@@ -333,26 +333,26 @@ bool get_network_ui()
 					if (isalnum(pwd[xc])) pwd[xc] = '!';
 					else pwd[xc] = 'A';
 				}
-				if (RemoteCode == KEY_UP)
+				if (RemoteCode == KEY_UP && !IsRepeat)
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'A';
 					else if (pwd[xc] < MAX_CHAR) pwd[xc]++;
 				}
-				if (RemoteCode == KEY_DOWN)
+				if (RemoteCode == KEY_DOWN && !IsRepeat)
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'Z';
 					else if (pwd[xc] > MIN_CHAR) pwd[xc]--;
 				}
-				if (RemoteCode == KEY_OK)
+				if (RemoteCode == KEY_OK && !IsRepeat)
 				{
 					curnet.password = String(pwd);
 					return true;
 				}
-				if (RemoteCode == KEY_LEFT)
+				if (RemoteCode == KEY_LEFT && !IsRepeat)
 				{
 					if (xc > 0) xc--;
 				}
-				if (RemoteCode == KEY_RIGHT)
+				if (RemoteCode == KEY_RIGHT && !IsRepeat)
 				{
 					if (xc < 19 && pwd[xc]) xc++;
 				}
@@ -660,7 +660,7 @@ void NetworkJob()
 				circBuffer.flush();
 				previousUrl = CurrentStation.url;
 				FindStationByUrl(CurrentStation.url, CurrentStation);
-				DisplayCurrentMode();
+				DisplayCurrentMode(DM_NORMAL);
 				SetStateChanged();
 			}
 		}

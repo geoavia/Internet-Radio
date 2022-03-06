@@ -68,7 +68,15 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
-		if (RemoteCode == KEY_OK && !IsRepeat) DisplayCurrentMode();
+		if (RemoteCode == KEY_OK && !IsRepeat) 
+		{
+			if (IsRemote) DisplayCurrentMode(DM_NORMAL);
+			else {
+				if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
+				else DisplayCurrentMode(DM_NORMAL);
+			}
+
+		}
 		if (RemoteCode == KEY_HTAG) DisplayCurrentMode(DM_TIME);
 		if (RemoteCode == KEY_AST) DisplayCurrentMode(DM_SIMPLE);
 	}
@@ -77,7 +85,7 @@ void loop()
 	{
 		SaveRadioState();
 		StateChanged = false;
-		DisplayCurrentMode();
+		if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
 	}
 
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
