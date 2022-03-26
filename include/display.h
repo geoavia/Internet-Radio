@@ -127,7 +127,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			display.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
 			display.setTextSize(2);
 			display.setCursor(5, 48);
-			display.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon, 1900 + timeinfo.tm_year);
+			display.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			display.display();
 		}
 	}
