@@ -34,6 +34,34 @@ DISPLAY_MODE DisplayMode = DM_NORMAL;
 #define IDLE_DIMM_MS 3000
 #define IDLE_SAVER_MS 30000
 
+
+void DisplayZZZ()
+{
+	display.clearDisplay();
+	display.setTextSize(4);
+	display.setCursor(30, 25);
+	display.print(F("Z"));
+	display.display();
+	delay(500);
+	display.setTextSize(3);
+	display.setCursor(55, 15);
+	display.print(F("Z"));
+	display.display();
+	delay(500);
+	display.setTextSize(2);
+	display.setCursor(75, 5);
+	display.print(F("Z"));
+	display.display();
+	delay(500);
+	display.setTextSize(1);
+	display.setCursor(88, 0);
+	display.print(F("Z"));
+	display.display();
+	delay(500);
+	display.clearDisplay();
+	display.display();
+}
+
 void DisplayDim(bool dim)
 {
 	if (dimmed != dim)

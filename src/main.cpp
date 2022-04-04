@@ -68,14 +68,24 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
-		if (RemoteCode == KEY_OK && !IsRepeat) 
+		if (RemoteCode == KEY_OK)
 		{
-			if (IsRemote) DisplayCurrentMode(DM_NORMAL);
-			else {
-				if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
-				else DisplayCurrentMode(DM_NORMAL);
+			if (IsRepeat) 
+			{
+				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
+				{
+					DisplayZZZ();
+					esp_deep_sleep_start();
+				}
 			}
-
+			else
+			{
+				if (IsRemote) DisplayCurrentMode(DM_NORMAL);
+				else {
+					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
+					else DisplayCurrentMode(DM_NORMAL);
+				}
+			}
 		}
 		if (RemoteCode == KEY_HTAG) DisplayCurrentMode(DM_TIME);
 		if (RemoteCode == KEY_AST) DisplayCurrentMode(DM_SIMPLE);
@@ -93,4 +103,6 @@ void loop()
 
 	NetworkJob();
 	PlayerJob();
+
+	//delay(50);
 }

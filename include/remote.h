@@ -65,6 +65,7 @@
 #endif
 
 
+#define KEY_OK_TO_SLEEP_INTERVAL_MS 3000
 #define KEY_REPEAT_INTERVAL_MS 1000
 #define KEY_DAMPER_INTERVAL_MS 300
 
@@ -128,7 +129,8 @@ bool ButtonsProcess()
 			}
 		}
 	}
-	else if (bstate) {
+	else if (bstate) 
+	{
 		IsRepeat = true;
 	}
 
