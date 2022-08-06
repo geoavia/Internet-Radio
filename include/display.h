@@ -38,6 +38,7 @@ DISPLAY_MODE DisplayMode = DM_NORMAL;
 void DisplayZZZ()
 {
 	display.clearDisplay();
+	display.stopscroll();
 	display.setTextSize(4);
 	display.setCursor(30, 25);
 	display.print(F("Z"));

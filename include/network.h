@@ -487,7 +487,7 @@ void start_radio_server()
 		html += "<p>Internet Radio Player</p>";
 		if (request->hasParam("msg")) {
 			html += "<p><b>";
-			html += request->getParam("msg")->value();;
+			html += request->getParam("msg")->value();
 			html += "</b></p>";
 		}
 		else {
