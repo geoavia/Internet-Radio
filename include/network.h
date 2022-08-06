@@ -596,8 +596,6 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 	});    
 	server.onNotFound(handle_NotFound);
 
-	LoadOTAUP();
-	AsyncElegantOTA.begin(&server, otaup.ssid.c_str(), otaup.password.c_str()); // Start ElegantOTA
 	server.begin();
 
 	Serial.println("Radio HTTP server started");

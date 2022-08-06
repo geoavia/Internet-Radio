@@ -8,7 +8,6 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
 
 #include <SPIFFS.h>
 
@@ -60,7 +59,7 @@ struct WIFI_NETWORK
 
 #define MAX_NETWORKS 10
 
-WIFI_NETWORK otaup, curnet, networks[MAX_NETWORKS];
+WIFI_NETWORK curnet, networks[MAX_NETWORKS];
 
 uint n_networks = 0;
 uint n_SSID = 0;

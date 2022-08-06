@@ -3,20 +3,6 @@
 
 #include "main.hpp"
 
-void LoadOTAUP()
-{
-	File file = SPIFFS.open(OTAUP_FILE_NAME, "r");
-	if (file)
-	{
-		if (file.available())
-		{
-			otaup.ssid = file.readStringUntil('/');
-			otaup.password = file.readStringUntil('\n');
-		}
-	}
-	file.close();
-}
-
 void LoadRadioStations()
 {
 	n_stations = 0;
