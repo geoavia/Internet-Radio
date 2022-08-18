@@ -105,7 +105,7 @@ bool connect_ssid(String ssid, String password)
 	DisplayHeader();
 	display.println("Connecting to");
 	display.println(ssid);
-	display.display();
+	//display.display();
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 	WiFi.begin(ssid.c_str(), password.c_str());
@@ -114,14 +114,14 @@ bool connect_ssid(String ssid, String password)
 	{
 		delay(500);
 		display.print(".");
-		display.display();
+		//display.display();
 		Serial.print(".");
 		tries--;
 		if (tries == 0)
 		{
 			Serial.println("");
 			display.println("\nConnection Error!");
-			display.display();
+			//display.display();
 			WiFi.disconnect();
 			delay(1000);
 			return false;
@@ -129,7 +129,7 @@ bool connect_ssid(String ssid, String password)
 	}
 	Serial.println("");
 	display.println("\nConnected");
-	display.display();
+	//display.display();
 	//delay(1000);
 	return true;
 }
@@ -142,9 +142,9 @@ void list_networks()
 	if (n_SSID == 0)
 	{
 		display.setTextSize(1);
-		display.setTextColor(SSD1306_WHITE);
+		display.setTextColor(TFT_WHITE);
 		display.println("WiFi not detected!");
-		display.display();
+		//display.display();
 
 		Serial.println("No networks found");
 	}
@@ -188,24 +188,24 @@ bool want_display_ui()
 	bool dui = false; // DUI - Display UI :)
 	while (true) 
 	{
-		display.clearDisplay();
+		display.fillScreen(TFT_BLACK);
 		display.setCursor(0, 0);
-		display.setTextColor(SSD1306_WHITE);
+		display.setTextColor(TFT_WHITE);
 		display.println("WiFi Setup method");
-		display.drawFastHLine(0,10,128,SSD1306_WHITE);
+		display.drawFastHLine(0,10,128,TFT_WHITE);
 		display.setCursor(0, 12);
 		display.setTextWrap(false);
 
 		// method: web - default & easy
-		if (!dui) display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
-		else display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+		if (!dui) display.setTextColor(TFT_BLACK, TFT_WHITE);
+		else display.setTextColor(TFT_WHITE, TFT_BLACK);
 		display.println("1. Web based Setup");
 		// method: display - more finicky
-		if (dui) display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
-		else display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+		if (dui) display.setTextColor(TFT_BLACK, TFT_WHITE);
+		else display.setTextColor(TFT_WHITE, TFT_BLACK);
 		display.println("2. Display UI Setup");
 
-		display.display();
+		//display.display();
 
 		if (GetRemoteCode()) 
 		{
@@ -237,23 +237,23 @@ bool get_network_ui()
 	// List Networks UI
 	while(curnet.ssid == "")
 	{
-		display.clearDisplay();
+		display.fillScreen(TFT_BLACK);
 		display.setCursor(0, 0);
-		display.setTextColor(SSD1306_WHITE);
+		display.setTextColor(TFT_WHITE);
 		display.println("Select WiFi Network");
-		display.drawFastHLine(0,10,128,SSD1306_WHITE);
+		display.drawFastHLine(0,10,128,TFT_WHITE);
 		display.setCursor(0, 12);
 		display.setTextWrap(false);
 		for (int y = 0; (y0 + y) < n_SSID && y < 6; y++)
 		{
-			if (yc == y) display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
-			else display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+			if (yc == y) display.setTextColor(TFT_BLACK, TFT_WHITE);
+			else display.setTextColor(TFT_WHITE, TFT_BLACK);
 			display.print("  ");
 			//display.print((WiFi.encryptionType(y0 + y) == WIFI_AUTH_OPEN) ? "  " : "* ");
 			display.println(WiFi.SSID(y0 + y));
-			DisplayRSSI(0, 10+(y+1)*8, WiFi.RSSI(y0 + y), ((yc == y) ? SSD1306_BLACK : SSD1306_WHITE));
+			DisplayRSSI(0, 10+(y+1)*8, WiFi.RSSI(y0 + y), ((yc == y) ? TFT_BLACK : TFT_WHITE));
 		}
-		display.display();
+		//display.display();
 
 		if (GetRemoteCode()) 
 		{
@@ -284,20 +284,20 @@ bool get_network_ui()
 
 		memset(pwd, 0, 20);
 		
-		display.cp437(true);         // Use full 256 char 'Code Page 437' font
+		//display.cp437(true);         // Use full 256 char 'Code Page 437' font
 		while(curnet.password == "")
 		{
 			blink = (blink+1)%20;
-			display.clearDisplay();
+			display.fillScreen(TFT_BLACK);
 			display.setCursor(0, 0);
-			display.setTextColor(SSD1306_WHITE);
+			display.setTextColor(TFT_WHITE);
 			display.println("Enter Password for");
 			display.println(curnet.ssid);
-			display.drawFastHLine(0,18,128,SSD1306_WHITE);
+			display.drawFastHLine(0,18,128,TFT_WHITE);
 			display.setCursor(0, 20);
 			display.println(pwd);
-			display.drawFastHLine(xc*6,30,6, (blink/10) ? SSD1306_WHITE : SSD1306_BLACK);
-			display.drawFastHLine(38,18,128,SSD1306_WHITE);
+			display.drawFastHLine(xc*6,30,6, (blink/10) ? TFT_WHITE : TFT_BLACK);
+			display.drawFastHLine(38,18,128,TFT_WHITE);
 			display.setCursor(0, 40);
 			display.write(24);
 			display.write(32);
@@ -308,7 +308,7 @@ bool get_network_ui()
 			display.write(26);
 			display.println(" - Move cursor");
 			display.println("* # - Case / Symbol");
-			display.display();
+			//display.display();
 
 			if (GetRemoteCode()) 
 			{
@@ -476,7 +476,7 @@ void start_ap_server()
 	display.print("Setup WiFi Network\nAP: ");
 	display.println(AP_SSID);
 	display.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());
-	display.display();
+	//display.display();
 }
 
 void start_radio_server()
