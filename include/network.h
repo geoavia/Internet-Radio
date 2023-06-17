@@ -103,9 +103,9 @@ void remove_network(int index)
 bool connect_ssid(String ssid, String password)
 {
 	DisplayHeader();
-	display.println("Connecting to");
-	display.println(ssid);
-	//display.display();
+	tft.println("Connecting to");
+	tft.println(ssid);
+	
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 	WiFi.begin(ssid.c_str(), password.c_str());
@@ -113,23 +113,23 @@ bool connect_ssid(String ssid, String password)
 	while (!WiFi.isConnected())
 	{
 		delay(500);
-		display.print(".");
-		//display.display();
+		tft.print(".");
+		
 		Serial.print(".");
 		tries--;
 		if (tries == 0)
 		{
 			Serial.println("");
-			display.println("\nConnection Error!");
-			//display.display();
+			tft.println("\nConnection Error!");
+			
 			WiFi.disconnect();
 			delay(1000);
 			return false;
 		}
 	}
 	Serial.println("");
-	display.println("\nConnected");
-	//display.display();
+	tft.println("\nConnected");
+	
 	//delay(1000);
 	return true;
 }
@@ -141,10 +141,10 @@ void list_networks()
 	Serial.println("done");
 	if (n_SSID == 0)
 	{
-		display.setTextSize(1);
-		display.setTextColor(TFT_WHITE);
-		display.println("WiFi not detected!");
-		//display.display();
+		tft.setTextSize(1);
+		tft.setTextColor(TFT_WHITE);
+		tft.println("WiFi not detected!");
+		
 
 		Serial.println("No networks found");
 	}
@@ -188,31 +188,26 @@ bool want_display_ui()
 	bool dui = false; // DUI - Display UI :)
 	while (true) 
 	{
-		display.fillScreen(TFT_BLACK);
-		display.setCursor(0, 0);
-		display.setTextColor(TFT_WHITE);
-		display.println("WiFi Setup method");
-		display.drawFastHLine(0,10,128,TFT_WHITE);
-		display.setCursor(0, 12);
-		display.setTextWrap(false);
+		tft.fillScreen(TFT_BLACK);
+		tft.setCursor(0, 0);
+		tft.setTextColor(TFT_WHITE);
+		tft.println("WiFi Setup method");
+
+		tft.setCursor(0, 20);
+		tft.setTextWrap(false);
 
 		// method: web - default & easy
-		if (!dui) display.setTextColor(TFT_BLACK, TFT_WHITE);
-		else display.setTextColor(TFT_WHITE, TFT_BLACK);
-		display.println("1. Web based Setup");
+		if (!dui) tft.setTextColor(TFT_BLACK, TFT_WHITE);
+		else tft.setTextColor(TFT_WHITE, TFT_BLACK);
+		tft.println("1. Web based Setup");
 		// method: display - more finicky
-		if (dui) display.setTextColor(TFT_BLACK, TFT_WHITE);
-		else display.setTextColor(TFT_WHITE, TFT_BLACK);
-		display.println("2. Display UI Setup");
-
-		//display.display();
-
-		if (GetRemoteCode()) 
-		{
-			if ((RemoteCode == KEY_UP || RemoteCode == KEY_DOWN) && !IsRepeat) dui = !dui;
-			if (RemoteCode == KEY_OK && !IsRepeat) break;
-		}
-		delay(10);
+		if (dui) tft.setTextColor(TFT_BLACK, TFT_WHITE);
+		else tft.setTextColor(TFT_WHITE, TFT_BLACK);
+		tft.println("2. Display UI Setup");
+		
+		while (!GetRemoteCode() || IsRepeat) delay(10); 
+		if ((RemoteCode == KEY_UP || RemoteCode == KEY_DOWN) && !IsRepeat) dui = !dui;
+		if (RemoteCode == KEY_OK && !IsRepeat) break;
 	}
 	return dui;
 }
@@ -237,42 +232,41 @@ bool get_network_ui()
 	// List Networks UI
 	while(curnet.ssid == "")
 	{
-		display.fillScreen(TFT_BLACK);
-		display.setCursor(0, 0);
-		display.setTextColor(TFT_WHITE);
-		display.println("Select WiFi Network");
-		display.drawFastHLine(0,10,128,TFT_WHITE);
-		display.setCursor(0, 12);
-		display.setTextWrap(false);
+		tft.fillScreen(TFT_BLACK);
+		tft.setCursor(0, 0);
+		tft.setTextColor(TFT_WHITE);
+		tft.println("Select WiFi Network");
+
+		tft.setCursor(0, 20);
+		tft.setTextWrap(false);
 		for (int y = 0; (y0 + y) < n_SSID && y < 6; y++)
 		{
-			if (yc == y) display.setTextColor(TFT_BLACK, TFT_WHITE);
-			else display.setTextColor(TFT_WHITE, TFT_BLACK);
-			display.print("  ");
-			//display.print((WiFi.encryptionType(y0 + y) == WIFI_AUTH_OPEN) ? "  " : "* ");
-			display.println(WiFi.SSID(y0 + y));
+			if (yc == y) tft.setTextColor(TFT_BLACK, TFT_WHITE);
+			else tft.setTextColor(TFT_WHITE, TFT_BLACK);
+			tft.print("  ");
+			//tft.print((WiFi.encryptionType(y0 + y) == WIFI_AUTH_OPEN) ? "  " : "* ");
+			tft.println(WiFi.SSID(y0 + y));
 			DisplayRSSI(0, 10+(y+1)*8, WiFi.RSSI(y0 + y), ((yc == y) ? TFT_BLACK : TFT_WHITE));
 		}
-		//display.display();
+		
 
-		if (GetRemoteCode()) 
+		while (!GetRemoteCode() || IsRepeat) delay(10); 
+		if (RemoteCode == KEY_UP && !IsRepeat)
 		{
-			if (RemoteCode == KEY_UP && !IsRepeat)
-			{
-				if (yc > 0) yc--;
-				else if (yc == 0 && y0 > 0) y0--;
-			}
-			if (RemoteCode == KEY_DOWN && !IsRepeat)
-			{
-				if (yc < 5 && (yc + 1) < n_SSID) yc++;
-				else if (yc == 5 && y0 + 6 < n_SSID) y0++;
-			}
-			if (RemoteCode == KEY_OK && !IsRepeat)
-			{
-				curnet.ssid = WiFi.SSID(y0 + yc);
-			}
+			if (yc > 0) yc--;
+			else if (yc == 0 && y0 > 0) y0--;
+			//else yc == y0 = 0;
 		}
-		delay(10);
+		if (RemoteCode == KEY_DOWN && !IsRepeat)
+		{
+			if (yc < 5 && (yc + 1) < n_SSID) yc++;
+			else if (yc == 5 && y0 + 6 < n_SSID) y0++;
+			else yc = y0 = 0;
+		}
+		if (RemoteCode == KEY_OK && !IsRepeat)
+		{
+			curnet.ssid = WiFi.SSID(y0 + yc);
+		}
 	}
 
 	// Enter Password UI
@@ -284,33 +278,33 @@ bool get_network_ui()
 
 		memset(pwd, 0, 20);
 		
-		//display.cp437(true);         // Use full 256 char 'Code Page 437' font
+		//tft.cp437(true);         // Use full 256 char 'Code Page 437' font
 		while(curnet.password == "")
 		{
 			blink = (blink+1)%20;
-			display.fillScreen(TFT_BLACK);
-			display.setCursor(0, 0);
-			display.setTextColor(TFT_WHITE);
-			display.println("Enter Password for");
-			display.println(curnet.ssid);
-			display.drawFastHLine(0,18,128,TFT_WHITE);
-			display.setCursor(0, 20);
-			display.println(pwd);
-			display.drawFastHLine(xc*6,30,6, (blink/10) ? TFT_WHITE : TFT_BLACK);
-			display.drawFastHLine(38,18,128,TFT_WHITE);
-			display.setCursor(0, 40);
-			display.write(24);
-			display.write(32);
-			display.write(25);
-			display.println(" - Change letter");
-			display.write(27);
-			display.write(32);
-			display.write(26);
-			display.println(" - Move cursor");
-			display.println("* # - Case / Symbol");
-			//display.display();
+			tft.fillScreen(TFT_BLACK);
+			tft.setCursor(0, 0);
+			tft.setTextColor(TFT_WHITE);
+			tft.println("Enter Password for");
+			tft.println(curnet.ssid);
+			tft.drawFastHLine(0,18,128,TFT_WHITE);
+			tft.setCursor(0, 20);
+			tft.println(pwd);
+			tft.drawFastHLine(xc*6,30,6, (blink/10) ? TFT_WHITE : TFT_BLACK);
+			tft.drawFastHLine(38,18,128,TFT_WHITE);
+			tft.setCursor(0, 40);
+			tft.write(24);
+			tft.write(32);
+			tft.write(25);
+			tft.println(" - Change letter");
+			tft.write(27);
+			tft.write(32);
+			tft.write(26);
+			tft.println(" - Move cursor");
+			tft.println("* # - Case / Symbol");
+			
 
-			if (GetRemoteCode()) 
+			if (GetRemoteCode())
 			{
 				if (RemoteCode == KEY_1) xc = shift_chr(pwd, xc,'1');
 				if (RemoteCode == KEY_2) xc = shift_chr(pwd, xc,'2');
@@ -473,10 +467,10 @@ void start_ap_server()
 	Serial.println("AP HTTP server started");
 
 	DisplayHeader();
-	display.print("Setup WiFi Network\nAP: ");
-	display.println(AP_SSID);
-	display.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());
-	//display.display();
+	tft.print("Setup WiFi Network\nAP: ");
+	tft.println(AP_SSID);
+	tft.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());
+	
 }
 
 void start_radio_server()
@@ -641,7 +635,7 @@ void NetworkInit()
 	WiFi.disconnect();
 	delay(100);
 
-	load_networks();
+	//load_networks();
 	connect_network();
 	start_radio_server();
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
