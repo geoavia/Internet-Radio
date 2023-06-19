@@ -474,7 +474,9 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 </form><br>)===";
 
 		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-<input type="range" name="volume" min="0" max="100" value=")===";
+<input type="range" name="volume" min="0" max=")===";
+		html += MAX_VOLUME;
+		html += "\" value=\"";
 		html += PlayerVolume;
 		html += "\">";
 		html += "</form><br>";

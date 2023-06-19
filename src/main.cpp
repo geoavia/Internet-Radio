@@ -12,7 +12,7 @@
 // state auto save interval
 #define AUTOSAVE_INTERVAL_MS 9000
 
-#define BUTTON_PIN_BITMASK (0x800000000) // 2^GPIO
+#define BUTTON_PIN_BITMASK (0x200000000) // 2^GPIO
 
 RTC_DATA_ATTR int bootCount = 0;
 
@@ -36,7 +36,7 @@ void print_wakeup_reason()
 void print_GPIO_wake_up()
 {
   uint64_t GPIO_reason = esp_sleep_get_ext1_wakeup_status();
-  Serial.printf("GPIO that triggered the wake up: GPIO %lx\n", GPIO_reason);
+  Serial.printf("GPIO that triggered the wake up: GPIO %lX\n", GPIO_reason);
 }
 
 void setup()
@@ -50,7 +50,7 @@ void setup()
 	// This can be set in the IDE no need for ext library
 	// system_update_cpu_freq(160);
 
-	Serial.println("\nInternet Radio, (c) GGM, 2022");
+	Serial.println("\nInternet Radio, (c) GGM, 2023");
 
 	ButtonsInit();
 	RemoteInit();
@@ -111,7 +111,8 @@ void loop()
 			}
 			else
 			{
-				if (IsRemote) DisplayCurrentMode(DM_NORMAL);
+				if (isDisplayDimmed()) DisplayDim(false);
+				else if (IsRemote) DisplayCurrentMode(DM_NORMAL);
 				else {
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);

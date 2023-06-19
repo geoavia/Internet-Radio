@@ -55,6 +55,12 @@ void DisplayInit()
 	Serial.println("Done");
 }
 
+bool isDisplayDimmed()
+{
+	return dimmed;
+}
+
+
 void DisplayDim(bool dim)
 {
 	if (dimmed != dim)
