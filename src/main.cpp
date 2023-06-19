@@ -72,17 +72,17 @@ void loop()
 			if (PlayerVolume > 0) 
 			{
 				asyncVolume = --PlayerVolume;
-				player.setVolume(PlayerVolume);
+				audio.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
 				SetStateChanged();
 			}
 		}
 		if (RemoteCode == KEY_RIGHT)
 		{
-			if (PlayerVolume < 100) 
+			if (PlayerVolume < MAX_VOLUME) 
 			{
 				asyncVolume = ++PlayerVolume;
-				player.setVolume(PlayerVolume);
+				audio.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
 				SetStateChanged();
 			}
@@ -135,5 +135,7 @@ void loop()
 	NetworkJob();
 	PlayerJob();
 
+
+	audio.loop();
 	//delay(50);
 }

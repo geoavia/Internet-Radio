@@ -3,7 +3,7 @@
 
 #include "main.hpp"
 
-WiFiClient client;
+//WiFiClient client;
 AsyncWebServer server(80);
 
 // load all saved wifi credentials
@@ -358,27 +358,6 @@ bool get_network_ui()
 	return false;
 }
 
-bool NetworkConnectRadioUrl(String radio_url)
-{
-	URL url;
-	parseURL(radio_url, &url);
-	Serial.print("Connecting ");
-	Serial.print(url.host);
-	Serial.print(":");
-	Serial.print(url.port);
-	Serial.print(url.path);
-	Serial.println("...");
-	if (client.connect(url.host.c_str(), url.port))
-	{
-		client.print(String("GET ") + url.path + " HTTP/1.1\r\n" +
-			"Host: " + url.host + "\r\n" +
-			//"Icy-MetaData: 1\r\n" +
-			"Connection: close\r\n\r\n");
-		return true;
-	}
-	return false;
-}
-
 void handle_NotFound(AsyncWebServerRequest *request)
 {
 	request->send(404, "text/plain", "Not found");
@@ -647,9 +626,8 @@ void NetworkJob()
 	{
 		if (CurrentStation.url != previousUrl)
 		{
-			if (NetworkConnectRadioUrl(CurrentStation.url))
+			if (audio.connecttohost(CurrentStation.url.c_str()))
 			{
-				circBuffer.flush();
 				previousUrl = CurrentStation.url;
 				FindStationByUrl(CurrentStation.url, CurrentStation);
 				DisplayCurrentMode(DM_NORMAL);
@@ -657,23 +635,26 @@ void NetworkJob()
 			}
 		}
 
-		if (!client.connected())
-		{
-			// reconnecting
-			NetworkConnectRadioUrl(CurrentStation.url);
-		}
+		// if (!client.connected())
+		// {
+		// 	// reconnecting
+		// 	NetworkConnectRadioUrl(CurrentStation.url);
+		// }
 
-		if (client.available() > 0)
-		{
-			uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
-			player.playChunk(mp3buff, bytesread);
+		// if (client.available() > 0)
+		// {
+		// 	uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
 
-			/*if (circBuffer.room() >= MP3_BUFFER_SIZE) 
-			{
-				uint8_t bytesread = client.read((uint8_t *)readBuffer, READ_BUFFER_SIZE);
-				circBuffer.write(readBuffer, bytesread);
-			}*/
-		}
+		// 	audio.connecttohost(stations[cur_station].c_str());
+
+		// 	//player.playChunk(mp3buff, bytesread);
+
+		// 	/*if (circBuffer.room() >= MP3_BUFFER_SIZE) 
+		// 	{
+		// 		uint8_t bytesread = client.read((uint8_t *)readBuffer, READ_BUFFER_SIZE);
+		// 		circBuffer.write(readBuffer, bytesread);
+		// 	}*/
+		// }
 	}
 
 }

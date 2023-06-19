@@ -7,7 +7,7 @@
 
 #include <IRremote.hpp>
 
-#define IR_RECEIVE_PIN 35
+#define IR_RECEIVE_PIN 21
 
 #define BUTTON_PIN_OK 0
 #define BUTTON_PIN_UP 35
