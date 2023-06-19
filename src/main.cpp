@@ -57,7 +57,7 @@ void setup()
 	DisplayInit();
 	DataInit();
 	NetworkInit();
-	//PlayerInit();
+	PlayerInit();
 
 	// standalone cpu task 
 	//StartPlayerTask();
@@ -132,8 +132,8 @@ void loop()
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
 	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
 
-	//NetworkJob();
-	//PlayerJob();
+	NetworkJob();
+	PlayerJob();
 
 	//delay(50);
 }

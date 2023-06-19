@@ -11,9 +11,20 @@
 
 #include <SPIFFS.h>
 
-#include <VS1053.h>
+#include <AudioFileSource.h>
+#include <AudioFileSourceBuffer.h>
+#include <AudioFileSourceICYStream.h>
+#include <AudioGeneratorTalkie.h>
+#include <AudioGeneratorMP3.h>
+#include <AudioOutputI2S.h>
+#include <AudioOutputI2SNoDAC.h>
 
-#include "cbuf.h"
+#include <spiram-fast.h>
+
+#include "frame.h"
+#include "background.h"
+#include "Orbitron_Medium_20.h"
+
 #include "time.h"
 
 const char* ntpServer = "pool.ntp.org";
@@ -28,7 +39,6 @@ VS1053 player(VS1053_CS, VS1053_DCS, VS1053_DREQ);
 
 const char *STATIONS_FILE_NAME = "/stations.csv";
 const char *STATE_FILE_NAME = "/state.csv";
-const char *OTAUP_FILE_NAME = "/otaup.up";
 
 #define MAX_STATIONS 128
 
