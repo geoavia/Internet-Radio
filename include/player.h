@@ -10,7 +10,7 @@ void PlayerInit()
 	// otherwise the system might not start up correctly
 	//delay(3000);
 
-	SPI.begin();
+	SPI.begin(33,25,26,27);
 
 	player.begin();
 	player.loadDefaultVs1053Patches();

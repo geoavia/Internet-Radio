@@ -34,9 +34,42 @@ DISPLAY_MODE DisplayMode = DM_NORMAL;
 #define IDLE_SAVER_MS 30000
 
 
+void DisplayInit()
+{
+	Serial.print("Display Init...");
+
+	// enable display from battery
+	//pinMode(15,OUTPUT);
+	//digitalWrite(15,1);
+
+	tft.init();
+
+	tft.setRotation(1);
+
+	pinMode(4, OUTPUT);
+	ledcSetup(0, 5000, 8); // 0-15, 5000, 8
+	ledcAttachPin(TFT_BL, 0); // TFT_BL, 0 - 15	
+
+	ledcWrite(0, 150);
+	
+	Serial.println("Done");
+}
+
+void DisplayDim(bool dim)
+{
+	if (dimmed != dim)
+	{
+		//tft.dim(dim);
+		//digitalWrite(TFT_BL, !dim);
+		ledcWrite(0, dimmed ? 150 : 5);
+		dimmed = dim;
+	}
+}
+
 void DisplayZZZ()
 {
-	tft.fillScreen(TFT_WHITE);
+	tft.fillScreen(TFT_BLACK);
+	tft.setTextColor(TFT_WHITE);
 	//tft.stopscroll();
 	tft.setTextSize(4);
 	tft.setCursor(30, 25);
@@ -62,16 +95,6 @@ void DisplayZZZ()
 	//
 }
 
-void DisplayDim(bool dim)
-{
-	if (dimmed != dim)
-	{
-		//tft.dim(dim);
-		digitalWrite(TFT_BL, !dim);
-		dimmed = dim;
-	}
-}
-
 void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 {
 	int nb = Get4BarsFromRSSI(rssi);
@@ -90,7 +113,7 @@ void DisplayHeader()
 	tft.println(F("WWW Radio"));
 	tft.setTextSize(2);
 	tft.println(F("Version: 1.1"));
-	tft.setCursor(0, 32);
+	tft.setCursor(0, 40);
 
 
 	
@@ -100,6 +123,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
+		Serial.println("----------------DM_SIMPLE");
 		tft.fillScreen(TFT_BLACK);
 		tft.setTextWrap(false);
 		tft.setTextSize(2);
@@ -122,9 +146,10 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 	} 
 	else if (mode == DM_NORMAL) 
 	{
+		Serial.println("----------------DM_NORMAL");
 		//tft.stopscroll();
 		DisplayHeader();
-		tft.setTextWrap(true);
+		//tft.setTextWrap(true);
 		tft.print(">> Playing ");
 		if (CurrentStation.name == "Noname")
 		{
@@ -138,13 +163,14 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.println(CurrentStation.name); // todo get from icy-metadata
 		
 		tft.setTextWrap(false);
-		tft.drawFastHLine(0,52,128,TFT_WHITE);
-		tft.setCursor(0, 56);
+		tft.drawFastHLine(0,80,128,TFT_WHITE);
+		tft.setCursor(0, 86);
 		tft.printf("IP: %s\n", WiFi.localIP().toString().c_str());
 		
 	}
 	else if (mode == DM_TIME) 
 	{
+		Serial.println("----------------DM_TIME");
 		struct tm timeinfo;
 		if (getLocalTime(&timeinfo)) 
 		{
@@ -173,16 +199,6 @@ void DisplayVolume(int volume)
 	tft.setCursor(2, 56);
 	tft.print(volume);
 	
-}
-
-void DisplayInit()
-{
-	Serial.print("Display Init...");
-	tft.init();
-
-	tft.setRotation(1);
-	
-	Serial.println("Done");
 }
 
 void Screensaver(bool ss)

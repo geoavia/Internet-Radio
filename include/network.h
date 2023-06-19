@@ -635,7 +635,7 @@ void NetworkInit()
 	WiFi.disconnect();
 	delay(100);
 
-	//load_networks();
+	load_networks();
 	connect_network();
 	start_radio_server();
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
