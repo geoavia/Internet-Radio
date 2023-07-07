@@ -474,7 +474,7 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 </form><br>)===";
 
 		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-<input type="range" name="volume" min="0" max="100" value=")===";
+<input type="range" name="volume" min="0" max="21" value=")===";
 		html += PlayerVolume;
 		html += "\">";
 		html += "</form><br>";
@@ -626,6 +626,7 @@ void NetworkJob()
 	{
 		if (CurrentStation.url != previousUrl)
 		{
+			audio.stopSong();
 			if (audio.connecttohost(CurrentStation.url.c_str()))
 			{
 				previousUrl = CurrentStation.url;

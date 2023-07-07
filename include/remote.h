@@ -9,9 +9,9 @@
 
 #define IR_RECEIVE_PIN 21
 
-#define BUTTON_PIN_OK 0
+#define BUTTON_PIN_OK 33
 #define BUTTON_PIN_UP 35
-#define BUTTON_PIN_DOWN 32
+#define BUTTON_PIN_DOWN 34
 #define BUTTON_PIN_LEFT 13
 #define BUTTON_PIN_RIGHT 14
 

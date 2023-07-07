@@ -44,7 +44,7 @@ void DisplayInit()
 
 	tft.init();
 
-	tft.setRotation(1);
+	tft.setRotation(3);
 
 	pinMode(4, OUTPUT);
 	ledcSetup(0, 5000, 8); // 0-15, 5000, 8
