@@ -15,6 +15,9 @@
 #define ADC_EN          14
 #define ADC_PIN         34
 
+#define HEADER_FONT	"OCRAStd-24"
+#define TEXT_FONT	"Bahnschrift-24"
+
 //initialize the display
 TFT_eSPI tft(TFT_WIDTH, TFT_HEIGHT);
 
@@ -52,6 +55,7 @@ void DisplayInit()
 
 	ledcWrite(0, 150);
 	
+
 	Serial.println("Done");
 }
 
@@ -112,14 +116,18 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
+	tft.loadFont(HEADER_FONT);
+
+
 	tft.fillScreen(TFT_BLACK);
 	tft.setTextSize(3);
-	tft.setTextColor(TFT_WHITE);
+	tft.setTextColor(TFT_BLUE);
 	tft.setCursor(0, 0);
 	tft.println(F("WWW Radio"));
+	tft.setTextColor(TFT_GREEN);
 	tft.setTextSize(2);
 	tft.println(F("Version: 1.1"));
-	tft.setCursor(0, 40);
+	tft.setCursor(0, 50);
 
 
 	
@@ -129,6 +137,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
+		tft.loadFont(HEADER_FONT);
 		Serial.println("----------------DM_SIMPLE");
 		tft.fillScreen(TFT_BLACK);
 		tft.setTextWrap(false);
@@ -144,8 +153,9 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.print("Station ");
 			tft.println(GetCurrentStationIndex());
 		}
-		tft.drawFastHLine(0,25,128,TFT_WHITE);
+		tft.drawFastHLine(0,25,240,TFT_WHITE);
 		tft.setCursor(0, 32);
+		tft.setTextColor(TFT_YELLOW);
 		tft.println(CurrentStation.name); // todo get from icy-metadata
 		
 		//tft.startscrollright(0x00,0x04);
@@ -156,6 +166,8 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		//tft.stopscroll();
 		DisplayHeader();
 		//tft.setTextWrap(true);
+		tft.loadFont(TEXT_FONT);
+		tft.setTextColor(TFT_WHITE);
 		tft.print(">> Playing ");
 		if (CurrentStation.name == "Noname")
 		{
@@ -166,11 +178,13 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.print("Station ");
 			tft.println(GetCurrentStationIndex());
 		}
+		tft.setTextColor(TFT_YELLOW);
 		tft.println(CurrentStation.name); // todo get from icy-metadata
 		
 		tft.setTextWrap(false);
-		tft.drawFastHLine(0,80,128,TFT_WHITE);
-		tft.setCursor(0, 86);
+		tft.drawFastHLine(0,100,240,TFT_YELLOW);
+		tft.setTextColor(TFT_WHITE);
+		tft.setCursor(0, 105);
 		tft.printf("IP: %s\n", WiFi.localIP().toString().c_str());
 		
 	}
@@ -180,6 +194,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		struct tm timeinfo;
 		if (getLocalTime(&timeinfo)) 
 		{
+			tft.loadFont(HEADER_FONT);
 			//tft.stopscroll();
 			tft.fillScreen(TFT_BLACK);
 			tft.setTextWrap(false);
@@ -188,6 +203,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.setCursor(6, 4);
 			tft.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
 			tft.setTextSize(2);
+			tft.setTextColor(TFT_GREEN);
 			tft.setCursor(5, 48);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			
@@ -200,7 +216,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 void DisplayVolume(int volume)
 {
 	if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
-	tft.fillRect(0, 54, 128, 10, TFT_BLACK);
+	tft.fillRect(0, 54, 240, 10, TFT_BLACK);
 	tft.fillRect(24, 58, volume, 4, TFT_WHITE);
 	tft.setCursor(2, 56);
 	tft.print(volume);
