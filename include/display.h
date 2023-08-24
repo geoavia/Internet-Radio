@@ -122,6 +122,7 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
+	tft.setTextSize(1);
 	tft.fillScreen(TFT_BLACK);
 	tft.setTextColor(TFT_BLUE);
 	tft.drawString("WWW Radio", 0, 0, 4);
@@ -129,8 +130,8 @@ void DisplayHeader()
 	tft.drawString("Version: 1.1", 0, 26, 2);
 	tft.setCursor(0, 50);
 
-	tft.setTextFont(4);
-	tft.setTextSize(1);
+	tft.setTextFont(1);
+	tft.setTextSize(2);
 }
 
 void DisplayCurrentMode(DISPLAY_MODE mode)
@@ -165,6 +166,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		Serial.println("----------------DM_NORMAL");
 		//tft.stopscroll();
 		DisplayHeader();
+		tft.setTextSize(1);
 		//tft.setTextWrap(true);
 		tft.setTextFont(4);
 		tft.setTextColor(TFT_WHITE);
