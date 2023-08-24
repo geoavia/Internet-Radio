@@ -15,9 +15,6 @@
 #define ADC_EN          14
 #define ADC_PIN         34
 
-#define HEADER_FONT	"OCRAStd-24"
-#define TEXT_FONT	"Bahnschrift-24"
-
 //initialize the display
 TFT_eSPI tft(TFT_WIDTH, TFT_HEIGHT);
 
@@ -36,6 +33,15 @@ DISPLAY_MODE DisplayMode = DM_NORMAL;
 #define IDLE_DIMM_MS 3000
 #define IDLE_SAVER_MS 30000
 
+// Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
+// Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
+// Font 4. Medium 26 pixel high font, needs ~5848 bytes in FLASH, 96 characters
+
+// Font 6. Large 48 pixel font, needs ~2666 bytes in FLASH, only characters 1234567890:-.apm
+// Font 7. 7 segment 48 pixel font, needs ~2438 bytes in FLASH, only characters 1234567890:-.
+// Font 8. Large 75 pixel font needs ~3256 bytes in FLASH, only characters 1234567890:-.
+
+// FreeFonts. Include access to the 48 Adafruit_GFX free fonts FF1 to FF48 and custom fonts
 
 void DisplayInit()
 {
@@ -116,32 +122,26 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
-	tft.loadFont(HEADER_FONT);
-
-
 	tft.fillScreen(TFT_BLACK);
-	tft.setTextSize(3);
 	tft.setTextColor(TFT_BLUE);
-	tft.setCursor(0, 0);
-	tft.println(F("WWW Radio"));
+	tft.drawString("WWW Radio", 0, 0, 4);
 	tft.setTextColor(TFT_GREEN);
-	tft.setTextSize(2);
-	tft.println(F("Version: 1.1"));
+	tft.drawString("Version: 1.1", 0, 26, 2);
 	tft.setCursor(0, 50);
 
-
-	
+	tft.setTextFont(4);
+	tft.setTextSize(1);
 }
 
 void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
-		tft.loadFont(HEADER_FONT);
+		tft.setTextFont(4);
 		Serial.println("----------------DM_SIMPLE");
 		tft.fillScreen(TFT_BLACK);
 		tft.setTextWrap(false);
-		tft.setTextSize(2);
+		//tft.setTextSize(2);
 		tft.setTextColor(TFT_WHITE);
 		tft.setCursor(0, 2);
 		if (CurrentStation.name == "Noname")
@@ -166,7 +166,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		//tft.stopscroll();
 		DisplayHeader();
 		//tft.setTextWrap(true);
-		tft.loadFont(TEXT_FONT);
+		tft.setTextFont(4);
 		tft.setTextColor(TFT_WHITE);
 		tft.print(">> Playing ");
 		if (CurrentStation.name == "Noname")
@@ -194,17 +194,19 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		struct tm timeinfo;
 		if (getLocalTime(&timeinfo)) 
 		{
-			tft.loadFont(HEADER_FONT);
+			//tft.loadFont(HEADER_FONT);
 			//tft.stopscroll();
 			tft.fillScreen(TFT_BLACK);
-			tft.setTextWrap(false);
-			tft.setTextSize(4);
+			//tft.setTextWrap(false);
+			//tft.setTextSize(4);
 			tft.setTextColor(TFT_WHITE);
 			tft.setCursor(6, 4);
+			tft.setTextFont(7);
 			tft.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
-			tft.setTextSize(2);
+			//tft.setTextSize(2);
 			tft.setTextColor(TFT_GREEN);
-			tft.setCursor(5, 48);
+			tft.setCursor(0, 50);
+			tft.setTextFont(6);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			
 		}

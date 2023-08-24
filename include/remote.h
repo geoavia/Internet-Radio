@@ -4,6 +4,7 @@
 #define SEND_PWM_BY_TIMER // to disable warning
 #define RECORD_GAP_MICROS 12000
 #define NO_LED_FEEDBACK_CODE
+#define DECODE_NEC
 
 #include <IRremote.hpp>
 
