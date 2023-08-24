@@ -202,13 +202,13 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			//tft.setTextWrap(false);
 			//tft.setTextSize(4);
 			tft.setTextColor(TFT_WHITE);
-			tft.setCursor(6, 4);
+			tft.setCursor(50, 4);
 			tft.setTextFont(7);
 			tft.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
 			//tft.setTextSize(2);
 			tft.setTextColor(TFT_GREEN);
-			tft.setCursor(0, 50);
-			tft.setTextFont(6);
+			tft.setCursor(50, 60);
+			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			
 		}
