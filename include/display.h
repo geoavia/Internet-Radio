@@ -4,6 +4,8 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 
+#include "images.h"
+
 #ifndef TFT_DISPOFF
 #define TFT_DISPOFF 0x28
 #endif
@@ -122,12 +124,14 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
-	tft.setTextSize(1);
 	tft.fillScreen(TFT_BLACK);
-	tft.setTextColor(TFT_BLUE);
-	tft.drawString("WWW Radio", 0, 0, 4);
+	tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
+
+	tft.setTextSize(1);
+	// tft.setTextColor(TFT_BLUE);
+	// tft.drawString("WWW Radio", 0, 0, 4);
 	tft.setTextColor(TFT_GREEN);
-	tft.drawString("Version: 1.1", 0, 26, 2);
+	tft.drawString("ver 1.1", 180, 15, 2);
 	tft.setCursor(0, 50);
 
 	tft.setTextFont(1);
