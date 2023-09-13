@@ -79,7 +79,7 @@ bool oldBstate = false;
 
 void ButtonsInit()
 {
-	//pinMode(BUTTON_PIN_OK, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_OK, INPUT_PULLDOWN);
 	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_LEFT, INPUT_PULLUP);
