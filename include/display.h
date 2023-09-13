@@ -4,6 +4,8 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 
+#include "images.h"
+
 #ifndef TFT_DISPOFF
 #define TFT_DISPOFF 0x28
 #endif
@@ -33,6 +35,15 @@ DISPLAY_MODE DisplayMode = DM_NORMAL;
 #define IDLE_DIMM_MS 3000
 #define IDLE_SAVER_MS 30000
 
+// Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
+// Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
+// Font 4. Medium 26 pixel high font, needs ~5848 bytes in FLASH, 96 characters
+
+// Font 6. Large 48 pixel font, needs ~2666 bytes in FLASH, only characters 1234567890:-.apm
+// Font 7. 7 segment 48 pixel font, needs ~2438 bytes in FLASH, only characters 1234567890:-.
+// Font 8. Large 75 pixel font needs ~3256 bytes in FLASH, only characters 1234567890:-.
+
+// FreeFonts. Include access to the 48 Adafruit_GFX free fonts FF1 to FF48 and custom fonts
 
 void DisplayInit()
 {
@@ -52,6 +63,7 @@ void DisplayInit()
 
 	ledcWrite(0, 150);
 	
+
 	Serial.println("Done");
 }
 
@@ -113,26 +125,28 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 void DisplayHeader()
 {
 	tft.fillScreen(TFT_BLACK);
-	tft.setTextSize(3);
-	tft.setTextColor(TFT_WHITE);
-	tft.setCursor(0, 0);
-	tft.println(F("WWW Radio"));
+	tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
+
+	tft.setTextSize(1);
+	// tft.setTextColor(TFT_BLUE);
+	// tft.drawString("WWW Radio", 0, 0, 4);
+	tft.setTextColor(TFT_GREEN);
+	tft.drawString("ver 1.1", 180, 15, 2);
+	tft.setCursor(0, 50);
+
+	tft.setTextFont(1);
 	tft.setTextSize(2);
-	tft.println(F("Version: 1.1"));
-	tft.setCursor(0, 40);
-
-
-	
 }
 
 void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
+		tft.setTextFont(4);
 		Serial.println("----------------DM_SIMPLE");
 		tft.fillScreen(TFT_BLACK);
 		tft.setTextWrap(false);
-		tft.setTextSize(2);
+		//tft.setTextSize(2);
 		tft.setTextColor(TFT_WHITE);
 		tft.setCursor(0, 2);
 		if (CurrentStation.name == "Noname")
@@ -144,8 +158,9 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.print("Station ");
 			tft.println(GetCurrentStationIndex());
 		}
-		tft.drawFastHLine(0,25,128,TFT_WHITE);
+		tft.drawFastHLine(0,25,240,TFT_WHITE);
 		tft.setCursor(0, 32);
+		tft.setTextColor(TFT_YELLOW);
 		tft.println(CurrentStation.name); // todo get from icy-metadata
 		
 		//tft.startscrollright(0x00,0x04);
@@ -155,7 +170,10 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		Serial.println("----------------DM_NORMAL");
 		//tft.stopscroll();
 		DisplayHeader();
+		tft.setTextSize(1);
 		//tft.setTextWrap(true);
+		tft.setTextFont(4);
+		tft.setTextColor(TFT_WHITE);
 		tft.print(">> Playing ");
 		if (CurrentStation.name == "Noname")
 		{
@@ -166,11 +184,13 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.print("Station ");
 			tft.println(GetCurrentStationIndex());
 		}
+		tft.setTextColor(TFT_YELLOW);
 		tft.println(CurrentStation.name); // todo get from icy-metadata
 		
 		tft.setTextWrap(false);
-		tft.drawFastHLine(0,80,128,TFT_WHITE);
-		tft.setCursor(0, 86);
+		tft.drawFastHLine(0,100,240,TFT_YELLOW);
+		tft.setTextColor(TFT_WHITE);
+		tft.setCursor(0, 105);
 		tft.printf("IP: %s\n", WiFi.localIP().toString().c_str());
 		
 	}
@@ -180,15 +200,19 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		struct tm timeinfo;
 		if (getLocalTime(&timeinfo)) 
 		{
+			//tft.loadFont(HEADER_FONT);
 			//tft.stopscroll();
 			tft.fillScreen(TFT_BLACK);
-			tft.setTextWrap(false);
-			tft.setTextSize(4);
+			//tft.setTextWrap(false);
+			//tft.setTextSize(4);
 			tft.setTextColor(TFT_WHITE);
-			tft.setCursor(6, 4);
+			tft.setCursor(50, 4);
+			tft.setTextFont(7);
 			tft.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
-			tft.setTextSize(2);
-			tft.setCursor(5, 48);
+			//tft.setTextSize(2);
+			tft.setTextColor(TFT_GREEN);
+			tft.setCursor(50, 60);
+			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			
 		}
@@ -200,7 +224,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 void DisplayVolume(int volume)
 {
 	if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
-	tft.fillRect(0, 54, 128, 10, TFT_BLACK);
+	tft.fillRect(0, 54, 240, 10, TFT_BLACK);
 	tft.fillRect(24, 58, volume, 4, TFT_WHITE);
 	tft.setCursor(2, 56);
 	tft.print(volume);
