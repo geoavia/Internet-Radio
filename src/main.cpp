@@ -45,7 +45,7 @@ void setup()
 
 	print_wakeup_reason();
 	print_GPIO_wake_up();
-	esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ALL_LOW);
+	esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
 	// This can be set in the IDE no need for ext library
 	// system_update_cpu_freq(160);

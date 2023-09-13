@@ -7,9 +7,8 @@
 
 #include <IRremote.hpp>
 
-#define IR_RECEIVE_PIN 12
+#define IR_RECEIVE_PIN 17
 
-#define BUTTON_PIN_OK 33
 #define BUTTON_PIN_OK 33
 #define BUTTON_PIN_UP 35
 #define BUTTON_PIN_DOWN 34
@@ -79,7 +78,7 @@ bool oldBstate = false;
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_OK, INPUT_PULLUP);
+	//pinMode(BUTTON_PIN_OK, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_LEFT, INPUT_PULLUP);
@@ -90,7 +89,7 @@ bool ButtonsProcess()
 {
 	bool bstate = false;
 
-	if (digitalRead(BUTTON_PIN_OK) == LOW)
+	if (digitalRead(BUTTON_PIN_OK) == HIGH)
 	{
 		RemoteCode = KEY_OK;
 		bstate = true;
