@@ -223,10 +223,13 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 
 void DisplayVolume(int volume)
 {
-	if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
-	tft.fillRect(0, 54, 240, 10, TFT_BLACK);
-	tft.fillRect(24, 58, volume, 4, TFT_WHITE);
-	tft.setCursor(2, 56);
+	//if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
+	tft.fillRect(0, 115, 240, 20, TFT_BLACK);
+	tft.fillRect(25, 120, volume*10, 10, TFT_WHITE);
+
+	tft.setTextSize(1);
+	tft.setTextFont(2);
+	tft.setCursor(0, 116);
 	tft.print(volume);
 	
 }

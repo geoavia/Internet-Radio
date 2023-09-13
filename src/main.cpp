@@ -102,7 +102,7 @@ void loop()
 	{
 		SaveRadioState();
 		StateChanged = false;
-		if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
+		DisplayCurrentMode(DisplayMode);
 	}
 
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
