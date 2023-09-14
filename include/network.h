@@ -364,9 +364,6 @@ void handle_NotFound(AsyncWebServerRequest *request)
 }
 
 const char *AP_SSID = "Internet-Radio";
-const char *PARAM_MP3_URL = "mp3url";
-const char *PARAM_MP3_NAME = "mp3name";
-const char *PARAM_VOLUME = "volume";
 
 void start_ap_server()
 {
@@ -452,59 +449,87 @@ void start_ap_server()
 	
 }
 
-String TopMessage;
-
-String processor(const String& var)
-{
-	//Serial.println(var);
-	if (var == "TOP_MESSAGE") return TopMessage;
-	if (var == "CURRENT_URL") return CurrentStation.url;
-	if (var == "MAX_VOLUME") return String(MAX_VOLUME);
-	if (var == "CUR_VOLUME") return String(PlayerVolume);
-	if (var == "STATIONS_LIST")
-	{
-		String rows;
- 		for (uint i = 0; i < n_stations; i++)
-		{
-			if (CurrentStation.url == Stations[i].url) rows += "<tr class='curr'><td>";
-			else rows += "<tr><td>";
-			rows += i;
-			rows += "</td><td><a href=\"/get?mp3url=";
-			rows += EncodeUrl(Stations[i].url);
-			rows += "\">";
-			rows += Stations[i].name;
-			rows += "</td><td>";
-			rows += Stations[i].url;
-			rows += "</td><td>";
-			rows += "<a href=\"/del?mp3url=";
-			rows += EncodeUrl(Stations[i].url);
-			rows += "\">Remove</a></td></tr>";
-		}
-		Serial.println(rows);
-		return rows;
-	}
-
-	return String();
-}
-
 void start_radio_server()
 {
 	server.reset();
 
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		TopMessage = request->hasParam("msg") ? request->getParam("msg")->value() : "";
-		request->send(SPIFFS, "/template.html", "text/html", false, processor);
-	});
-
-	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam(PARAM_MP3_URL))
+		String html = html_header;
+		if (request->hasParam("msg")) 
 		{
-			String url = request->getParam(PARAM_MP3_URL)->value();
+			html += "<p><b>";
+			html += request->getParam("msg")->value();
+			html += "</b></p>";
+		}
+		html += "<div class='radio web'>";
+		html += "<p>Now listening: <b>";
+		html += CurrentStation.url;
+		html += "</b></p>";
+		html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
+&nbsp;<input type="submit" value="Play" name="play">&nbsp;
+Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" name="add">
+</form><br>)===";
+
+		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
+<input type="range" name="mp3vol" min="0" max=")===";
+		html += MAX_VOLUME;
+		html += "\" value=\"";
+		html += PlayerVolume;
+		html += "\">";
+		html += "</form><br>";
+
+		html += "<p>Playlist</p>";
+
+		html += "<table><tr><th>#</th><th>Station</th><th>URL</th><th></th></tr>";
+		for (uint i = 0; i < n_stations; i++)
+		{
+			if (CurrentStation.url == Stations[i].url) html += "<tr class='curr'><td>";
+			else html += "<tr><td>";
+			html += i;
+			html += "</td><td><a href=\"/get?mp3url=";
+			html += EncodeUrl(Stations[i].url);
+			html += "\">";
+			html += Stations[i].name;
+			html += "</td><td>";
+			html += Stations[i].url;
+			html += "</td><td>";
+			html += "<a href=\"/del?mp3url=";
+			html += EncodeUrl(Stations[i].url);
+			html += "\">Remove</a></td></tr>";
+
+		}
+		html += "</table></div><div class='radio fm'>";
+		html += "<p>Now listening: <b>";
+		html += String(100.9);
+		html += "</b></p>";
+		html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="fmfreq">
+&nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
+Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" name="add">
+</form><br>)===";
+
+		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
+<input type="range" name="fmvol" min="0" max=")===";
+		html += MAX_VOLUME;
+		html += "\" value=\"";
+		html += PlayerVolume;
+		html += "\">";
+		html += "</form><br>";
+
+		html += "<p>Playlist</p>";
+		html += "</div>";
+		html += html_footer;
+		request->send(200, "text/html", html);
+	});
+			
+	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (request->hasParam("mp3url"))
+		{
+			String url = request->getParam("mp3url")->value();
 			if (request->hasParam("add")) 
 			{
 				String name = "";
-				if (request->hasParam(PARAM_MP3_NAME))
-					name = request->getParam(PARAM_MP3_NAME)->value();
+				if (request->hasParam("mp3name"))
+					name = request->getParam("mp3name")->value();
 				name.trim();
 				if (name == "")
 				{
@@ -530,9 +555,9 @@ void start_radio_server()
 	});
 
 	server.on("/del", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam(PARAM_MP3_URL))
+		if (request->hasParam("mp3url"))
 		{
-			String url = request->getParam(PARAM_MP3_URL)->value();
+			String url = request->getParam("mp3url")->value();
 			RemoveStationByUrl(url);
 			SaveRadioStations();
 			request->redirect("/");
@@ -544,9 +569,9 @@ void start_radio_server()
 	});
 
 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam(PARAM_VOLUME))
+		if (request->hasParam("mp3vol"))
 		{
-			asyncVolume = request->getParam(PARAM_VOLUME)->value().toInt();
+			asyncVolume = request->getParam("mp3vol")->value().toInt();
 			delay(1000); // for Job to finish
 			request->redirect("/");
 		}

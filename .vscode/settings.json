@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "*.plg": "cpp"
+        "*.plg": "cpp",
+        "*.tcc": "cpp",
+        "system_error": "cpp",
+        "regex": "cpp"
     }
 }

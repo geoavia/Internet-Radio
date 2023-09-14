@@ -1,3 +1,44 @@
-.curr {
-    background-color: rgb(255, 139, 61);
+
+html {
+    background-color: lightgrey;
 }
+
+.radio {
+    background-color: white;
+    border-style: solid;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+}
+
+.radio.web {
+    border-color: orange;
+}
+
+.radio.web::before {
+    content: "WEB Radio";
+    display: block;
+    background-color: orange;
+    padding: 10px;
+}
+
+.radio.web .curr {
+    background-color: orange
+}
+
+
+.radio.fm {
+    border-color: lightseagreen
+}
+
+.radio.fm::before {
+    content: "FM Radio";
+    display: block;
+    background-color: lightseagreen;
+    padding: 10px;
+}
+
+.radio.fm .curr {
+    background-color: lightseagreen
+}
+
