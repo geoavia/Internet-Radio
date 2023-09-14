@@ -79,8 +79,8 @@ void DisplayDim(bool dim)
 	{
 		//tft.dim(dim);
 		//digitalWrite(TFT_BL, !dim);
-		ledcWrite(0, dimmed ? 150 : 5);
 		dimmed = dim;
+		ledcWrite(0, dim ? 5 : 150);
 	}
 }
 
@@ -90,22 +90,22 @@ void DisplayZZZ()
 	tft.setTextColor(TFT_WHITE);
 	//tft.stopscroll();
 	tft.setTextSize(4);
-	tft.setCursor(30, 25);
+	tft.setCursor(30, 30);
 	tft.print(F("Z"));
 	//
 	delay(500);
 	tft.setTextSize(3);
-	tft.setCursor(55, 15);
+	tft.setCursor(100, 30);
 	tft.print(F("Z"));
 	//
 	delay(500);
 	tft.setTextSize(2);
-	tft.setCursor(75, 5);
+	tft.setCursor(150, 30);
 	tft.print(F("Z"));
 	//
 	delay(500);
 	tft.setTextSize(1);
-	tft.setCursor(88, 0);
+	tft.setCursor(190, 30);
 	tft.print(F("Z"));
 	//
 	delay(500);

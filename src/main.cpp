@@ -27,6 +27,19 @@ void setup()
 
 	Serial.println("\nInternet Radio, (c) GGM, 2023");
 
+	UartInit();
+	// delay(1000);
+	// UartCommand("AT+VOL=", 15);
+	// delay(1000);
+	// UartCommand("AT+FRE=", 1039);
+	// delay(1000);
+	// UartCommand("AT+BANK=", 10);
+	// delay(3000);
+	// UartCommand("AT+FRE=", 997);
+
+	//return;
+
+
 	ButtonsInit();
 	RemoteInit();
 	DisplayInit();
@@ -40,6 +53,7 @@ void setup()
 
 void loop()
 {
+	//return;
 	if (GetRemoteCode())
 	{
 		if (RemoteCode == KEY_LEFT)
@@ -50,6 +64,7 @@ void loop()
 				audio.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
 				SetStateChanged();
+				UartCommand("AT+VOLD");
 			}
 		}
 		if (RemoteCode == KEY_RIGHT)
@@ -60,6 +75,7 @@ void loop()
 				audio.setVolume(PlayerVolume);
 				DisplayVolume(PlayerVolume);
 				SetStateChanged();
+				UartCommand("AT+VOLU");
 			}
 		}
 		if (RemoteCode == KEY_DOWN && !IsRepeat) NextStation(false);
@@ -92,6 +108,7 @@ void loop()
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);
 				}
+				UartCommand("AT+BANK=", 10);
 			}
 		}
 		if (RemoteCode == KEY_HTAG) DisplayCurrentMode(DM_TIME);
