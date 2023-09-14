@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="radio.css">
+    <title>Internet Radio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <p>Internet Radio Player</p>
+%TOP_MESSAGE%
+    <p>Now listening: <b>%CURRENT_URL%</b></p>
+    <form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
+        &nbsp;<input type="submit" value="Play" name="play">&nbsp;
+        Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" name="add">
+    </form><br>
+    <form action="/vol"><input type="submit" value="Set Volume">&nbsp;
+        <input type="range" min="0" max="%MAX_VOLUME%" value="%CUR_VOLUME%" name="volume">
+    </form><br>
+    <p>Playlist</p>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Station</th>
+            <th>URL</th>
+            <th></th>
+        </tr>
+%STATIONS_LIST%
+    </table>
+</body>
+
+</html>
