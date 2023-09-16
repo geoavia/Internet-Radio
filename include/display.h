@@ -32,7 +32,7 @@ enum DISPLAY_MODE {
 DISPLAY_MODE DisplayMode = DM_NORMAL;
 
 
-#define IDLE_DIMM_MS 3000
+#define IDLE_DIMM_MS 10000
 #define IDLE_SAVER_MS 30000
 
 // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH

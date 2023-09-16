@@ -206,8 +206,8 @@ bool want_display_ui()
 		tft.println("2. Display UI Setup");
 		
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
-		if ((RemoteCode == KEY_UP || RemoteCode == KEY_DOWN) && !IsRepeat) dui = !dui;
-		if (RemoteCode == KEY_OK && !IsRepeat) break;
+		if ((RemoteCode == KEY_PLUS || RemoteCode == KEY_MINUS) && !IsRepeat) dui = !dui;
+		if (RemoteCode == KEY_EQ && !IsRepeat) break;
 	}
 	return dui;
 }
@@ -251,19 +251,19 @@ bool get_network_ui()
 		
 
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
-		if (RemoteCode == KEY_UP && !IsRepeat)
+		if (RemoteCode == KEY_MINUS && !IsRepeat)
 		{
 			if (yc > 0) yc--;
 			else if (yc == 0 && y0 > 0) y0--;
 			//else yc == y0 = 0;
 		}
-		if (RemoteCode == KEY_DOWN && !IsRepeat)
+		if (RemoteCode == KEY_PLUS && !IsRepeat)
 		{
 			if (yc < 5 && (yc + 1) < n_SSID) yc++;
 			else if (yc == 5 && y0 + 6 < n_SSID) y0++;
 			else yc = y0 = 0;
 		}
-		if (RemoteCode == KEY_OK && !IsRepeat)
+		if (RemoteCode == KEY_EQ && !IsRepeat)
 		{
 			curnet.ssid = WiFi.SSID(y0 + yc);
 		}
@@ -317,36 +317,36 @@ bool get_network_ui()
 				if (RemoteCode == KEY_9) xc = shift_chr(pwd, xc,'9');
 				if (RemoteCode == KEY_0) xc = shift_chr(pwd, xc,'0');
 
-				if (RemoteCode == KEY_AST)
+				if (RemoteCode == KEY_100)
 				{
 					if (isupper(pwd[xc])) pwd[xc] = tolower(pwd[xc]);
 					else pwd[xc] = toupper(pwd[xc]);
 				}
-				if (RemoteCode == KEY_HTAG) 
+				if (RemoteCode == KEY_200) 
 				{
 					if (isalnum(pwd[xc])) pwd[xc] = '!';
 					else pwd[xc] = 'A';
 				}
-				if (RemoteCode == KEY_UP && !IsRepeat)
+				if (RemoteCode == KEY_MINUS && !IsRepeat)
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'A';
 					else if (pwd[xc] < MAX_CHAR) pwd[xc]++;
 				}
-				if (RemoteCode == KEY_DOWN && !IsRepeat)
+				if (RemoteCode == KEY_PLUS && !IsRepeat)
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'Z';
 					else if (pwd[xc] > MIN_CHAR) pwd[xc]--;
 				}
-				if (RemoteCode == KEY_OK && !IsRepeat)
+				if (RemoteCode == KEY_EQ && !IsRepeat)
 				{
 					curnet.password = String(pwd);
 					return true;
 				}
-				if (RemoteCode == KEY_LEFT && !IsRepeat)
+				if (RemoteCode == KEY_PREV && !IsRepeat)
 				{
 					if (xc > 0) xc--;
 				}
-				if (RemoteCode == KEY_RIGHT && !IsRepeat)
+				if (RemoteCode == KEY_NEXT && !IsRepeat)
 				{
 					if (xc < 19 && pwd[xc]) xc++;
 				}
@@ -472,51 +472,74 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 
 		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
 <input type="range" name="mp3vol" min="0" max=")===";
-		html += MAX_VOLUME;
+		html += MAX_WEB_VOLUME;
 		html += "\" value=\"";
-		html += PlayerVolume;
+		html += WebVolume;
 		html += "\">";
 		html += "</form><br>";
-
 		html += "<p>Playlist</p>";
-
 		html += "<table><tr><th>#</th><th>Station</th><th>URL</th><th></th></tr>";
+		int n = 1;
 		for (uint i = 0; i < n_stations; i++)
 		{
-			if (CurrentStation.url == Stations[i].url) html += "<tr class='curr'><td>";
-			else html += "<tr><td>";
-			html += i;
-			html += "</td><td><a href=\"/get?mp3url=";
-			html += EncodeUrl(Stations[i].url);
-			html += "\">";
-			html += Stations[i].name;
-			html += "</td><td>";
-			html += Stations[i].url;
-			html += "</td><td>";
-			html += "<a href=\"/del?mp3url=";
-			html += EncodeUrl(Stations[i].url);
-			html += "\">Remove</a></td></tr>";
-
+			if (IsType(i, WEB_RADIO))
+			{
+				if (IsCurrent(i)) html += "<tr class='curr'><td>";
+				else html += "<tr><td>";
+				html += n;
+				html += "</td><td><a href=\"/get?mp3url=";
+				html += EncodeUrl(Stations[i].url);
+				html += "\">";
+				html += Stations[i].name;
+				html += "</td><td>";
+				html += Stations[i].url;
+				html += "</td><td>";
+				html += "<a href=\"/del?mp3url=";
+				html += EncodeUrl(Stations[i].url);
+				html += "\">Remove</a></td></tr>";
+				n++;
+			}
 		}
 		html += "</table></div><div class='radio fm'>";
 		html += "<p>Now listening: <b>";
 		html += String(100.9);
 		html += "</b></p>";
-		html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="fmfreq">
+		html += R"===(<form action="/get">FM Radio Frequency: <input type="text" name="fmfreq">
 &nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
 Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" name="add">
 </form><br>)===";
 
 		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
 <input type="range" name="fmvol" min="0" max=")===";
-		html += MAX_VOLUME;
+		html += MAX_FM_VOLUME;
 		html += "\" value=\"";
-		html += PlayerVolume;
+		html += FMVolume;
 		html += "\">";
 		html += "</form><br>";
-
 		html += "<p>Playlist</p>";
-		html += "</div>";
+		html += "<table><tr><th>#</th><th>Station</th><th>Frequency</th><th></th></tr>";
+		n = 1;
+		for (uint i = 0; i < n_stations; i++)
+		{
+			if (IsType(i,FM_RADIO))
+			{
+				if (IsCurrent(i)) html += "<tr class='curr'><td>";
+				else html += "<tr><td>";
+				html += n;
+				html += "</td><td><a href=\"/get?fmfreq=";
+				html += Stations[i].freq;
+				html += "\">";
+				html += Stations[i].name;
+				html += "</td><td>";
+				html += String(((float)Stations[i].freq)/10);
+				html += "</td><td>";
+				html += "<a href=\"/del?fmfreq=";
+				html += EncodeUrl(Stations[i].url);
+				html += "\">Remove</a></td></tr>";
+				n++;
+			}
+		}
+		html += "</table></div>";
 		html += html_footer;
 		request->send(200, "text/html", html);
 	});
@@ -537,13 +560,41 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 					name += n_stations;
 				}
 				
-				AddStation(url, name);
+				AddStation(0, url, name);
 				SaveRadioStations();
 			} 
 			else // play
 			{
-				CurrentStation.name = "Noname";
-				CurrentStation.url = url;
+				asyncName = "WEB Station";
+				asyncUrl = url;
+				asyncFreq = 0;
+				delay(1000); // for Job to finish
+			}
+			request->redirect("/");
+		}
+		else if (request->hasParam("fmfreq"))
+		{
+			uint freq = request->getParam("fmfreq")->value().toInt();
+			if (request->hasParam("add")) 
+			{
+				String name = "";
+				if (request->hasParam("fmname"))
+					name = request->getParam("fmname")->value();
+				name.trim();
+				if (name == "")
+				{
+					name = "Station ";
+					name += n_stations;
+				}
+				
+				AddStation(freq, "", name);
+				SaveRadioStations();
+			} 
+			else // play
+			{
+				asyncName = "FM " + String(((float)freq)/10);
+				asyncUrl = "";
+				asyncFreq = freq;
 				delay(1000); // for Job to finish
 			}
 			request->redirect("/");
@@ -562,6 +613,13 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			SaveRadioStations();
 			request->redirect("/");
 		}
+		else if (request->hasParam("fmfreq"))
+		{
+			uint freq = request->getParam("fmfreq")->value().toInt();
+			RemoveStationByFreq(freq);
+			SaveRadioStations();
+			request->redirect("/");
+		}
 		else 
 		{
 			request->redirect("/?msg=Incorrect Param");
@@ -571,7 +629,13 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
 		if (request->hasParam("mp3vol"))
 		{
-			asyncVolume = request->getParam("mp3vol")->value().toInt();
+			asyncWebVolume = request->getParam("mp3vol")->value().toInt();
+			delay(1000); // for Job to finish
+			request->redirect("/");
+		}
+		if (request->hasParam("fmvol"))
+		{
+			asyncFMVolume = request->getParam("fmvol")->value().toInt();
 			delay(1000); // for Job to finish
 			request->redirect("/");
 		}
@@ -641,15 +705,28 @@ void NetworkJob()
 {
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
-		if (CurrentStation.url != previousUrl)
+		if ((CurrentStation.freq != asyncFreq) || (CurrentStation.url != asyncUrl))
 		{
-			audio.stopSong();
-			if (audio.connecttohost(CurrentStation.url.c_str()))
+			if (asyncFreq > 0) // Tune to FM Radio
 			{
-				previousUrl = CurrentStation.url;
-				FindStationByUrl(CurrentStation.url, CurrentStation);
+				Serial.printf("Tune ti FM: %d\n", ((float)asyncFreq)/10);
+				FMCommand("AT+FRE=", asyncFreq);
+				SetCurrentStation(asyncFreq, asyncUrl, asyncName);
+				FindStationByFreq(CurrentStation.freq, CurrentStation);
 				DisplayCurrentMode(DM_NORMAL);
 				SetStateChanged();
+			}
+			else // Tune to Web Radio
+			{
+				audio.stopSong();
+				Serial.printf("Tune Web: '%s'\n", asyncUrl.c_str());
+				if (audio.connecttohost(asyncUrl.c_str()))
+				{
+					SetCurrentStation(asyncFreq, asyncUrl, asyncName);
+					FindStationByUrl(CurrentStation.url, CurrentStation);
+					DisplayCurrentMode(DM_NORMAL);
+					SetStateChanged();
+				}
 			}
 		}
 

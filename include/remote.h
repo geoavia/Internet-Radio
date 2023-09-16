@@ -2,7 +2,7 @@
 #define __REMOTE_H__
 
 #define SEND_PWM_BY_TIMER // to disable warning
-#define RECORD_GAP_MICROS 12000
+#define RECORD_GAP_MICROS 4500
 #define NO_LED_FEEDBACK_CODE
 #define DECODE_NEC
 
@@ -15,31 +15,6 @@
 #define BUTTON_PIN_DOWN 34
 #define BUTTON_PIN_LEFT 13
 #define BUTTON_PIN_RIGHT 14
-
-
-#define REMOTE_TYPE_1
-
-#ifdef REMOTE_TYPE_1
-
-#define KEY_1 0x45
-#define KEY_2 0x46
-#define KEY_3 0x47
-#define KEY_4 0x44
-#define KEY_5 0x40
-#define KEY_6 0x43
-#define KEY_7 0x7
-#define KEY_8 0x15
-#define KEY_9 0x9
-#define KEY_0 0x19
-#define KEY_AST 0x16
-#define KEY_HTAG 0xD
-#define KEY_OK 0x1C
-#define KEY_LEFT 0x8
-#define KEY_RIGHT 0x5A
-#define KEY_UP 0x18
-#define KEY_DOWN 0x52
-
-#else
 
 #define KEY_1 0xC
 #define KEY_2 0x18
@@ -62,9 +37,6 @@
 #define KEY_CH_MINUS 0x45
 #define KEY_CH_PLUS 0x47
 #define KEY_CH 0x46
-
-#endif
-
 
 #define KEY_OK_TO_SLEEP_INTERVAL_MS 3000
 #define KEY_REPEAT_INTERVAL_MS 1000
@@ -92,28 +64,28 @@ bool ButtonsProcess()
 
 	if (digitalRead(BUTTON_PIN_OK) == HIGH)
 	{
-		RemoteCode = KEY_OK;
+		RemoteCode = KEY_CH;
 		bstate = true;
 	}
 	
 	if (digitalRead(BUTTON_PIN_UP) == LOW)
 	{
-		RemoteCode = KEY_UP;
+		RemoteCode = KEY_CH_PLUS;
 		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_DOWN) == LOW)
 	{
-		RemoteCode = KEY_DOWN;
+		RemoteCode = KEY_CH_MINUS;
 		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_LEFT) == LOW)
 	{
-		RemoteCode = KEY_LEFT;
+		RemoteCode = KEY_MINUS;
 		bstate = true;
 	}
 	if (digitalRead(BUTTON_PIN_RIGHT) == LOW)
 	{
-		RemoteCode = KEY_RIGHT;
+		RemoteCode = KEY_PLUS;
 		bstate = true;
 	}
 
@@ -163,11 +135,8 @@ bool GetRemoteCode()
 		IrReceiver.resume(); // Receive the next value
 
 		// repeatable commands
-
-		if (IrReceiver.decodedIRData.command == KEY_LEFT ||
-			IrReceiver.decodedIRData.command == KEY_RIGHT ||
-			IrReceiver.decodedIRData.command == KEY_UP ||
-			IrReceiver.decodedIRData.command == KEY_DOWN)
+		if (IrReceiver.decodedIRData.command == KEY_MINUS ||
+			IrReceiver.decodedIRData.command == KEY_PLUS)
 		{
 			RemoteCode = IrReceiver.decodedIRData.command;
 			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);

@@ -27,7 +27,7 @@ void setup()
 
 	Serial.println("\nInternet Radio, (c) GGM, 2023");
 
-	UartInit();
+	FMInit();
 	// delay(1000);
 	// UartCommand("AT+VOL=", 15);
 	// delay(1000);
@@ -56,30 +56,30 @@ void loop()
 	//return;
 	if (GetRemoteCode())
 	{
-		if (RemoteCode == KEY_LEFT)
+		if (RemoteCode == KEY_MINUS)
 		{
-			if (PlayerVolume > 0) 
+			if (WebVolume > 0) 
 			{
-				asyncVolume = --PlayerVolume;
-				audio.setVolume(PlayerVolume);
-				DisplayVolume(PlayerVolume);
+				asyncWebVolume = --WebVolume;
+				audio.setVolume(WebVolume);
+				DisplayVolume(WebVolume);
 				SetStateChanged();
-				UartCommand("AT+VOLD");
+				FMCommand("AT+VOLD");
 			}
 		}
-		if (RemoteCode == KEY_RIGHT)
+		if (RemoteCode == KEY_PLUS)
 		{
-			if (PlayerVolume < MAX_VOLUME) 
+			if (WebVolume < MAX_WEB_VOLUME) 
 			{
-				asyncVolume = ++PlayerVolume;
-				audio.setVolume(PlayerVolume);
-				DisplayVolume(PlayerVolume);
+				asyncWebVolume = ++WebVolume;
+				audio.setVolume(WebVolume);
+				DisplayVolume(WebVolume);
 				SetStateChanged();
-				UartCommand("AT+VOLU");
+				FMCommand("AT+VOLU");
 			}
 		}
-		if (RemoteCode == KEY_DOWN && !IsRepeat) NextStation(false);
-		if (RemoteCode == KEY_UP && !IsRepeat) NextStation(true);
+		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(RadioType, -1);
+		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(RadioType, 1);
 		if (RemoteCode == KEY_0) SetCurrentStation(0);
 		if (RemoteCode == KEY_1) SetCurrentStation(1);
 		if (RemoteCode == KEY_2) SetCurrentStation(2);
@@ -90,7 +90,7 @@ void loop()
 		if (RemoteCode == KEY_7) SetCurrentStation(7);
 		if (RemoteCode == KEY_8) SetCurrentStation(8);
 		if (RemoteCode == KEY_9) SetCurrentStation(9);
-		if (RemoteCode == KEY_OK)
+		if (RemoteCode == KEY_CH)
 		{
 			if (IsRepeat) 
 			{
@@ -108,11 +108,11 @@ void loop()
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);
 				}
-				UartCommand("AT+BANK=", 10);
+				FMCommand("AT+BANK=", 10);
 			}
 		}
-		if (RemoteCode == KEY_HTAG) DisplayCurrentMode(DM_TIME);
-		if (RemoteCode == KEY_AST) DisplayCurrentMode(DM_SIMPLE);
+		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);
+		if (RemoteCode == KEY_PLAYPAUSE) DisplayCurrentMode(DM_SIMPLE);
 	}
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))

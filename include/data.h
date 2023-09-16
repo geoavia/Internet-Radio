@@ -14,6 +14,7 @@ void LoadRadioStations()
 		{
 			Serial.print(n_stations + 1);
 			Serial.print(": ");
+			Stations[n_stations].freq = file.readStringUntil(',').toInt();
 			Stations[n_stations].url = file.readStringUntil(',');
 			Serial.print(Stations[n_stations].url);
 			Serial.print(" - ");
@@ -23,13 +24,13 @@ void LoadRadioStations()
 		}
 	}
 	file.close();
-	CurrentStation = Stations[0];
 }
 
-void AddStation(String url, String name = "")
+void AddStation(uint freq, String url, String name = "")
 {
 	if (n_stations < MAX_STATIONS)
 	{
+		Stations[n_stations].freq = freq;
 		Stations[n_stations].url = url;
 		Stations[n_stations].name = name;
 		n_stations++;
@@ -60,6 +61,18 @@ void RemoveStationByUrl(String url)
 	}
 }
 
+void RemoveStationByFreq(uint freq)
+{
+	for (uint i = 0; i < n_stations; i++)
+	{
+		if (Stations[i].freq == freq)
+		{
+			RemoveStation(i);
+			break;
+		}
+	}
+}
+
 void SaveRadioStations()
 {
 	File file = SPIFFS.open(STATIONS_FILE_NAME, "w");
@@ -68,6 +81,8 @@ void SaveRadioStations()
 		Serial.println("Saving radio stations");
 		for (uint i = 0; i < n_stations; i++)
 		{
+			file.print(Stations[i].freq);
+			file.print(",");
 			file.print(Stations[i].url);
 			file.print(",");
 			file.print(Stations[i].name);
@@ -77,27 +92,33 @@ void SaveRadioStations()
 	file.close();
 }
 
-void NextStation(bool next = true)
+int GetCurrentStationIndex()
 {
 	for (uint i = 0; i < n_stations; i++)
-		if (Stations[i].url == CurrentStation.url)
+		if ((Stations[i].url == CurrentStation.url) && (Stations[i].freq == CurrentStation.freq))
+			return i;
+	return 0;
+}
+
+void NextStation(RADIO_TYPE stt, int dir = 1)
+{
+	int ci = GetCurrentStationIndex();
+	int n = 0;
+	dir = (dir > 0) ? 1 : -1;
+	while (n < n_stations)
+	{
+		ci += dir;
+		if (ci < 0) ci = (n_stations - 1);
+		else if (ci >= (n_stations - 1)) ci = 0;
+
+		if ((stt == FM_RADIO && Stations[ci].freq > 0) ||
+			(stt == WEB_RADIO && Stations[ci].freq == 0))
 		{
-			if (next)
-			{
-				if (i < n_stations - 1)
-					CurrentStation = Stations[i + 1];
-				else
-					CurrentStation = Stations[0];
-			}
-			else
-			{
-				if (i > 0)
-					CurrentStation = Stations[i - 1];
-				else
-					CurrentStation = Stations[n_stations - 1];
-			}
+			CurrentStation = Stations[ci];
 			break;
 		}
+		n++;
+	}
 }
 
 void SetCurrentStation(uint n)
@@ -106,18 +127,38 @@ void SetCurrentStation(uint n)
 		CurrentStation = Stations[n];
 }
 
-int GetCurrentStationIndex()
+void SetCurrentStation(uint freq, String url, String name)
 {
-	for (uint i = 0; i < n_stations; i++)
-		if (Stations[i].url == CurrentStation.url)
-			return i;
-	return 0;
+	CurrentStation.freq = freq;
+	CurrentStation.url = url;
+	CurrentStation.name = name;
+}
+
+bool IsCurrent(int i)
+{
+	return (Stations[i].url == CurrentStation.url && Stations[i].freq == CurrentStation.freq);
+}
+
+bool IsType(int i, RADIO_TYPE t)
+{
+	return ((t == FM_RADIO && Stations[i].freq > 0) || (t == WEB_RADIO && Stations[i].freq == 0));
 }
 
 bool FindStationByUrl(String url, RADIO_STATION &station)
 {
 	for (uint i = 0; i < n_stations; i++)
 		if (Stations[i].url == url)
+		{
+			station = Stations[i];
+			return true;
+		}
+	return false;
+}
+
+bool FindStationByFreq(uint freq, RADIO_STATION &station)
+{
+	for (uint i = 0; i < n_stations; i++)
+		if (Stations[i].freq == freq)
 		{
 			station = Stations[i];
 			return true;
@@ -133,8 +174,14 @@ void LoadRadioState()
 		Serial.println("Loading last state");
 		if (file.available())
 		{
-			SetCurrentStation(file.readStringUntil(',').toInt());
-			PlayerVolume = asyncVolume = file.readStringUntil('\n').toInt();
+			int i = file.readStringUntil(',').toInt();
+			if (i < n_stations)
+			{
+				asyncFreq = Stations[i].freq;
+				asyncUrl = Stations[i].url;
+			}
+			asyncFMVolume = file.readStringUntil(',').toInt();
+			asyncWebVolume = file.readStringUntil('\n').toInt();
 		}
 	}
 	file.close();
@@ -148,7 +195,9 @@ void SaveRadioState()
 		Serial.println("Saving state");
 		file.print(GetCurrentStationIndex());
 		file.print(",");
-		file.print(PlayerVolume);
+		file.print(FMVolume);
+		file.print(",");
+		file.print(WebVolume);
 		file.print("\n");
 	}
 	file.close();
