@@ -2,7 +2,7 @@
 #define __REMOTE_H__
 
 #define SEND_PWM_BY_TIMER // to disable warning
-#define RECORD_GAP_MICROS 4500
+//#define RECORD_GAP_MICROS 12000
 #define NO_LED_FEEDBACK_CODE
 #define DECODE_NEC
 
@@ -39,7 +39,7 @@
 #define KEY_CH 0x46
 
 #define KEY_OK_TO_SLEEP_INTERVAL_MS 3000
-#define KEY_REPEAT_INTERVAL_MS 1000
+//#define KEY_REPEAT_INTERVAL_MS 1000
 #define KEY_DAMPER_INTERVAL_MS 300
 
 uint16_t RemoteCode = 0;
@@ -134,26 +134,12 @@ bool GetRemoteCode()
 		else IrReceiver.printIRResultShort(&Serial);
 		IrReceiver.resume(); // Receive the next value
 
-		// repeatable commands
-		if (IrReceiver.decodedIRData.command == KEY_MINUS ||
-			IrReceiver.decodedIRData.command == KEY_PLUS)
-		{
-			RemoteCode = IrReceiver.decodedIRData.command;
-			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-			lastKeyTime = millis();
-			IsRemote = true;
-			return true;
-		}
-
-		// non repeatable commands
-		if (RemoteCode != IrReceiver.decodedIRData.command)
-		{
-			RemoteCode = IrReceiver.decodedIRData.command;
-			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-			lastKeyTime = millis();
-			IsRemote = true;
-			return true;
-		}
+		RemoteCode = IrReceiver.decodedIRData.command;
+		IsRepeat = (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT);
+		//IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
+		lastKeyTime = millis();
+		IsRemote = true;
+		return true;
 		
 	}
 	return false;

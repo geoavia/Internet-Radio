@@ -28,6 +28,9 @@ const char *STATE_FILE_NAME = "/state.csv";
 #define MAX_WEB_VOLUME 21
 #define MAX_FM_VOLUME 30
 
+#define MIN_FREQ	870
+#define MAX_FREQ	1080
+
 Audio audio;
 
 // Radio Volume

@@ -80,16 +80,29 @@ void loop()
 		}
 		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(RadioType, -1);
 		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(RadioType, 1);
-		if (RemoteCode == KEY_0) SetCurrentStation(0);
-		if (RemoteCode == KEY_1) SetCurrentStation(1);
-		if (RemoteCode == KEY_2) SetCurrentStation(2);
-		if (RemoteCode == KEY_3) SetCurrentStation(3);
-		if (RemoteCode == KEY_4) SetCurrentStation(4);
-		if (RemoteCode == KEY_5) SetCurrentStation(5);
-		if (RemoteCode == KEY_6) SetCurrentStation(6);
-		if (RemoteCode == KEY_7) SetCurrentStation(7);
-		if (RemoteCode == KEY_8) SetCurrentStation(8);
-		if (RemoteCode == KEY_9) SetCurrentStation(9);
+		if (RemoteCode == KEY_0) TuneStation(0);
+		if (RemoteCode == KEY_1) TuneStation(1);
+		if (RemoteCode == KEY_2) TuneStation(2);
+		if (RemoteCode == KEY_3) TuneStation(3);
+		if (RemoteCode == KEY_4) TuneStation(4);
+		if (RemoteCode == KEY_5) TuneStation(5);
+		if (RemoteCode == KEY_6) TuneStation(6);
+		if (RemoteCode == KEY_7) TuneStation(7);
+		if (RemoteCode == KEY_8) TuneStation(8);
+		if (RemoteCode == KEY_9) TuneStation(9);
+		if (RemoteCode == KEY_PREV)
+		{
+			if (asyncFreq > MIN_FREQ) asyncFreq--;
+			else if (!IsRepeat) asyncFreq = MAX_FREQ;
+			FMCommand("AT+FRE=", asyncFreq);
+		}
+		if (RemoteCode == KEY_NEXT)
+		{
+			if (asyncFreq < MAX_FREQ) asyncFreq++;
+			else if (!IsRepeat) asyncFreq = MIN_FREQ;
+			FMCommand("AT+FRE=", asyncFreq);
+		}
+
 		if (RemoteCode == KEY_CH)
 		{
 			if (IsRepeat) 

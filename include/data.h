@@ -114,17 +114,20 @@ void NextStation(RADIO_TYPE stt, int dir = 1)
 		if ((stt == FM_RADIO && Stations[ci].freq > 0) ||
 			(stt == WEB_RADIO && Stations[ci].freq == 0))
 		{
-			CurrentStation = Stations[ci];
+			asyncFreq = Stations[ci].freq;
+			asyncUrl = Stations[ci].url;
 			break;
 		}
 		n++;
 	}
 }
 
-void SetCurrentStation(uint n)
+void TuneStation(uint n)
 {
-	if (n < n_stations)
-		CurrentStation = Stations[n];
+	if (n < n_stations) {
+		asyncFreq = Stations[n].freq;
+		asyncUrl = Stations[n].url;
+	}
 }
 
 void SetCurrentStation(uint freq, String url, String name)

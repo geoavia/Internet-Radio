@@ -502,7 +502,7 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 		}
 		html += "</table></div><div class='radio fm'>";
 		html += "<p>Now listening: <b>";
-		html += String(100.9);
+		html += (CurrentStation.freq > 0) ? String(((float)CurrentStation.freq)/10) : "";
 		html += "</b></p>";
 		html += R"===(<form action="/get">FM Radio Frequency: <input type="text" name="fmfreq">
 &nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
@@ -709,7 +709,7 @@ void NetworkJob()
 		{
 			if (asyncFreq > 0) // Tune to FM Radio
 			{
-				Serial.printf("Tune ti FM: %d\n", ((float)asyncFreq)/10);
+				Serial.printf("Tune to FM: %d\n", asyncFreq);
 				FMCommand("AT+FRE=", asyncFreq);
 				SetCurrentStation(asyncFreq, asyncUrl, asyncName);
 				FindStationByFreq(CurrentStation.freq, CurrentStation);
