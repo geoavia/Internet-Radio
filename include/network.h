@@ -565,7 +565,8 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			} 
 			else // play
 			{
-				PlayWebStation(url, "WEB Station");
+				PlayerAsync.SetUrl(url, "WEB Station");
+				delay(1000);
 			}
 			request->redirect("/");
 		}
@@ -589,7 +590,8 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			} 
 			else // tune
 			{
-				TuneFMStation(freq, "FM " + String(((float)freq)/10));
+				PlayerAsync.SetFreq(freq, "FM " + String(((float)freq)/10));
+				delay(1000);
 			}
 			request->redirect("/");
 		}
@@ -623,12 +625,14 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
 		if (request->hasParam("mp3vol"))
 		{
-			SetWebVolume(request->getParam("mp3vol")->value().toInt());
+			PlayerAsync.SetVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
+			delay(1000);
 			request->redirect("/");
 		}
 		if (request->hasParam("fmvol"))
 		{
-			SetFMVolume(request->getParam("fmvol")->value().toInt());
+			PlayerAsync.SetVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
+			delay(1000);
 			request->redirect("/");
 		}
 		else 

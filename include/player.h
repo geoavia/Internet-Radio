@@ -125,7 +125,19 @@ void SwitchStation(int num)
 
 void PlayerJob()
 {
-	
+	if (PlayerAsync.hot)
+	{
+		if (PlayerAsync.url.length() > 0) 
+			PlayWebStation(PlayerAsync.url, PlayerAsync.name);
+		else if (PlayerAsync.freq > 0)
+			TuneFMStation(PlayerAsync.freq, PlayerAsync.name);
+		else if (PlayerAsync.fmvol >= 0)
+			SetFMVolume(PlayerAsync.fmvol);
+		else if (PlayerAsync.webvol >= 0)
+			SetFMVolume(PlayerAsync.webvol);
+		PlayerAsync.clear();
+	}
+
 }
 
 #endif //__PLAYER_H__
