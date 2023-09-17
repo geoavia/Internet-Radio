@@ -58,50 +58,28 @@ void loop()
 	{
 		if (RemoteCode == KEY_MINUS)
 		{
-			if (WebVolume > 0) 
-			{
-				asyncWebVolume = --WebVolume;
-				audio.setVolume(WebVolume);
-				DisplayVolume(WebVolume);
-				SetStateChanged();
-				FMCommand("AT+VOLD");
-			}
+			SetWebVolume(WebVolume-1);
+			FMCommand("AT+VOLD");
 		}
 		if (RemoteCode == KEY_PLUS)
 		{
-			if (WebVolume < MAX_WEB_VOLUME) 
-			{
-				asyncWebVolume = ++WebVolume;
-				audio.setVolume(WebVolume);
-				DisplayVolume(WebVolume);
-				SetStateChanged();
-				FMCommand("AT+VOLU");
-			}
+			SetWebVolume(WebVolume+1);
+			FMCommand("AT+VOLU");
 		}
-		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(RadioType, -1);
-		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(RadioType, 1);
-		if (RemoteCode == KEY_0) TuneStation(0);
-		if (RemoteCode == KEY_1) TuneStation(1);
-		if (RemoteCode == KEY_2) TuneStation(2);
-		if (RemoteCode == KEY_3) TuneStation(3);
-		if (RemoteCode == KEY_4) TuneStation(4);
-		if (RemoteCode == KEY_5) TuneStation(5);
-		if (RemoteCode == KEY_6) TuneStation(6);
-		if (RemoteCode == KEY_7) TuneStation(7);
-		if (RemoteCode == KEY_8) TuneStation(8);
-		if (RemoteCode == KEY_9) TuneStation(9);
-		if (RemoteCode == KEY_PREV)
-		{
-			if (asyncFreq > MIN_FREQ) asyncFreq--;
-			else if (!IsRepeat) asyncFreq = MAX_FREQ;
-			FMCommand("AT+FRE=", asyncFreq);
-		}
-		if (RemoteCode == KEY_NEXT)
-		{
-			if (asyncFreq < MAX_FREQ) asyncFreq++;
-			else if (!IsRepeat) asyncFreq = MIN_FREQ;
-			FMCommand("AT+FRE=", asyncFreq);
-		}
+		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(-1);
+		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(1);
+		if (RemoteCode == KEY_0) SwitchStation(0);
+		if (RemoteCode == KEY_1) SwitchStation(1);
+		if (RemoteCode == KEY_2) SwitchStation(2);
+		if (RemoteCode == KEY_3) SwitchStation(3);
+		if (RemoteCode == KEY_4) SwitchStation(4);
+		if (RemoteCode == KEY_5) SwitchStation(5);
+		if (RemoteCode == KEY_6) SwitchStation(6);
+		if (RemoteCode == KEY_7) SwitchStation(7);
+		if (RemoteCode == KEY_8) SwitchStation(8);
+		if (RemoteCode == KEY_9) SwitchStation(9);
+		if (RemoteCode == KEY_PREV) TuneFMStation(FMStation.freq-1, "Unknown");
+		if (RemoteCode == KEY_NEXT) TuneFMStation(FMStation.freq+1, "Unknown");
 
 		if (RemoteCode == KEY_CH)
 		{
@@ -138,9 +116,7 @@ void loop()
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
 	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
 
-	NetworkJob();
 	PlayerJob();
-
 
 	audio.loop();
 	//delay(50);

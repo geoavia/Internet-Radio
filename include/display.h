@@ -149,19 +149,11 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		//tft.setTextSize(2);
 		tft.setTextColor(TFT_WHITE);
 		tft.setCursor(0, 2);
-		if (CurrentStation.name == "Noname")
-		{
-			tft.println("Custom");
-		}
-		else 
-		{
-			tft.print("Station ");
-			tft.println(GetCurrentStationIndex());
-		}
+		tft.println("Station #");
 		tft.drawFastHLine(0,25,240,TFT_WHITE);
 		tft.setCursor(0, 32);
 		tft.setTextColor(TFT_YELLOW);
-		tft.println(CurrentStation.name); // todo get from icy-metadata
+		tft.println(WebStation.name); // todo get from icy-metadata
 		
 		//tft.startscrollright(0x00,0x04);
 	} 
@@ -175,17 +167,9 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextFont(4);
 		tft.setTextColor(TFT_WHITE);
 		tft.print(">> Playing ");
-		if (CurrentStation.name == "Noname")
-		{
-			tft.println("Custom");
-		}
-		else 
-		{
-			tft.print("Station ");
-			tft.println(GetCurrentStationIndex());
-		}
+		tft.println("Station #");
 		tft.setTextColor(TFT_YELLOW);
-		tft.println(CurrentStation.name); // todo get from icy-metadata
+		tft.println(WebStation.name); // todo get from icy-metadata
 		
 		tft.setTextWrap(false);
 		tft.drawFastHLine(0,100,240,TFT_YELLOW);

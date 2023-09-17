@@ -462,8 +462,8 @@ void start_radio_server()
 			html += "</b></p>";
 		}
 		html += "<div class='radio web'>";
-		html += "<p>Now listening: <b>";
-		html += CurrentStation.url;
+		html += "<p>Current URL: <b>";
+		html += WebStation.url;
 		html += "</b></p>";
 		html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
 &nbsp;<input type="submit" value="Play" name="play">&nbsp;
@@ -484,7 +484,7 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 		{
 			if (IsType(i, WEB_RADIO))
 			{
-				if (IsCurrent(i)) html += "<tr class='curr'><td>";
+				if (Stations[i].url == WebStation.url) html += "<tr class='curr'><td>";
 				else html += "<tr><td>";
 				html += n;
 				html += "</td><td><a href=\"/get?mp3url=";
@@ -501,8 +501,8 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 			}
 		}
 		html += "</table></div><div class='radio fm'>";
-		html += "<p>Now listening: <b>";
-		html += (CurrentStation.freq > 0) ? String(((float)CurrentStation.freq)/10) : "";
+		html += "<p>Current Frequency: <b>";
+		html += String(((float)FMStation.freq)/10);
 		html += "</b></p>";
 		html += R"===(<form action="/get">FM Radio Frequency: <input type="text" name="fmfreq">
 &nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
@@ -523,7 +523,7 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 		{
 			if (IsType(i,FM_RADIO))
 			{
-				if (IsCurrent(i)) html += "<tr class='curr'><td>";
+				if (Stations[i].freq == FMStation.freq) html += "<tr class='curr'><td>";
 				else html += "<tr><td>";
 				html += n;
 				html += "</td><td><a href=\"/get?fmfreq=";
@@ -565,10 +565,7 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			} 
 			else // play
 			{
-				asyncName = "WEB Station";
-				asyncUrl = url;
-				asyncFreq = 0;
-				delay(1000); // for Job to finish
+				PlayWebStation(url, "WEB Station");
 			}
 			request->redirect("/");
 		}
@@ -590,12 +587,9 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 				AddStation(freq, "", name);
 				SaveRadioStations();
 			} 
-			else // play
+			else // tune
 			{
-				asyncName = "FM " + String(((float)freq)/10);
-				asyncUrl = "";
-				asyncFreq = freq;
-				delay(1000); // for Job to finish
+				TuneFMStation(freq, "FM " + String(((float)freq)/10));
 			}
 			request->redirect("/");
 		}
@@ -629,14 +623,12 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
 		if (request->hasParam("mp3vol"))
 		{
-			asyncWebVolume = request->getParam("mp3vol")->value().toInt();
-			delay(1000); // for Job to finish
+			SetWebVolume(request->getParam("mp3vol")->value().toInt());
 			request->redirect("/");
 		}
 		if (request->hasParam("fmvol"))
 		{
-			asyncFMVolume = request->getParam("fmvol")->value().toInt();
-			delay(1000); // for Job to finish
+			SetFMVolume(request->getParam("fmvol")->value().toInt());
 			request->redirect("/");
 		}
 		else 
@@ -699,59 +691,6 @@ void NetworkInit()
 	connect_network();
 	start_radio_server();
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-}
-
-void NetworkJob()
-{
-	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
-	{
-		if ((CurrentStation.freq != asyncFreq) || (CurrentStation.url != asyncUrl))
-		{
-			if (asyncFreq > 0) // Tune to FM Radio
-			{
-				Serial.printf("Tune to FM: %d\n", asyncFreq);
-				FMCommand("AT+FRE=", asyncFreq);
-				SetCurrentStation(asyncFreq, asyncUrl, asyncName);
-				FindStationByFreq(CurrentStation.freq, CurrentStation);
-				DisplayCurrentMode(DM_NORMAL);
-				SetStateChanged();
-			}
-			else // Tune to Web Radio
-			{
-				audio.stopSong();
-				Serial.printf("Tune Web: '%s'\n", asyncUrl.c_str());
-				if (audio.connecttohost(asyncUrl.c_str()))
-				{
-					SetCurrentStation(asyncFreq, asyncUrl, asyncName);
-					FindStationByUrl(CurrentStation.url, CurrentStation);
-					DisplayCurrentMode(DM_NORMAL);
-					SetStateChanged();
-				}
-			}
-		}
-
-		// if (!client.connected())
-		// {
-		// 	// reconnecting
-		// 	NetworkConnectRadioUrl(CurrentStation.url);
-		// }
-
-		// if (client.available() > 0)
-		// {
-		// 	uint8_t bytesread = client.read(mp3buff, MP3_BUFFER_SIZE);
-
-		// 	audio.connecttohost(stations[cur_station].c_str());
-
-		// 	//player.playChunk(mp3buff, bytesread);
-
-		// 	/*if (circBuffer.room() >= MP3_BUFFER_SIZE) 
-		// 	{
-		// 		uint8_t bytesread = client.read((uint8_t *)readBuffer, READ_BUFFER_SIZE);
-		// 		circBuffer.write(readBuffer, bytesread);
-		// 	}*/
-		// }
-	}
-
 }
 
 

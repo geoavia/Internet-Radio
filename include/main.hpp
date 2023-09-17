@@ -34,16 +34,8 @@ const char *STATE_FILE_NAME = "/state.csv";
 Audio audio;
 
 // Radio Volume
-uint8_t WebVolume = 20;
-uint8_t FMVolume = 20;
-
-uint8_t asyncWebVolume = 20;
-uint8_t asyncFMVolume = 20;
-
-String asyncName = "";
-String asyncUrl = "";
-uint asyncFreq = 0;
-
+uint WebVolume = 20;
+uint FMVolume = 20;
 
 // saved network credentials
 struct RADIO_STATION
@@ -53,7 +45,7 @@ struct RADIO_STATION
 	String name = "";
 };
 
-RADIO_STATION CurrentStation, Stations[MAX_STATIONS];
+RADIO_STATION WebStation, FMStation, Stations[MAX_STATIONS];
 
 enum RADIO_TYPE
 {
@@ -63,7 +55,7 @@ enum RADIO_TYPE
 
 uint n_stations = 0;
 
-RADIO_TYPE RadioType = WEB_RADIO;
+RADIO_TYPE CurrentRadio = WEB_RADIO;
 
 // http://wbgo.streamguys.net/thejazzstream - ok
 // http://jenny.torontocast.com:8012/stream - sketchy
@@ -93,6 +85,18 @@ void SetStateChanged()
     StateChanged = true;
 }
 
-void FMCommand(const char *cmd, int param);
+struct ASYNC_COMMAND 
+{
+	bool hot;
+	int webvol = -1;
+	int fmvol = -1;	
+	uint freq;
+}
+
+void FMCommand(const char *cmd, ...);
+void PlayWebStation(String url, String name);
+void TuneFMStation(uint freq, String name);
+void SetWebVolume(uint8_t vol);
+void SetFMVolume(uint vol);
 
 #endif // __IRADIO_MAIN__

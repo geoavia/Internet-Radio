@@ -15,10 +15,12 @@
 
 HardwareSerial uart(2); // use UART2
 
+void SetWebVolume(uint8_t vol);
+
 void PlayerInit()
 {
 	audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(WebVolume); // 0...21
+    SetWebVolume(WebVolume);
 }
 
 void FMInit()
@@ -27,42 +29,103 @@ void FMInit()
 	uart.begin(38400, SERIAL_8N1, FM_RX, FM_TX);
 }
 
-void FMCommand(const char *cmd, int param = -1)
+void FMCommand(const char *cmd, ...)
 {
-	String s(cmd);
+	char scmd[16];
+	va_list par;
 
-	if (param >= 0) s+=param;
+	vsprintf(scmd, cmd, par);
 	Serial.print("Command: ");
-	Serial.println(s);
+	Serial.println(scmd);
 
-	uart.write(s.c_str());
+	uart.write(scmd);
 }
 
-void FMTune(int freq)
+void PlayWebStation(String url, String name)
 {
-	FMCommand("AT+FRE=", freq);
+	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
+	{
+		audio.stopSong();
+		Serial.printf("Tune to URL: '%s'\n", url.c_str());
+		if (audio.connecttohost(url.c_str()))
+		{
+			WebStation.url = url;
+			WebStation.name = name;
+			FindStationByUrl(url, WebStation);
+			DisplayCurrentMode(DM_NORMAL);
+			SetStateChanged();
+		}
+	}
+
+}
+
+void TuneFMStation(uint freq, String name)
+{
+	if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
+	{
+		Serial.printf("Tune to FM: %d\n", freq);
+		FMCommand("AT+FRE=%d", freq);
+		FMStation.freq = freq;
+		FMStation.name = name;
+		FindStationByFreq(freq, FMStation);
+		DisplayCurrentMode(DM_NORMAL);
+		SetStateChanged();
+	}
+}
+
+void SetWebVolume(uint8_t vol)
+{
+	if (vol <= MAX_WEB_VOLUME)
+	{
+		audio.setVolume(vol);
+		WebVolume = audio.getVolume();
+		Serial.printf("Web volume: %d\n", WebVolume);
+		SetStateChanged();
+	}
+}
+
+void SetFMVolume(uint vol)
+{
+	if (vol <= MAX_FM_VOLUME)
+	{
+		FMCommand("AT+VOL=%02d", vol);
+		FMVolume = vol;
+		Serial.printf("FM volume: %d\n", FMVolume);
+		SetStateChanged();
+	}
+}
+
+void NextStation(int dir = 1)
+{
+	int ci = (CurrentRadio == FM_RADIO) ? 
+		GetStationIndexByFreq(FMStation.freq) : 
+		GetStationIndexByUrl(WebStation.url);
+	int n = 0;
+	dir = (dir > 0) ? 1 : -1;
+	while (n < n_stations)
+	{
+		ci += dir;
+		if (ci < 0) ci = (n_stations - 1);
+		else if (ci >= (n_stations - 1)) ci = 0;
+
+		if (IsType(ci, CurrentRadio))
+		{
+			//FStasyncFreq = Stations[ci].freq;
+			//asyncUrl = Stations[ci].url;
+			break;
+		}
+		n++;
+	}
+}
+
+void SwitchStation(int num)
+{
+
 }
 
 void PlayerJob()
 {
-if (asyncWebVolume != WebVolume)
-	{
-		WebVolume = asyncWebVolume;
-		audio.setVolume(WebVolume);
-		Serial.printf("Web volume: %d\n", WebVolume);
-		SetStateChanged();
-	}
-
-if (asyncFMVolume != FMVolume)
-	{
-		FMVolume = asyncFMVolume;
-		char vol[10];
-		sprintf(vol, "AT+VOL=%02d", FMVolume);
-		FMCommand(vol);
-		SetStateChanged();
-	}
+	
 }
-
-
 
 #endif //__PLAYER_H__

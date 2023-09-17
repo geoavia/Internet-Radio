@@ -92,81 +92,42 @@ void SaveRadioStations()
 	file.close();
 }
 
-int GetCurrentStationIndex()
-{
-	for (uint i = 0; i < n_stations; i++)
-		if ((Stations[i].url == CurrentStation.url) && (Stations[i].freq == CurrentStation.freq))
-			return i;
-	return 0;
-}
-
-void NextStation(RADIO_TYPE stt, int dir = 1)
-{
-	int ci = GetCurrentStationIndex();
-	int n = 0;
-	dir = (dir > 0) ? 1 : -1;
-	while (n < n_stations)
-	{
-		ci += dir;
-		if (ci < 0) ci = (n_stations - 1);
-		else if (ci >= (n_stations - 1)) ci = 0;
-
-		if ((stt == FM_RADIO && Stations[ci].freq > 0) ||
-			(stt == WEB_RADIO && Stations[ci].freq == 0))
-		{
-			asyncFreq = Stations[ci].freq;
-			asyncUrl = Stations[ci].url;
-			break;
-		}
-		n++;
-	}
-}
-
-void TuneStation(uint n)
-{
-	if (n < n_stations) {
-		asyncFreq = Stations[n].freq;
-		asyncUrl = Stations[n].url;
-	}
-}
-
-void SetCurrentStation(uint freq, String url, String name)
-{
-	CurrentStation.freq = freq;
-	CurrentStation.url = url;
-	CurrentStation.name = name;
-}
-
-bool IsCurrent(int i)
-{
-	return (Stations[i].url == CurrentStation.url && Stations[i].freq == CurrentStation.freq);
-}
-
 bool IsType(int i, RADIO_TYPE t)
 {
 	return ((t == FM_RADIO && Stations[i].freq > 0) || (t == WEB_RADIO && Stations[i].freq == 0));
 }
 
-bool FindStationByUrl(String url, RADIO_STATION &station)
+int GetStationIndexByUrl(String url)
 {
 	for (uint i = 0; i < n_stations; i++)
 		if (Stations[i].url == url)
-		{
-			station = Stations[i];
-			return true;
-		}
-	return false;
+			return i;
+	return -1;
+}
+
+int GetStationIndexByFreq(uint freq)
+{
+	for (uint i = 0; i < n_stations; i++)
+		if (Stations[i].freq == freq)
+			return i;
+	return -1;
+}
+
+
+bool FindStationByUrl(String url, RADIO_STATION &station)
+{
+	int i = GetStationIndexByUrl(url);
+	if (i == -1) return false;
+	station = Stations[i];
+	return true;
 }
 
 bool FindStationByFreq(uint freq, RADIO_STATION &station)
 {
-	for (uint i = 0; i < n_stations; i++)
-		if (Stations[i].freq == freq)
-		{
-			station = Stations[i];
-			return true;
-		}
-	return false;
+	int i = GetStationIndexByFreq(freq);
+	if (i == -1) return false;
+	station = Stations[i];
+	return true;
 }
 
 void LoadRadioState()
@@ -177,14 +138,14 @@ void LoadRadioState()
 		Serial.println("Loading last state");
 		if (file.available())
 		{
+			// read FM state
 			int i = file.readStringUntil(',').toInt();
-			if (i < n_stations)
-			{
-				asyncFreq = Stations[i].freq;
-				asyncUrl = Stations[i].url;
-			}
-			asyncFMVolume = file.readStringUntil(',').toInt();
-			asyncWebVolume = file.readStringUntil('\n').toInt();
+			FindStationByFreq(Stations[i].freq, FMStation);
+			FMVolume = file.readStringUntil(',').toInt();
+			// read WEB state
+			i = file.readStringUntil(',').toInt();
+			FindStationByUrl(Stations[i].url, WebStation);
+			WebVolume = file.readStringUntil('\n').toInt();
 		}
 	}
 	file.close();
@@ -196,9 +157,11 @@ void SaveRadioState()
 	if (file)
 	{
 		Serial.println("Saving state");
-		file.print(GetCurrentStationIndex());
+		file.print(GetStationIndexByFreq(FMStation.freq));
 		file.print(",");
 		file.print(FMVolume);
+		file.print(",");
+		file.print(GetStationIndexByUrl(WebStation.url));
 		file.print(",");
 		file.print(WebVolume);
 		file.print("\n");
