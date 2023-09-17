@@ -47,6 +47,9 @@ void setup()
 	NetworkInit();
 	PlayerInit();
 
+	lastKeyTime = millis();
+	DisplayCurrentMode(DisplayMode);
+
 	// standalone cpu task 
 	//StartPlayerTask();
 }
@@ -60,11 +63,13 @@ void loop()
 		{
 			SetWebVolume(WebVolume-1);
 			FMCommand("AT+VOLD");
+			DisplayVolume(WebVolume);
 		}
 		if (RemoteCode == KEY_PLUS)
 		{
 			SetWebVolume(WebVolume+1);
 			FMCommand("AT+VOLU");
+			DisplayVolume(WebVolume);
 		}
 		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(-1);
 		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(1);
@@ -99,7 +104,7 @@ void loop()
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);
 				}
-				FMCommand("AT+BANK=", 10);
+				FMCommand("AT+BANK=10");
 			}
 		}
 		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);

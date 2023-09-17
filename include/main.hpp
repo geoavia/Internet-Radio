@@ -85,51 +85,7 @@ void SetStateChanged()
     StateChanged = true;
 }
 
-struct PLAYER_ASYNC
-{
-	bool hot = false;
-	int webvol = -1;
-	int fmvol = -1;
-	uint freq = 0;
-	String url = "";
-	String name = "";
-
-	void clear()
-	{
-		hot = false;
-		webvol = fmvol = -1;
-		freq = 0;
-		url = name = "";
-	}
-
-	void SetFreq(uint f, String n)
-	{
-		clear();
-		freq = f;
-		name = n;
-		hot = true;
-	}
-
-	void SetUrl(String u, String n)
-	{
-		clear();
-		url = u;
-		name = n;
-		hot = true;
-	}
-
-	void SetVol(uint v, RADIO_TYPE t)
-	{
-		clear();
-		if (t == FM_RADIO) fmvol = v;
-		else webvol = v;
-		hot = true;
-	}
-};
-
-PLAYER_ASYNC PlayerAsync;
-
-void FMCommand(const char *cmd, ...);
+void FMCommand(const char *cmd);
 void PlayWebStation(String url, String name);
 void TuneFMStation(uint freq, String name);
 void SetWebVolume(uint8_t vol);

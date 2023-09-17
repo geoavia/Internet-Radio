@@ -21,6 +21,8 @@ void PlayerInit()
 {
 	audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     SetWebVolume(WebVolume);
+	PlayWebStation(WebStation.url, WebStation.name);
+	StateChanged = false;
 }
 
 void FMInit()
@@ -29,16 +31,10 @@ void FMInit()
 	uart.begin(38400, SERIAL_8N1, FM_RX, FM_TX);
 }
 
-void FMCommand(const char *cmd, ...)
+void FMCommand(const char *cmd)
 {
-	char scmd[16];
-	va_list par;
-
-	vsprintf(scmd, cmd, par);
 	Serial.print("Command: ");
-	Serial.println(scmd);
-
-	uart.write(scmd);
+	uart.write(cmd);
 }
 
 void PlayWebStation(String url, String name)
@@ -63,8 +59,10 @@ void TuneFMStation(uint freq, String name)
 {
 	if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
+		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);
-		FMCommand("AT+FRE=%d", freq);
+		sprintf(cmd, "AT+FRE=%d", freq);
+		FMCommand(cmd);
 		FMStation.freq = freq;
 		FMStation.name = name;
 		FindStationByFreq(freq, FMStation);
@@ -88,7 +86,9 @@ void SetFMVolume(uint vol)
 {
 	if (vol <= MAX_FM_VOLUME)
 	{
-		FMCommand("AT+VOL=%02d", vol);
+		char cmd[16];
+		sprintf(cmd, "AT+VOL=%02d", vol);
+		FMCommand(cmd);
 		FMVolume = vol;
 		Serial.printf("FM volume: %d\n", FMVolume);
 		SetStateChanged();
@@ -97,6 +97,7 @@ void SetFMVolume(uint vol)
 
 void NextStation(int dir = 1)
 {
+	Serial.printf("%s station\n", (dir > 0)?"Next":"Previous");
 	int ci = (CurrentRadio == FM_RADIO) ? 
 		GetStationIndexByFreq(FMStation.freq) : 
 		GetStationIndexByUrl(WebStation.url);
@@ -106,38 +107,46 @@ void NextStation(int dir = 1)
 	{
 		ci += dir;
 		if (ci < 0) ci = (n_stations - 1);
-		else if (ci >= (n_stations - 1)) ci = 0;
+		else if (ci >= n_stations) ci = 0;
 
 		if (IsType(ci, CurrentRadio))
 		{
-			//FStasyncFreq = Stations[ci].freq;
-			//asyncUrl = Stations[ci].url;
+			if (CurrentRadio == FM_RADIO) TuneFMStation(Stations[ci].freq, Stations[ci].name);
+			else PlayWebStation(Stations[ci].url, Stations[ci].name);
 			break;
 		}
 		n++;
 	}
 }
 
-void SwitchStation(int num)
+void SwitchStation(uint n)
 {
-
+	/// TODO...........
+	if (n < n_stations)
+	{
+		if (Stations[n].freq > 0)
+		{
+			CurrentRadio = FM_RADIO;
+			TuneFMStation(Stations[n].freq, Stations[n].name);
+		}
+		else
+		{
+			CurrentRadio = WEB_RADIO;
+			PlayWebStation(Stations[n].url, Stations[n].name);
+		}
+	}
 }
 
 void PlayerJob()
 {
-	if (PlayerAsync.hot)
+ 	if (async_hot)
 	{
-		if (PlayerAsync.url.length() > 0) 
-			PlayWebStation(PlayerAsync.url, PlayerAsync.name);
-		else if (PlayerAsync.freq > 0)
-			TuneFMStation(PlayerAsync.freq, PlayerAsync.name);
-		else if (PlayerAsync.fmvol >= 0)
-			SetFMVolume(PlayerAsync.fmvol);
-		else if (PlayerAsync.webvol >= 0)
-			SetFMVolume(PlayerAsync.webvol);
-		PlayerAsync.clear();
+		if (async_url.length() > 0) PlayWebStation(async_url, "WEB Station");
+		else if (async_freq > 0) TuneFMStation(async_freq, "FM " + String(((float)async_freq)/10));
+		else if (async_fmvol >= 0) SetFMVolume(async_fmvol);
+		else if (async_webvol >= 0) SetWebVolume(async_webvol);
+		async_clear();
 	}
-
 }
 
 #endif //__PLAYER_H__

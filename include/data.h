@@ -29,12 +29,13 @@ void LoadRadioStations()
 void AddStation(uint freq, String url, String name = "")
 {
 	if (n_stations < MAX_STATIONS)
-	{
-		Stations[n_stations].freq = freq;
-		Stations[n_stations].url = url;
-		Stations[n_stations].name = name;
-		n_stations++;
-	}
+		if ((freq >= MIN_FREQ && freq <= MAX_FREQ) || url.length() > 0)
+		{
+			Stations[n_stations].freq = freq;
+			Stations[n_stations].url = url;
+			Stations[n_stations].name = name;
+			n_stations++;
+		}
 }
 
 void RemoveStation(uint index)

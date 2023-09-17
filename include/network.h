@@ -6,6 +6,42 @@
 //WiFiClient client;
 AsyncWebServer server(80);
 
+bool async_hot = false;
+int async_webvol = -1;
+int async_fmvol = -1;
+uint async_freq = 0;
+String async_url = "";
+
+void async_clear()
+{
+	async_hot = false;
+	async_webvol = async_fmvol = -1;
+	async_freq = 0;
+	async_url = "";
+}
+
+void async_setFreq(uint f)
+{
+	async_clear();
+	async_freq = f;
+	async_hot = true;
+}
+
+void async_setUrl(String u)
+{
+	async_clear();
+	async_url = u;
+	async_hot = true;
+}
+
+void async_setVol(uint v, RADIO_TYPE t)
+{
+	async_clear();
+	if (t == FM_RADIO) async_fmvol = v;
+	else async_webvol = v;
+	async_hot = true;
+}
+
 // load all saved wifi credentials
 void load_networks()
 {
@@ -527,14 +563,14 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 				else html += "<tr><td>";
 				html += n;
 				html += "</td><td><a href=\"/get?fmfreq=";
-				html += Stations[i].freq;
+				html += String(((float)Stations[i].freq)/10);
 				html += "\">";
 				html += Stations[i].name;
 				html += "</td><td>";
 				html += String(((float)Stations[i].freq)/10);
 				html += "</td><td>";
 				html += "<a href=\"/del?fmfreq=";
-				html += EncodeUrl(Stations[i].url);
+				html += Stations[i].freq;
 				html += "\">Remove</a></td></tr>";
 				n++;
 			}
@@ -565,14 +601,14 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			} 
 			else // play
 			{
-				PlayerAsync.SetUrl(url, "WEB Station");
-				delay(1000);
+				async_setUrl(url);
+				delay(1000); // for Job to finish
 			}
 			request->redirect("/");
 		}
 		else if (request->hasParam("fmfreq"))
 		{
-			uint freq = request->getParam("fmfreq")->value().toInt();
+			uint freq = request->getParam("fmfreq")->value().toFloat() * 10;
 			if (request->hasParam("add")) 
 			{
 				String name = "";
@@ -590,8 +626,8 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 			} 
 			else // tune
 			{
-				PlayerAsync.SetFreq(freq, "FM " + String(((float)freq)/10));
-				delay(1000);
+				async_setFreq(freq);
+				delay(1000); // for Job to finish
 			}
 			request->redirect("/");
 		}
@@ -625,14 +661,14 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
 		if (request->hasParam("mp3vol"))
 		{
-			PlayerAsync.SetVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
-			delay(1000);
+			async_setVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
+			delay(1000); // for Job to finish
 			request->redirect("/");
 		}
 		if (request->hasParam("fmvol"))
 		{
-			PlayerAsync.SetVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
-			delay(1000);
+			async_setVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
+			delay(1000); // for Job to finish
 			request->redirect("/");
 		}
 		else 
