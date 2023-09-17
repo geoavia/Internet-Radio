@@ -131,7 +131,7 @@ void DisplayHeader()
 	// tft.setTextColor(TFT_BLUE);
 	// tft.drawString("WWW Radio", 0, 0, 4);
 	tft.setTextColor(TFT_GREEN);
-	tft.drawString("ver 1.1", 180, 15, 2);
+	tft.drawString("ver 1.2", 180, 15, 2);
 	tft.setCursor(0, 50);
 
 	tft.setTextFont(1);
