@@ -12,9 +12,9 @@
 
 #define BUTTON_PIN_OK 33
 #define BUTTON_PIN_UP 35
-#define BUTTON_PIN_DOWN 34
+#define BUTTON_PIN_DOWN 0
 #define BUTTON_PIN_LEFT 13
-#define BUTTON_PIN_RIGHT 14
+#define BUTTON_PIN_RIGHT 12
 
 #define KEY_1 0xC
 #define KEY_2 0x18
@@ -51,7 +51,7 @@ bool oldBstate = false;
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_OK, INPUT_PULLDOWN);
+	pinMode(BUTTON_PIN_OK, INPUT);
 	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_LEFT, INPUT_PULLUP);

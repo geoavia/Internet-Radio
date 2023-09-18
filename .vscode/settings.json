@@ -10,5 +10,6 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "vector": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "C:/dev/PlatformIO/Internet-Radio/.pio/libdeps/esp32dev/AsyncTCP"
 }
