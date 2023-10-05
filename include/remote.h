@@ -13,8 +13,8 @@
 #define BUTTON_PIN_UP 35
 #define BUTTON_PIN_DOWN 0
 #define BUTTON_PIN_OK 33
-#define BUTTON_PIN_LEFT 32
-#define BUTTON_PIN_RIGHT 39
+#define BUTTON_PIN_LEFT 39
+#define BUTTON_PIN_RIGHT 32
 
 #define KEY_1 0xC
 #define KEY_2 0x18
@@ -51,23 +51,19 @@ bool oldBstate = false;
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_OK, INPUT);
 	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
-	pinMode(BUTTON_PIN_LEFT, INPUT_PULLUP);
-	pinMode(BUTTON_PIN_RIGHT, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_OK, INPUT);
+	pinMode(BUTTON_PIN_LEFT, INPUT);
+	pinMode(BUTTON_PIN_RIGHT, INPUT);
+	// pinMode(IR_RECEIVE_PIN, INPUT_PULLUP);
+
 }
 
 bool ButtonsProcess()
 {
 	bool bstate = false;
 
-	if (digitalRead(BUTTON_PIN_OK) == HIGH)
-	{
-		RemoteCode = KEY_CH;
-		bstate = true;
-	}
-	
 	if (digitalRead(BUTTON_PIN_UP) == LOW)
 	{
 		RemoteCode = KEY_CH_PLUS;
@@ -78,12 +74,17 @@ bool ButtonsProcess()
 		RemoteCode = KEY_CH_MINUS;
 		bstate = true;
 	}
-	if (digitalRead(BUTTON_PIN_LEFT) == LOW)
+	if (digitalRead(BUTTON_PIN_OK) == HIGH)
+	{
+		RemoteCode = KEY_CH;
+		bstate = true;
+	}
+	if (digitalRead(BUTTON_PIN_LEFT) == HIGH)
 	{
 		RemoteCode = KEY_MINUS;
 		bstate = true;
 	}
-	if (digitalRead(BUTTON_PIN_RIGHT) == LOW)
+	if (digitalRead(BUTTON_PIN_RIGHT) == HIGH)
 	{
 		RemoteCode = KEY_PLUS;
 		bstate = true;
