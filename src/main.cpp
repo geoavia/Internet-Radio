@@ -1,3 +1,9 @@
+#ifdef ENABLE_DEBUG
+  #define DEBUG_ESP_PORT Serial
+  #define NODEBUG_WEBSOCKETS
+  #define NDEBUG
+#endif
+
 #include "main.hpp"
 
 // all in one hpp files (for simplicity)
@@ -12,7 +18,7 @@
 // state auto save interval
 #define AUTOSAVE_INTERVAL_MS 9000
 
-#define BUTTON_PIN_BITMASK (0x200000000) // 2^GPIO
+#define BUTTON_PIN_BITMASK (0x8300000000) // 2^GPIO
 
 RTC_DATA_ATTR int bootCount = 0;
 

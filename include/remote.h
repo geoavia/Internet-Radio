@@ -10,11 +10,11 @@
 
 #define IR_RECEIVE_PIN 17
 
-#define BUTTON_PIN_OK 33
 #define BUTTON_PIN_UP 35
 #define BUTTON_PIN_DOWN 0
-#define BUTTON_PIN_LEFT 13
-#define BUTTON_PIN_RIGHT 12
+#define BUTTON_PIN_OK 33
+#define BUTTON_PIN_LEFT 32
+#define BUTTON_PIN_RIGHT 39
 
 #define KEY_1 0xC
 #define KEY_2 0x18
