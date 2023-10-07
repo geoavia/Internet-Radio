@@ -31,6 +31,8 @@ const char *STATE_FILE_NAME = "/state.csv";
 #define MIN_FREQ	870
 #define MAX_FREQ	1080
 
+#define V3_PIN 12
+
 Audio audio;
 
 // Radio Volume

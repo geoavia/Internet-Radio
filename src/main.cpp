@@ -25,6 +25,9 @@ RTC_DATA_ATTR int bootCount = 0;
 void setup()
 {
 	Serial.begin(115200);
+	pinMode(V3_PIN, OUTPUT);
+	digitalWrite(V3_PIN, HIGH);
+	delay(100);
 
 	esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
@@ -99,6 +102,8 @@ void loop()
 				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
 				{
 					DisplayZZZ();
+					digitalWrite(V3_PIN, LOW);
+					delay(100);
 					esp_deep_sleep_start();
 				}
 			}
