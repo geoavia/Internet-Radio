@@ -157,7 +157,8 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.drawFastHLine(0,25,240,TFT_WHITE);
 		tft.setCursor(0, 32);
 		tft.setTextColor(TFT_YELLOW);
-		tft.println(WebStation.name); // todo get from icy-metadata
+		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name);
+		else tft.println(FMStation.name);
 		
 		//tft.startscrollright(0x00,0x04);
 	} 
@@ -173,7 +174,8 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.print(">> Playing ");
 		tft.println("Station #");
 		tft.setTextColor(TFT_YELLOW);
-		tft.println(WebStation.name); // todo get from icy-metadata
+		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name); 
+		else tft.println(FMStation.name);
 		
 		tft.setTextWrap(false);
 		tft.drawFastHLine(0,100,240,TFT_YELLOW);

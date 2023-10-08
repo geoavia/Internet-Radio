@@ -125,9 +125,6 @@ void loop()
 
 	PlayerJob();
 
-	digitalWrite(FM_RELAY_PIN, (millis()%4000 < 2000) ? HIGH : LOW);
-	digitalWrite(WEB_RELAY_PIN, (millis()%4000 < 2000) ? LOW : HIGH);
-
 	audio.loop();
 	//delay(50);
 }

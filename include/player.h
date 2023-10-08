@@ -29,6 +29,25 @@ void FMCommand(const char *cmd)
 	uart.write(cmd);
 }
 
+void SwitchOutput(RADIO_TYPE op)
+{
+	digitalWrite(WEB_RELAY_PIN, LOW);
+	digitalWrite(FM_RELAY_PIN, LOW);
+	if (op == FM_RADIO)
+	{
+		digitalWrite(FM_RELAY_PIN, HIGH);
+		delay(500);
+		digitalWrite(FM_RELAY_PIN, LOW);
+	}
+	else
+	{
+		digitalWrite(WEB_RELAY_PIN, HIGH);
+		delay(500);
+		digitalWrite(WEB_RELAY_PIN, LOW);
+	}
+	CurrentRadio = op;
+}
+
 void PlayWebStation(String url, String name)
 {
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
@@ -37,6 +56,7 @@ void PlayWebStation(String url, String name)
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
 		if (audio.connecttohost(url.c_str()))
 		{
+			SwitchOutput(WEB_RADIO);
 			WebStation.url = url;
 			WebStation.name = name;
 			FindStationByUrl(url, WebStation);
@@ -51,10 +71,12 @@ void TuneFMStation(uint freq, String name)
 {
 	if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
+		//audio.stopSong();
 		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);
 		sprintf(cmd, "AT+FRE=%d", freq);
 		FMCommand(cmd);
+		SwitchOutput(FM_RADIO);
 		FMStation.freq = freq;
 		FMStation.name = name;
 		FindStationByFreq(freq, FMStation);
@@ -113,17 +135,14 @@ void NextStation(int dir = 1)
 
 void SwitchStation(uint n)
 {
-	/// TODO...........
 	if (n < n_stations)
 	{
 		if (Stations[n].freq > 0)
 		{
-			CurrentRadio = FM_RADIO;
 			TuneFMStation(Stations[n].freq, Stations[n].name);
 		}
 		else
 		{
-			CurrentRadio = WEB_RADIO;
 			PlayWebStation(Stations[n].url, Stations[n].name);
 		}
 	}
