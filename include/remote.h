@@ -8,14 +8,6 @@
 
 #include <IRremote.hpp>
 
-#define IR_RECEIVE_PIN 17
-
-#define BUTTON_PIN_UP 35
-#define BUTTON_PIN_DOWN 0
-#define BUTTON_PIN_OK 33
-#define BUTTON_PIN_LEFT 39
-#define BUTTON_PIN_RIGHT 32
-
 #define KEY_1 0xC
 #define KEY_2 0x18
 #define KEY_3 0x5E

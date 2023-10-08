@@ -5,21 +5,13 @@
 
 #include <HardwareSerial.h>
 
-#define I2S_DOUT      25 // Preset I2S pins on the ESP32
-#define I2S_BCLK      27
-#define I2S_LRC       26
-
-#define FM_RX	15
-#define FM_TX	2
-
-
 HardwareSerial uart(2); // use UART2
 
 void SetWebVolume(uint8_t vol);
 
 void PlayerInit()
 {
-	audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
     SetWebVolume(WebVolume);
 	PlayWebStation(WebStation.url, WebStation.name);
 	StateChanged = false;
@@ -28,7 +20,7 @@ void PlayerInit()
 void FMInit()
 {
 	Serial.println("UART Init...");
-	uart.begin(38400, SERIAL_8N1, FM_RX, FM_TX);
+	uart.begin(38400, SERIAL_8N1, FM_RX_PIN, FM_TX_PIN);
 }
 
 void FMCommand(const char *cmd)

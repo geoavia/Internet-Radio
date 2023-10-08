@@ -16,6 +16,10 @@
 
 #include "time.h"
 
+//#include <driver/adc.h>
+#include "esp_adc_cal.h"
+
+
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 3600*4; // Georgia
 const int daylightOffset_sec = 0; // Georgia
@@ -31,7 +35,66 @@ const char *STATE_FILE_NAME = "/state.csv";
 #define MIN_FREQ	870
 #define MAX_FREQ	1080
 
-#define V3_PIN 12
+////////////////////////////////
+// Pinout
+//
+// Audio output relay
+//
+#define FM_RELAY_PIN		21
+#define WEB_RELAY_PIN		22
+//
+#define IR_RECEIVE_PIN		17
+//
+// FM board
+#define FM_TX_PIN 			2
+#define FM_RX_PIN			15
+//
+// Peripherials power switch
+#define PWR_PIN 			12
+//
+// Buttons
+#define BUTTON_PIN_UP		35
+#define BUTTON_PIN_DOWN		0
+#define BUTTON_PIN_LEFT		39
+#define BUTTON_PIN_RIGHT	32
+#define BUTTON_PIN_OK		33
+//
+// External DAC board
+#define I2S_DOUT_PIN		25
+#define I2S_LRC_PIN			26
+#define I2S_BCLK_PIN		27
+
+
+#define WAKE_PIN_BITMASK (0x8300000000) // 2^GPIO
+
+#define ADC_VBAT 34
+#define ADC_EN 14
+
+// State auto save interval
+#define AUTOSAVE_INTERVAL_MS 9000
+
+
+float VBAT = 0; // battery voltage from ESP32 ADC read
+
+void initVbat()
+{
+	esp_adc_cal_characteristics_t adc_chars;
+	esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC_ATTEN_DB_2_5, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
+	pinMode(ADC_VBAT, INPUT)j;
+	pinMode(ADC_EN, OUTPUT);
+}
+
+float getVbat()
+{
+	digitalWrite(ADC_EN, HIGH);
+	delay(1);
+	VBAT = ((float)analogRead(ADC_VBAT)) / 4095.0 * 7.26;
+	digitalWrite(ADC_EN, LOW);
+	return VBAT;
+
+	// VBAT = ((float)analogRead(ADC_VBAT)) * 3600 / 4095 * 2;
+	// return VBAT / 1000;
+}
 
 Audio audio;
 
@@ -39,7 +102,7 @@ Audio audio;
 uint WebVolume = 20;
 uint FMVolume = 20;
 
-// saved network credentials
+// Station info
 struct RADIO_STATION
 {
 	uint freq = 0;
@@ -62,7 +125,7 @@ RADIO_TYPE CurrentRadio = WEB_RADIO;
 // http://wbgo.streamguys.net/thejazzstream - ok
 // http://jenny.torontocast.com:8012/stream - sketchy
 
-// saved network credentials
+// Network credentials
 struct WIFI_NETWORK
 {
 	String ssid = "";

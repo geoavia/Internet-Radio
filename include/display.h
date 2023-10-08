@@ -14,9 +14,6 @@
 #define TFT_SLPIN   0x10
 #endif
 
-#define ADC_EN          14
-#define ADC_PIN         34
-
 //initialize the display
 TFT_eSPI tft(TFT_WIDTH, TFT_HEIGHT);
 
@@ -130,8 +127,15 @@ void DisplayHeader()
 	tft.setTextSize(1);
 	// tft.setTextColor(TFT_BLUE);
 	// tft.drawString("WWW Radio", 0, 0, 4);
+
+	tft.setTextColor(TFT_YELLOW);
+	tft.setTextFont(2);
+	tft.setCursor(200, 0);
+	tft.printf("%.1fv", getVbat());
+
 	tft.setTextColor(TFT_GREEN);
 	tft.drawString("ver 1.2", 180, 15, 2);
+
 	tft.setCursor(0, 50);
 
 	tft.setTextFont(1);
@@ -198,6 +202,11 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.setCursor(50, 60);
 			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+			//tft.setTextSize(2);
+			tft.setTextColor(TFT_YELLOW);
+			tft.setCursor(25, 100);
+			tft.setTextFont(4);
+			tft.printf("Battery: %.1f volts", getVbat());
 			
 		}
 	}

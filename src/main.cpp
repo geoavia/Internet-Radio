@@ -6,7 +6,6 @@
 
 #include "main.hpp"
 
-// all in one hpp files (for simplicity)
 // preserve order!
 #include "helper.h"
 #include "remote.h"
@@ -15,21 +14,23 @@
 #include "network.h"
 #include "player.h"
 
-// state auto save interval
-#define AUTOSAVE_INTERVAL_MS 9000
-
-#define BUTTON_PIN_BITMASK (0x8300000000) // 2^GPIO
-
 RTC_DATA_ATTR int bootCount = 0;
 
 void setup()
 {
 	Serial.begin(115200);
-	pinMode(V3_PIN, OUTPUT);
-	digitalWrite(V3_PIN, HIGH);
-	delay(100);
 
-	esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
+	initVbat();
+
+	pinMode(FM_RELAY_PIN, OUTPUT);
+	pinMode(WEB_RELAY_PIN, OUTPUT);
+	pinMode(PWR_PIN, OUTPUT);
+	
+	// power up peripherials
+	digitalWrite(PWR_PIN, HIGH);
+	delay(200);
+
+	esp_sleep_enable_ext1_wakeup(WAKE_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
 	// This can be set in the IDE no need for ext library
 	// system_update_cpu_freq(160);
@@ -37,17 +38,6 @@ void setup()
 	Serial.println("\nInternet Radio, (c) GGM, 2023");
 
 	FMInit();
-	// delay(1000);
-	// UartCommand("AT+VOL=", 15);
-	// delay(1000);
-	// UartCommand("AT+FRE=", 1039);
-	// delay(1000);
-	// UartCommand("AT+BANK=", 10);
-	// delay(3000);
-	// UartCommand("AT+FRE=", 997);
-
-	//return;
-
 
 	ButtonsInit();
 	RemoteInit();
@@ -102,8 +92,9 @@ void loop()
 				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
 				{
 					DisplayZZZ();
-					digitalWrite(V3_PIN, LOW);
-					delay(100);
+					// shut down peripherials
+					digitalWrite(PWR_PIN, LOW);
+					delay(200);
 					esp_deep_sleep_start();
 				}
 			}
@@ -133,6 +124,9 @@ void loop()
 	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
 
 	PlayerJob();
+
+	digitalWrite(FM_RELAY_PIN, (millis()%4000 < 2000) ? HIGH : LOW);
+	digitalWrite(WEB_RELAY_PIN, (millis()%4000 < 2000) ? LOW : HIGH);
 
 	audio.loop();
 	//delay(50);
