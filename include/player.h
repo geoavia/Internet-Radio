@@ -36,13 +36,13 @@ void SwitchOutput(RADIO_TYPE op)
 	if (op == FM_RADIO)
 	{
 		digitalWrite(FM_RELAY_PIN, HIGH);
-		delay(500);
+		delay(50);
 		digitalWrite(FM_RELAY_PIN, LOW);
 	}
 	else
 	{
 		digitalWrite(WEB_RELAY_PIN, HIGH);
-		delay(500);
+		delay(50);
 		digitalWrite(WEB_RELAY_PIN, LOW);
 	}
 	CurrentRadio = op;

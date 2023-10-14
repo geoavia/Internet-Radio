@@ -43,11 +43,13 @@ bool oldBstate = false;
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_UP, INPUT); // gpio 35 has internal pullup
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_OK, INPUT);
 	pinMode(BUTTON_PIN_LEFT, INPUT);
 	pinMode(BUTTON_PIN_RIGHT, INPUT);
+
+	// pulled up by the resistor
 	// pinMode(IR_RECEIVE_PIN, INPUT_PULLUP);
 
 }
@@ -105,6 +107,8 @@ bool ButtonsProcess()
 
 void RemoteInit()
 {
+	// pinMode(IR_RECEIVE_PIN, INPUT_PULLUP);
+
 	IrReceiver.begin(IR_RECEIVE_PIN);
 }
 

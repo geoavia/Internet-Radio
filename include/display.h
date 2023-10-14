@@ -54,7 +54,7 @@ void DisplayInit()
 
 	tft.setRotation(3);
 
-	pinMode(4, OUTPUT);
+	pinMode(TFT_BL, OUTPUT);
 	ledcSetup(0, 5000, 8); // 0-15, 5000, 8
 	ledcAttachPin(TFT_BL, 0); // TFT_BL, 0 - 15	
 

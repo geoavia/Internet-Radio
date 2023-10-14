@@ -46,6 +46,9 @@ void setup()
 	NetworkInit();
 	PlayerInit();
 
+	// GPIO0 strange behaviour fix
+	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
+
 	lastKeyTime = millis();
 	DisplayCurrentMode(DisplayMode);
 
@@ -55,7 +58,6 @@ void setup()
 
 void loop()
 {
-	//return;
 	if (GetRemoteCode())
 	{
 		if (RemoteCode == KEY_MINUS)
