@@ -93,11 +93,7 @@ void loop()
 			{
 				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
 				{
-					DisplayZZZ();
-					// shut down peripherials
-					digitalWrite(PWR_PIN, LOW);
-					delay(200);
-					esp_deep_sleep_start();
+					shutdown();
 				}
 			}
 			else

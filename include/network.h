@@ -42,6 +42,15 @@ void async_setVol(uint v, RADIO_TYPE t)
 	async_hot = true;
 }
 
+void shutdown()
+{
+	DisplayZZZ();
+	// shut down peripherials
+	digitalWrite(PWR_PIN, LOW);
+	delay(200);
+	esp_deep_sleep_start();
+}
+
 // load all saved wifi credentials
 void load_networks()
 {
@@ -243,7 +252,8 @@ bool want_display_ui()
 		
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
 		if ((RemoteCode == KEY_PLUS || RemoteCode == KEY_MINUS) && !IsRepeat) dui = !dui;
-		if (RemoteCode == KEY_EQ && !IsRepeat) break;
+		if (RemoteCode == KEY_CH && !IsRepeat) break;
+		if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
 	}
 	return dui;
 }
@@ -299,10 +309,11 @@ bool get_network_ui()
 			else if (yc == 5 && y0 + 6 < n_SSID) y0++;
 			else yc = y0 = 0;
 		}
-		if (RemoteCode == KEY_EQ && !IsRepeat)
+		if (RemoteCode == KEY_CH && !IsRepeat)
 		{
 			curnet.ssid = WiFi.SSID(y0 + yc);
 		}
+		if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
 	}
 
 	// Enter Password UI
@@ -373,7 +384,7 @@ bool get_network_ui()
 					if (pwd[xc] == 0) pwd[xc] = 'Z';
 					else if (pwd[xc] > MIN_CHAR) pwd[xc]--;
 				}
-				if (RemoteCode == KEY_EQ && !IsRepeat)
+				if (RemoteCode == KEY_CH && !IsRepeat)
 				{
 					curnet.password = String(pwd);
 					return true;
@@ -386,6 +397,7 @@ bool get_network_ui()
 				{
 					if (xc < 19 && pwd[xc]) xc++;
 				}
+				if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
 			}
 			delay(10);
 		}
