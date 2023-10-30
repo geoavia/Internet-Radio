@@ -112,7 +112,7 @@ void loop()
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);
 				}
-				FMCommand("AT+BANK=10");
+				//FMCommand("AT+BANK=10");
 			}
 		}
 		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);

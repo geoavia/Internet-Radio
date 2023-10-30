@@ -32,25 +32,21 @@
 
 #define KEY_OK_TO_SLEEP_INTERVAL_MS 1000
 #define KEY_REPEAT_INTERVAL_MS 400
-#define KEY_DAMPER_INTERVAL_MS 50
+#define KEY_DEBOUNCE_INTERVAL_MS 50
 
 uint16_t RemoteCode = 0;
 bool IsRepeat = false;
 unsigned long lastKeyTime = 0;
-unsigned long lastPressTime = 0;
+unsigned long lastDebounceTime = 0;
 bool IsRemote = false;
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_UP, INPUT); // gpio 35 has internal pullup
+	pinMode(BUTTON_PIN_UP, INPUT); // has internal pullup
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 	pinMode(BUTTON_PIN_OK, INPUT);
 	pinMode(BUTTON_PIN_LEFT, INPUT);
 	pinMode(BUTTON_PIN_RIGHT, INPUT);
-
-	// pulled up by the resistor
-	// pinMode(IR_RECEIVE_PIN, INPUT_PULLUP);
-
 }
 
 bool ButtonsProcess()
@@ -86,16 +82,14 @@ bool ButtonsProcess()
 
 	if (pressed) 
 	{
-		if ((millis() - lastPressTime) < KEY_DAMPER_INTERVAL_MS) 
-		{
-			return false;
-		}
-		IsRepeat = ((millis() - lastPressTime) < KEY_REPEAT_INTERVAL_MS);
-		lastPressTime = millis();
-		if (!IsRepeat) 
-		{
-			lastKeyTime = millis();
-		}
+		if ((millis() - lastDebounceTime) < KEY_DEBOUNCE_INTERVAL_MS) return false;
+		IsRepeat = ((millis() - lastDebounceTime) < KEY_REPEAT_INTERVAL_MS);
+		lastDebounceTime = millis();
+		if (!IsRepeat) lastKeyTime = millis();
+	}
+	else
+	{
+		lastDebounceTime = 0;
 	}
 
 	return pressed;
@@ -103,6 +97,7 @@ bool ButtonsProcess()
 
 void RemoteInit()
 {
+	// pulled up by the resistor
 	// pinMode(IR_RECEIVE_PIN, INPUT_PULLUP);
 
 	IrReceiver.begin(IR_RECEIVE_PIN);
