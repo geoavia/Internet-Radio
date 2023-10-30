@@ -81,33 +81,49 @@ void DisplayDim(bool dim)
 	}
 }
 
-void DisplayZZZ()
+#define SLEEP_BAR_COUNT 20
+
+bool DisplaySleepBar(int count)
 {
 	tft.fillScreen(TFT_BLACK);
 	tft.setTextColor(TFT_WHITE);
 	//tft.stopscroll();
-	tft.setTextSize(4);
-	tft.setCursor(30, 30);
-	tft.print(F("Z"));
-	//
-	delay(500);
-	tft.setTextSize(3);
-	tft.setCursor(100, 30);
-	tft.print(F("Z"));
-	//
-	delay(500);
-	tft.setTextSize(2);
-	tft.setCursor(150, 30);
-	tft.print(F("Z"));
-	//
-	delay(500);
+	tft.setTextFont(4);
 	tft.setTextSize(1);
-	tft.setCursor(190, 30);
-	tft.print(F("Z"));
-	//
-	delay(500);
-	tft.fillScreen(TFT_BLACK);
-	//
+
+	if (count < SLEEP_BAR_COUNT)
+	{
+		tft.setCursor(0, 40);
+		tft.print(F("Keep press to sleep"));
+		//
+		//
+		tft.setTextFont(1);
+		tft.setTextSize(2);
+		tft.setCursor(0, 80);
+		for (size_t i = 0; i < SLEEP_BAR_COUNT; i++)
+		{
+			if (i < count) 
+			{
+				tft.setTextColor(TFT_YELLOW);
+				tft.print("#");
+			}
+			else 
+			{
+				tft.setTextColor(TFT_DARKGREY);
+				tft.print(".");
+			}
+		}
+	} 
+	else 
+	{
+		tft.setCursor(20, 50);
+		tft.print(F("Going to sleep now"));
+		delay(2000);
+	}
+
+	//tft.fillScreen(TFT_BLACK);
+	return (count >= SLEEP_BAR_COUNT);
+	
 }
 
 void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)

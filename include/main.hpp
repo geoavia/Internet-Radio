@@ -152,7 +152,7 @@ void SetStateChanged()
 
 void FMCommand(const char *cmd);
 void PlayWebStation(String url, String name);
-void TuneFMStation(uint freq, String name);
+void TuneFMStation(uint freq, String name, bool fout);
 void SetWebVolume(uint8_t vol);
 void SetFMVolume(uint vol);
 

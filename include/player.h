@@ -26,6 +26,7 @@ void FMInit()
 void FMCommand(const char *cmd)
 {
 	Serial.print("Command: ");
+	Serial.println(cmd);
 	uart.write(cmd);
 }
 
@@ -67,16 +68,18 @@ void PlayWebStation(String url, String name)
 
 }
 
-void TuneFMStation(uint freq, String name)
+void TuneFMStation(uint freq, String name, bool fout = true)
 {
-	if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
+	if (freq < MIN_FREQ) freq = MIN_FREQ;
+	if (freq > MAX_FREQ) freq = MAX_FREQ;
+	//if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
 		//audio.stopSong();
 		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);
 		sprintf(cmd, "AT+FRE=%d", freq);
 		FMCommand(cmd);
-		SwitchOutput(FM_RADIO);
+		if (fout || CurrentRadio != FM_RADIO) SwitchOutput(FM_RADIO);
 		FMStation.freq = freq;
 		FMStation.name = name;
 		FindStationByFreq(freq, FMStation);

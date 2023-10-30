@@ -42,10 +42,9 @@ void async_setVol(uint v, RADIO_TYPE t)
 	async_hot = true;
 }
 
+
 void shutdown()
 {
-	DisplayZZZ();
-	// shut down peripherials
 	digitalWrite(PWR_PIN, LOW);
 	delay(200);
 	esp_deep_sleep_start();

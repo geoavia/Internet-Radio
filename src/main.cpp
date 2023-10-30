@@ -16,6 +16,9 @@
 
 RTC_DATA_ATTR int bootCount = 0;
 
+int sleepBar = 0;
+unsigned long sleepBarTime = 0;
+
 void setup()
 {
 	Serial.begin(115200);
@@ -84,8 +87,8 @@ void loop()
 		if (RemoteCode == KEY_7) SwitchStation(7);
 		if (RemoteCode == KEY_8) SwitchStation(8);
 		if (RemoteCode == KEY_9) SwitchStation(9);
-		if (RemoteCode == KEY_PREV) TuneFMStation(FMStation.freq-1, "Unknown");
-		if (RemoteCode == KEY_NEXT) TuneFMStation(FMStation.freq+1, "Unknown");
+		if (RemoteCode == KEY_PREV) TuneFMStation(FMStation.freq-1, String(((float)(FMStation.freq-1))/10), false);
+		if (RemoteCode == KEY_NEXT) TuneFMStation(FMStation.freq+1, String(((float)(FMStation.freq+1))/10), false);
 
 		if (RemoteCode == KEY_CH)
 		{
@@ -93,11 +96,16 @@ void loop()
 			{
 				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
 				{
-					shutdown();
+					sleepBarTime = millis();
+					if (DisplaySleepBar(sleepBar++)) 
+					{
+						shutdown();
+					}
 				}
 			}
 			else
 			{
+				sleepBar = 0;
 				if (isDisplayDimmed()) DisplayDim(false);
 				else if (IsRemote) DisplayCurrentMode(DM_NORMAL);
 				else {
@@ -110,6 +118,12 @@ void loop()
 		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);
 		if (RemoteCode == KEY_PLAYPAUSE) DisplayCurrentMode(DM_SIMPLE);
 	}
+	else if (sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_INTERVAL_MS))
+	{
+		sleepBar = 0;
+		DisplayCurrentMode(DM_NORMAL);
+	}
+
 
 	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
 	{
