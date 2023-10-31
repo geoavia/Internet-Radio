@@ -18,6 +18,7 @@ RTC_DATA_ATTR int bootCount = 0;
 
 int sleepBar = 0;
 unsigned long sleepBarTime = 0;
+unsigned long secondsFromMillis = 0;
 
 void setup()
 {
@@ -134,6 +135,13 @@ void loop()
 
 	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
 	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
+
+	if (millis()/1000 > secondsFromMillis)
+	{
+		if (DisplayMode == DM_TIME) DisplayCurrentMode(DisplayMode);
+		secondsFromMillis = (millis()/1000);
+	}
+
 
 	PlayerJob();
 

@@ -158,6 +158,8 @@ void DisplayHeader()
 	tft.setTextSize(2);
 }
 
+bool bTimeDelimiter = false;
+
 void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
@@ -214,7 +216,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.setTextColor(TFT_WHITE);
 			tft.setCursor(50, 4);
 			tft.setTextFont(7);
-			tft.printf("%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
+			tft.printf("%02d%s%02d", timeinfo.tm_hour, (bTimeDelimiter ? ":" : " "), timeinfo.tm_min);
 			//tft.setTextSize(2);
 			tft.setTextColor(TFT_GREEN);
 			tft.setCursor(50, 60);
@@ -225,7 +227,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.setCursor(25, 100);
 			tft.setTextFont(4);
 			tft.printf("Battery: %.1f volts", getVbat());
-			
+			bTimeDelimiter = !bTimeDelimiter;
 		}
 	}
 

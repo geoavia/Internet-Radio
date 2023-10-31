@@ -31,14 +31,15 @@
 #define KEY_CH 0x46
 
 #define KEY_OK_TO_SLEEP_INTERVAL_MS 1000
-#define KEY_REPEAT_INTERVAL_MS 400
+#define KEY_REPEAT_INTERVAL_MS 300
 #define KEY_DEBOUNCE_INTERVAL_MS 50
 
 uint16_t RemoteCode = 0;
+bool IsRemote = false;
 bool IsRepeat = false;
 unsigned long lastKeyTime = 0;
 unsigned long lastDebounceTime = 0;
-bool IsRemote = false;
+bool lastState = false;
 
 void ButtonsInit()
 {
@@ -51,48 +52,57 @@ void ButtonsInit()
 
 bool ButtonsProcess()
 {
-	bool pressed = false;
-	IsRepeat = false;
+	bool state = false;
+	bool hasKey = false;
+	RemoteCode = 0;
 
 	if (digitalRead(BUTTON_PIN_UP) == LOW)
 	{
 		RemoteCode = KEY_CH_PLUS;
-		pressed = true;
+		state = true;
 	}
 	if (digitalRead(BUTTON_PIN_DOWN) == LOW)
 	{
 		RemoteCode = KEY_CH_MINUS;
-		pressed = true;
+		state = true;
 	}
 	if (digitalRead(BUTTON_PIN_OK) == HIGH)
 	{
 		RemoteCode = KEY_CH;
-		pressed = true;
+		state = true;
 	}
 	if (digitalRead(BUTTON_PIN_LEFT) == HIGH)
 	{
 		RemoteCode = KEY_MINUS;
-		pressed = true;
+		state = true;
 	}
 	if (digitalRead(BUTTON_PIN_RIGHT) == HIGH)
 	{
 		RemoteCode = KEY_PLUS;
-		pressed = true;
+		state = true;
 	}
 
-	if (pressed) 
+	hasKey = state;
+
+	if (state) 
 	{
-		if ((millis() - lastDebounceTime) < KEY_DEBOUNCE_INTERVAL_MS) return false;
-		IsRepeat = ((millis() - lastDebounceTime) < KEY_REPEAT_INTERVAL_MS);
+		if ((millis() - lastDebounceTime) > KEY_DEBOUNCE_INTERVAL_MS) 
+		{
+			IsRepeat = ((millis() - lastKeyTime) > KEY_REPEAT_INTERVAL_MS);
+			//lastDebounceTime = millis();
+		}
+		else hasKey = false;
+	}
+
+	if (state != lastState)
+	{
 		lastDebounceTime = millis();
-		if (!IsRepeat) lastKeyTime = millis();
-	}
-	else
-	{
-		lastDebounceTime = 0;
+		if (state) lastKeyTime = millis();
+		lastState = state;
+		IsRepeat = false;
 	}
 
-	return pressed;
+	return hasKey;
 }
 
 void RemoteInit()
