@@ -18,7 +18,6 @@
 TFT_eSPI tft(TFT_WIDTH, TFT_HEIGHT);
 
 bool dimmed = false;
-bool saver = false;
 
 enum DISPLAY_MODE {
 	DM_NORMAL = 0,
@@ -27,10 +26,6 @@ enum DISPLAY_MODE {
 };
 
 DISPLAY_MODE DisplayMode = DM_NORMAL;
-
-
-#define IDLE_DIMM_MS 10000UL
-#define IDLE_SAVER_MS 30000UL
 
 // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
 // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
@@ -74,8 +69,6 @@ void DisplayDim(bool dim)
 {
 	if (dimmed != dim)
 	{
-		Serial.print("Dimmed: ");
-		Serial.println(dim);
 		//digitalWrite(TFT_BL, !dim);
 		dimmed = dim;
 		ledcWrite(0, dim ? 5 : 150);
@@ -165,33 +158,28 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
-		tft.setTextFont(4);
-		Serial.println("----------------DM_SIMPLE");
+		tft.setTextFont(2);
+		tft.setTextSize(2);
+		Serial.println("-- DM_SIMPLE --");
 		tft.fillScreen(TFT_BLACK);
 		tft.setTextWrap(false);
-		//tft.setTextSize(2);
 		tft.setTextColor(TFT_WHITE);
 		tft.setCursor(0, 2);
-		tft.println("Station #");
-		tft.drawFastHLine(0,25,240,TFT_WHITE);
-		tft.setCursor(0, 32);
+		tft.println((CurrentRadio == WEB_RADIO) ? "> WEB Station" : "> FM Station");
+		tft.drawFastHLine(0,35,240,TFT_WHITE);
+		tft.setCursor(0, 50);
 		tft.setTextColor(TFT_YELLOW);
 		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name);
 		else tft.println(FMStation.name);
-		
-		//tft.startscrollright(0x00,0x04);
 	} 
 	else if (mode == DM_NORMAL) 
 	{
-		Serial.println("----------------DM_NORMAL");
-		//tft.stopscroll();
+		Serial.println("-- DM_NORMAL --");
 		DisplayHeader();
 		tft.setTextSize(1);
-		//tft.setTextWrap(true);
 		tft.setTextFont(4);
 		tft.setTextColor(TFT_WHITE);
-		tft.print(">> Playing ");
-		tft.println("Station #");
+		tft.println((CurrentRadio == WEB_RADIO) ? "> WEB Station" : "> FM Station");
 		tft.setTextColor(TFT_YELLOW);
 		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name); 
 		else tft.println(FMStation.name);
@@ -205,25 +193,20 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 	}
 	else if (mode == DM_TIME) 
 	{
-		Serial.println("----------------DM_TIME");
+		Serial.println("-- DM_TIME --");
 		struct tm timeinfo;
 		if (getLocalTime(&timeinfo)) 
 		{
-			//tft.loadFont(HEADER_FONT);
-			//tft.stopscroll();
 			tft.fillScreen(TFT_BLACK);
-			//tft.setTextWrap(false);
-			//tft.setTextSize(4);
+			tft.setTextSize(1);
 			tft.setTextColor(TFT_WHITE);
 			tft.setCursor(50, 4);
 			tft.setTextFont(7);
 			tft.printf("%02d%s%02d", timeinfo.tm_hour, (bTimeDelimiter ? ":" : " "), timeinfo.tm_min);
-			//tft.setTextSize(2);
 			tft.setTextColor(TFT_GREEN);
 			tft.setCursor(55, 60);
 			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
-			//tft.setTextSize(2);
 			tft.setTextColor(TFT_YELLOW);
 			tft.setCursor(25, 100);
 			tft.setTextFont(4);
@@ -250,15 +233,5 @@ void DisplayVolume()
 	tft.print(volume);
 	
 }
-
-void Screensaver(bool ss)
-{
-	if (saver != ss)
-	{
-		DisplayCurrentMode(DM_SIMPLE);
-		saver = ss;
-	}
-}
-
 
 #endif //__DISPLAY_H__

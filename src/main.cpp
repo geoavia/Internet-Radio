@@ -131,20 +131,25 @@ void loop()
 
 	if (sleepBar == 0)
 	{
-		if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
+		// each second code
+		if (millis()/1000UL > secondsFromMillis)
 		{
-			SaveRadioState();
-			StateChanged = false;
-			DisplayCurrentMode(DisplayMode);
-		}
+			if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
+			{
+				SaveRadioState();
+				StateChanged = false;
+				DisplayCurrentMode(DisplayMode);
+			}
 
-		DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
-		Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
+			DisplayDim((millis() - lastKeyTime) > DIMMING_DELAY_MS);
 
-		if (millis()/1000 > secondsFromMillis)
-		{
+			if ((millis() - lastKeyTime) > SCREENSAVER_DELAY_MS)
+			{
+				if (DisplayMode != DM_SIMPLE) DisplayCurrentMode(DM_SIMPLE);
+			}
+
 			if (DisplayMode == DM_TIME) DisplayCurrentMode(DisplayMode);
-			secondsFromMillis = (millis()/1000);
+			secondsFromMillis = (millis()/1000UL);
 		}
 	}
 

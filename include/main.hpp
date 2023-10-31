@@ -70,9 +70,9 @@ const char *STATE_FILE_NAME = "/state.csv";
 #define ADC_VBAT 34
 #define ADC_EN 14
 
-// State auto save interval
-#define AUTOSAVE_INTERVAL_MS 9000
-
+#define AUTOSAVE_INTERVAL_MS 5000UL
+#define DIMMING_DELAY_MS 10000UL
+#define SCREENSAVER_DELAY_MS 30000UL
 
 float VBAT = 0; // battery voltage from ESP32 ADC read
 

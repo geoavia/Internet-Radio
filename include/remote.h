@@ -154,17 +154,21 @@ bool GetRemoteCode()
 		{
 			//IrReceiver.printIRResultShort(&Serial);
 			//IrReceiver.printIRResultRawFormatted(&Serial, true);
+			IrReceiver.resume(); // Receive the next value
 		}
-		else IrReceiver.printIRResultShort(&Serial);
-		IrReceiver.resume(); // Receive the next value
+		else 
+		{
+			IrReceiver.printIRResultShort(&Serial);
 
-		RemoteCode = IrReceiver.decodedIRData.command;
-		IsRepeat = (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT);
-		//IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-		if (!IsRepeat) lastKeyTime = millis();
-		IsRemote = true;
-		return true;
-		
+			RemoteCode = IrReceiver.decodedIRData.command;
+			IsRepeat = (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT);
+			//IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
+			if (!IsRepeat) lastKeyTime = millis();
+			IsRemote = true;
+
+			IrReceiver.resume(); // Receive the next value
+			return true;
+		}
 	}
 	return false;
 }
