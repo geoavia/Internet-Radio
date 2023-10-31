@@ -162,7 +162,7 @@ void PlayerJob()
 		async_clear();
 	}
 
-	audio.loop();
+	if (CurrentRadio == WEB_RADIO) audio.loop();
 }
 
 #endif //__PLAYER_H__

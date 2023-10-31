@@ -120,7 +120,7 @@ void loop()
 		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);
 		if (RemoteCode == KEY_PLAYPAUSE) DisplayCurrentMode(DM_SIMPLE);
 	}
-	else if (!IsRepeat && sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_DELAY_MS))
+	else if (RemoteCode == 0 && sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_DELAY_MS))
 	{
 		sleepBar = 0;
 		DisplayCurrentMode(DM_NORMAL);
