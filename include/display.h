@@ -234,11 +234,14 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 	DisplayMode = mode;
 }
 
-void DisplayVolume(int volume)
+void DisplayVolume()
 {
+	int volume = (CurrentRadio == WEB_RADIO) ? WebVolume : FMVolume;
+	int delta = (CurrentRadio == WEB_RADIO) ? 210/MAX_WEB_VOLUME : 210/MAX_FM_VOLUME;
 	//if (DisplayMode != DM_NORMAL) DisplayCurrentMode(DM_NORMAL);
 	tft.fillRect(0, 115, 240, 20, TFT_BLACK);
-	tft.fillRect(25, 120, volume*10, 10, TFT_WHITE);
+	tft.drawRect(24, 119, 212, 12, TFT_DARKGREY);
+	tft.fillRect(25, 120, volume*delta, 10, TFT_WHITE);
 
 	tft.setTextSize(1);
 	tft.setTextFont(2);

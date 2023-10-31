@@ -12,7 +12,8 @@ void SetWebVolume(uint8_t vol);
 void PlayerInit()
 {
 	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
-    SetWebVolume(WebVolume);
+	SetWebVolume(WebVolume);
+	SetFMVolume(FMVolume);
 	PlayWebStation(WebStation.url, WebStation.name);
 	StateChanged = false;
 }

@@ -67,15 +67,17 @@ void loop()
 	{
 		if (IsCode(KEY_MINUS, false))
 		{
-			SetWebVolume(WebVolume-1);
-			FMCommand("AT+VOLD");
-			DisplayVolume(WebVolume);
+			if (CurrentRadio == WEB_RADIO) SetWebVolume(WebVolume-1);
+			else SetFMVolume(FMVolume-1);
+			//FMCommand("AT+VOLD");
+			DisplayVolume();
 		}
 		if (IsCode(KEY_PLUS, false))
 		{
-			SetWebVolume(WebVolume+1);
-			FMCommand("AT+VOLU");
-			DisplayVolume(WebVolume);
+			if (CurrentRadio == WEB_RADIO) SetWebVolume(WebVolume+1);
+			else SetFMVolume(FMVolume+1);
+			//FMCommand("AT+VOLU");
+			DisplayVolume();
 		}
 		if (IsCode(KEY_CH_MINUS)) NextStation(-1);
 		if (IsCode(KEY_CH_PLUS)) NextStation(1);
