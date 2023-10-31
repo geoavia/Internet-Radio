@@ -74,6 +74,7 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 	if (freq > MAX_FREQ) freq = MAX_FREQ;
 	//if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
+		if (name.length() == 0) name = String(((float)freq)/10);
 		//audio.stopSong();
 		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);

@@ -44,6 +44,12 @@ unsigned long lastRepeatTime = 0;
 bool lastButtonState = false;
 bool buttonState = false;
 
+bool IsCode(uint16_t code, bool noRepeat = true)
+{
+	if (noRepeat) return (RemoteCode == code && !IsRepeat);
+	return (RemoteCode == code);
+}
+
 void ButtonsInit()
 {
 	pinMode(BUTTON_PIN_UP, INPUT); // has internal pullup
@@ -153,7 +159,7 @@ bool GetRemoteCode()
 		RemoteCode = IrReceiver.decodedIRData.command;
 		IsRepeat = (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT);
 		//IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-		lastKeyTime = millis();
+		if (!IsRepeat) lastKeyTime = millis();
 		IsRemote = true;
 		return true;
 		

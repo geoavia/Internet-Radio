@@ -41,6 +41,8 @@ void setup()
 
 	Serial.println("\nInternet Radio, (c) GGM, 2023");
 
+	SwitchOutput(WEB_RADIO);
+
 	FMInit();
 
 	ButtonsInit();
@@ -53,7 +55,6 @@ void setup()
 	// GPIO0 strange behaviour fix
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 
-	lastKeyTime = millis();
 	DisplayCurrentMode(DisplayMode);
 
 	// standalone cpu task 
@@ -64,34 +65,34 @@ void loop()
 {
 	if (GetRemoteCode())
 	{
-		if (RemoteCode == KEY_MINUS)
+		if (IsCode(KEY_MINUS, false))
 		{
 			SetWebVolume(WebVolume-1);
 			FMCommand("AT+VOLD");
 			DisplayVolume(WebVolume);
 		}
-		if (RemoteCode == KEY_PLUS)
+		if (IsCode(KEY_PLUS, false))
 		{
 			SetWebVolume(WebVolume+1);
 			FMCommand("AT+VOLU");
 			DisplayVolume(WebVolume);
 		}
-		if (RemoteCode == KEY_CH_MINUS && !IsRepeat) NextStation(-1);
-		if (RemoteCode == KEY_CH_PLUS && !IsRepeat) NextStation(1);
-		if (RemoteCode == KEY_0) SwitchStation(0);
-		if (RemoteCode == KEY_1) SwitchStation(1);
-		if (RemoteCode == KEY_2) SwitchStation(2);
-		if (RemoteCode == KEY_3) SwitchStation(3);
-		if (RemoteCode == KEY_4) SwitchStation(4);
-		if (RemoteCode == KEY_5) SwitchStation(5);
-		if (RemoteCode == KEY_6) SwitchStation(6);
-		if (RemoteCode == KEY_7) SwitchStation(7);
-		if (RemoteCode == KEY_8) SwitchStation(8);
-		if (RemoteCode == KEY_9) SwitchStation(9);
-		if (RemoteCode == KEY_PREV) TuneFMStation(FMStation.freq-1, String(((float)(FMStation.freq-1))/10), false);
-		if (RemoteCode == KEY_NEXT) TuneFMStation(FMStation.freq+1, String(((float)(FMStation.freq+1))/10), false);
+		if (IsCode(KEY_CH_MINUS)) NextStation(-1);
+		if (IsCode(KEY_CH_PLUS)) NextStation(1);
+		if (IsCode(KEY_0)) SwitchStation(0);
+		if (IsCode(KEY_1)) SwitchStation(1);
+		if (IsCode(KEY_2)) SwitchStation(2);
+		if (IsCode(KEY_3)) SwitchStation(3);
+		if (IsCode(KEY_4)) SwitchStation(4);
+		if (IsCode(KEY_5)) SwitchStation(5);
+		if (IsCode(KEY_6)) SwitchStation(6);
+		if (IsCode(KEY_7)) SwitchStation(7);
+		if (IsCode(KEY_8)) SwitchStation(8);
+		if (IsCode(KEY_9)) SwitchStation(9);
+		if (IsCode(KEY_PREV)) TuneFMStation(FMStation.freq-1, "", false);
+		if (IsCode(KEY_NEXT)) TuneFMStation(FMStation.freq+1, "", false);
 
-		if (RemoteCode == KEY_CH)
+		if (IsCode(KEY_CH, false))
 		{
 			if (IsRepeat) 
 			{
@@ -117,8 +118,8 @@ void loop()
 				//FMCommand("AT+BANK=10");
 			}
 		}
-		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);
-		if (RemoteCode == KEY_PLAYPAUSE) DisplayCurrentMode(DM_SIMPLE);
+		if (IsCode(KEY_EQ)) DisplayCurrentMode(DM_TIME);
+		if (IsCode(KEY_PLAYPAUSE)) DisplayCurrentMode(DM_SIMPLE);
 	}
 	else if (RemoteCode == 0 && sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_DELAY_MS))
 	{

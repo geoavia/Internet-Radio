@@ -219,7 +219,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.printf("%02d%s%02d", timeinfo.tm_hour, (bTimeDelimiter ? ":" : " "), timeinfo.tm_min);
 			//tft.setTextSize(2);
 			tft.setTextColor(TFT_GREEN);
-			tft.setCursor(50, 60);
+			tft.setCursor(55, 60);
 			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			//tft.setTextSize(2);
