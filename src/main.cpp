@@ -98,7 +98,8 @@ void loop()
 				if ((millis() - lastKeyTime) > KEY_OK_TO_SLEEP_INTERVAL_MS)
 				{
 					sleepBarTime = millis();
-					if (DisplaySleepBar(sleepBar++)) 
+					sleepBar++;
+					if (DisplaySleepBar(sleepBar)) 
 					{
 						shutdown();
 					}
@@ -119,32 +120,32 @@ void loop()
 		if (RemoteCode == KEY_EQ) DisplayCurrentMode(DM_TIME);
 		if (RemoteCode == KEY_PLAYPAUSE) DisplayCurrentMode(DM_SIMPLE);
 	}
-	else if (sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_INTERVAL_MS))
+	else if (!IsRepeat && sleepBar > 0 && ((millis() - sleepBarTime) > KEY_REPEAT_DELAY_MS))
 	{
 		sleepBar = 0;
 		DisplayCurrentMode(DM_NORMAL);
 	}
 
-
-	if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
+	if (sleepBar == 0)
 	{
-		SaveRadioState();
-		StateChanged = false;
-		DisplayCurrentMode(DisplayMode);
+		if (StateChanged && ((millis() - LastStateChange) > AUTOSAVE_INTERVAL_MS))
+		{
+			SaveRadioState();
+			StateChanged = false;
+			DisplayCurrentMode(DisplayMode);
+		}
+
+		DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
+		Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
+
+		if (millis()/1000 > secondsFromMillis)
+		{
+			if (DisplayMode == DM_TIME) DisplayCurrentMode(DisplayMode);
+			secondsFromMillis = (millis()/1000);
+		}
 	}
-
-	DisplayDim((millis() - lastKeyTime) > IDLE_DIMM_MS);
-	Screensaver((millis() - lastKeyTime) > IDLE_SAVER_MS);
-
-	if (millis()/1000 > secondsFromMillis)
-	{
-		if (DisplayMode == DM_TIME) DisplayCurrentMode(DisplayMode);
-		secondsFromMillis = (millis()/1000);
-	}
-
 
 	PlayerJob();
 
-	audio.loop();
-	//delay(50);
+	//delay(1);
 }

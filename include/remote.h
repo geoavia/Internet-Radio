@@ -31,15 +31,18 @@
 #define KEY_CH 0x46
 
 #define KEY_OK_TO_SLEEP_INTERVAL_MS 1000
-#define KEY_REPEAT_INTERVAL_MS 300
+#define KEY_REPEAT_DELAY_MS 300
+#define KEY_REPEAT_INTERVAL_MS 100
 #define KEY_DEBOUNCE_INTERVAL_MS 50
 
 uint16_t RemoteCode = 0;
-bool IsRemote = false;
-bool IsRepeat = false;
+bool IsRemote;
+bool IsRepeat;
 unsigned long lastKeyTime = 0;
 unsigned long lastDebounceTime = 0;
-bool lastState = false;
+unsigned long lastRepeatTime = 0;
+bool lastButtonState = false;
+bool buttonState = false;
 
 void ButtonsInit()
 {
@@ -55,6 +58,7 @@ bool ButtonsProcess()
 	bool state = false;
 	bool hasKey = false;
 	RemoteCode = 0;
+	IsRepeat = false;
 
 	if (digitalRead(BUTTON_PIN_UP) == LOW)
 	{
@@ -82,26 +86,38 @@ bool ButtonsProcess()
 		state = true;
 	}
 
-	hasKey = state;
-
-	if (state) 
-	{
-		if ((millis() - lastDebounceTime) > KEY_DEBOUNCE_INTERVAL_MS) 
-		{
-			IsRepeat = ((millis() - lastKeyTime) > KEY_REPEAT_INTERVAL_MS);
-			//lastDebounceTime = millis();
-		}
-		else hasKey = false;
-	}
-
-	if (state != lastState)
+	if (state != lastButtonState)
 	{
 		lastDebounceTime = millis();
-		if (state) lastKeyTime = millis();
-		lastState = state;
-		IsRepeat = false;
 	}
 
+	if ((millis() - lastDebounceTime) > KEY_DEBOUNCE_INTERVAL_MS) 
+	{
+		if (state != buttonState) 
+		{
+			buttonState = state;
+			if (buttonState)
+			{
+				lastKeyTime = millis();
+				lastRepeatTime = 0;
+				hasKey = true;
+			}
+		}
+		else if (buttonState) 
+		{
+			if ((millis() - lastKeyTime) > KEY_REPEAT_DELAY_MS)
+			{
+				if ((millis() - lastRepeatTime) > KEY_REPEAT_INTERVAL_MS)
+				{
+					lastRepeatTime = millis();
+					IsRepeat = true;
+					hasKey = true;
+				}
+			}
+		}
+	}
+
+	lastButtonState = state;
 	return hasKey;
 }
 
@@ -117,6 +133,8 @@ bool GetRemoteCode()
 {
 	if (ButtonsProcess())
 	{
+		// Serial.print(IsRepeat?"Repeat: ":"Click: ");
+		// Serial.println(RemoteCode);
 		IsRemote = false;
 		return true;
 	}

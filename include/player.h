@@ -161,6 +161,8 @@ void PlayerJob()
 		else if (async_webvol >= 0) SetWebVolume(async_webvol);
 		async_clear();
 	}
+
+	audio.loop();
 }
 
 #endif //__PLAYER_H__

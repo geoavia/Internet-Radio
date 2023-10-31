@@ -81,7 +81,7 @@ void DisplayDim(bool dim)
 	}
 }
 
-#define SLEEP_BAR_COUNT 20
+#define SLEEP_BAR_COUNT 10
 
 bool DisplaySleepBar(int count)
 {
@@ -99,7 +99,7 @@ bool DisplaySleepBar(int count)
 		//
 		tft.setTextFont(1);
 		tft.setTextSize(2);
-		tft.setCursor(0, 80);
+		tft.setCursor(50, 80);
 		for (size_t i = 0; i < SLEEP_BAR_COUNT; i++)
 		{
 			if (i < count) 
