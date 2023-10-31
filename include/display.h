@@ -29,8 +29,8 @@ enum DISPLAY_MODE {
 DISPLAY_MODE DisplayMode = DM_NORMAL;
 
 
-#define IDLE_DIMM_MS 10000
-#define IDLE_SAVER_MS 30000
+#define IDLE_DIMM_MS 10000UL
+#define IDLE_SAVER_MS 30000UL
 
 // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
 // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
@@ -74,7 +74,8 @@ void DisplayDim(bool dim)
 {
 	if (dimmed != dim)
 	{
-		//tft.dim(dim);
+		Serial.print("Dimmed: ");
+		Serial.println(dim);
 		//digitalWrite(TFT_BL, !dim);
 		dimmed = dim;
 		ledcWrite(0, dim ? 5 : 150);

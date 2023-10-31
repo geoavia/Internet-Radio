@@ -30,10 +30,10 @@
 #define KEY_CH_PLUS 0x47
 #define KEY_CH 0x46
 
-#define KEY_OK_TO_SLEEP_INTERVAL_MS 1000
-#define KEY_REPEAT_DELAY_MS 300
-#define KEY_REPEAT_INTERVAL_MS 100
-#define KEY_DEBOUNCE_INTERVAL_MS 50
+#define KEY_OK_TO_SLEEP_INTERVAL_MS 1000UL
+#define KEY_REPEAT_DELAY_MS 300UL
+#define KEY_REPEAT_INTERVAL_MS 100UL
+#define KEY_DEBOUNCE_INTERVAL_MS 50UL
 
 uint16_t RemoteCode = 0;
 bool IsRemote;
@@ -104,6 +104,8 @@ bool ButtonsProcess()
 			buttonState = state;
 			if (buttonState)
 			{
+				Serial.print("Click: ");
+				Serial.println(RemoteCode);
 				lastKeyTime = millis();
 				lastRepeatTime = 0;
 				hasKey = true;

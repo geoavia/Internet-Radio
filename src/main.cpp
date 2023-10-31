@@ -22,7 +22,7 @@ unsigned long secondsFromMillis = 0;
 
 void setup()
 {
-	Serial.begin(115200);
+	//Serial.begin(115200);
 
 	initVbat();
 
