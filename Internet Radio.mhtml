@@ -1,0 +1,112 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: http://192.168.100.10/
+Subject: Internet Radio
+Date: Wed, 1 Nov 2023 05:20:04 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--3PaFA9rABGThi8pkX6ElKwdlAYJaIW0ZsTHup4DCid----"
+
+
+------MultipartBoundary--3PaFA9rABGThi8pkX6ElKwdlAYJaIW0ZsTHup4DCid----
+Content-Type: text/html
+Content-ID: <frame-5FEBF0398ACF838063D0BEDFB3F53141@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://192.168.100.10/
+
+<!DOCTYPE html><html><head><meta http-equiv=3D"Content-Type" content=3D"tex=
+t/html; charset=3Dwindows-1252">
+<link rel=3D"stylesheet" type=3D"text/css" href=3D"http://192.168.100.10/ra=
+dio.css">
+<title>Internet Radio</title>
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1"=
+>
+</head><body><div class=3D"radio web"><p>Current URL: <b>http://199.233.234=
+.34:25373/stream</b></p><form action=3D"http://192.168.100.10/get">MP3 Radi=
+o URL: <input type=3D"text" name=3D"mp3url">
+&nbsp;<input type=3D"submit" value=3D"Play" name=3D"play">&nbsp;
+Name: <input type=3D"text" name=3D"mp3name">&nbsp;<input type=3D"submit" va=
+lue=3D"Add" name=3D"add">
+</form><br><form action=3D"http://192.168.100.10/vol"><input type=3D"submit=
+" value=3D"Set Volume">&nbsp;
+<input type=3D"range" name=3D"mp3vol" min=3D"0" max=3D"21" value=3D"8"></fo=
+rm><br><p>Playlist</p><table><tbody><tr><th>#</th><th>Station</th><th>URL</=
+th><th></th></tr><tr><td>1</td><td><a href=3D"http://192.168.100.10/get?mp3=
+url=3Dhttp:%2F%2Fuk3.internet-radio.com:8405%2Flive">Live Stream
+</a></td><td>http://uk3.internet-radio.com:8405/live</td><td><a href=3D"htt=
+p://192.168.100.10/del?mp3url=3Dhttp:%2F%2Fuk3.internet-radio.com:8405%2Fli=
+ve">Remove</a></td></tr><tr><td>2</td><td><a href=3D"http://192.168.100.10/=
+get?mp3url=3Dhttp:%2F%2Fuk7.internet-radio.com:8226%2Flive">UK Dance radio
+</a></td><td>http://uk7.internet-radio.com:8226/live</td><td><a href=3D"htt=
+p://192.168.100.10/del?mp3url=3Dhttp:%2F%2Fuk7.internet-radio.com:8226%2Fli=
+ve">Remove</a></td></tr><tr><td>3</td><td><a href=3D"http://192.168.100.10/=
+get?mp3url=3Dhttp:%2F%2Fus5.internet-radio.com:8201%2Fstream">WCJS Radio
+</a></td><td>http://us5.internet-radio.com:8201/stream</td><td><a href=3D"h=
+ttp://192.168.100.10/del?mp3url=3Dhttp:%2F%2Fus5.internet-radio.com:8201%2F=
+stream">Remove</a></td></tr><tr><td>4</td><td><a href=3D"http://192.168.100=
+.10/get?mp3url=3Dhttp:%2F%2F91.121.155.204:8097%2Fradio.mp3">Best Love
+</a></td><td>http://91.121.155.204:8097/radio.mp3</td><td><a href=3D"http:/=
+/192.168.100.10/del?mp3url=3Dhttp:%2F%2F91.121.155.204:8097%2Fradio.mp3">Re=
+move</a></td></tr><tr><td>5</td><td><a href=3D"http://192.168.100.10/get?mp=
+3url=3Dhttp:%2F%2Fuk7.internet-radio.com:8000%2Fstream">Beat House
+</a></td><td>http://uk7.internet-radio.com:8000/stream</td><td><a href=3D"h=
+ttp://192.168.100.10/del?mp3url=3Dhttp:%2F%2Fuk7.internet-radio.com:8000%2F=
+stream">Remove</a></td></tr><tr><td>6</td><td><a href=3D"http://192.168.100=
+.10/get?mp3url=3Dhttp:%2F%2F209.133.216.3:7725%2Fstream">29 Children kids M=
+usic</a></td><td>http://209.133.216.3:7725/stream</td><td><a href=3D"http:/=
+/192.168.100.10/del?mp3url=3Dhttp:%2F%2F209.133.216.3:7725%2Fstream">Remove=
+</a></td></tr><tr><td>7</td><td><a href=3D"http://192.168.100.10/get?mp3url=
+=3Dhttp:%2F%2F5.39.94.126:8020%2Fstream">BrightFM Kids</a></td><td>http://5=
+.39.94.126:8020/stream</td><td><a href=3D"http://192.168.100.10/del?mp3url=
+=3Dhttp:%2F%2F5.39.94.126:8020%2Fstream">Remove</a></td></tr><tr class=3D"c=
+urr"><td>8</td><td><a href=3D"http://192.168.100.10/get?mp3url=3Dhttp:%2F%2=
+F199.233.234.34:25373%2Fstream">GOLD INSTRUMENTAL</a></td><td>http://199.23=
+3.234.34:25373/stream</td><td><a href=3D"http://192.168.100.10/del?mp3url=
+=3Dhttp:%2F%2F199.233.234.34:25373%2Fstream">Remove</a></td></tr></tbody></=
+table></div><div class=3D"radio fm"><p>Current Frequency: <b>104.70</b></p>=
+<form action=3D"http://192.168.100.10/get">FM Radio Frequency: <input type=
+=3D"text" name=3D"fmfreq">
+&nbsp;<input type=3D"submit" value=3D"Tune" name=3D"tune">&nbsp;
+Name: <input type=3D"text" name=3D"fmname">&nbsp;<input type=3D"submit" val=
+ue=3D"Add" name=3D"add">
+</form><br><form action=3D"http://192.168.100.10/vol"><input type=3D"submit=
+" value=3D"Set Volume">&nbsp;
+<input type=3D"range" name=3D"fmvol" min=3D"0" max=3D"30" value=3D"10"></fo=
+rm><br><p>Playlist</p><table><tbody><tr><th>#</th><th>Station</th><th>Frequ=
+ency</th><th></th></tr><tr><td>1</td><td><a href=3D"http://192.168.100.10/g=
+et?fmfreq=3D100.90">Radio Georgia
+</a></td><td>100.90</td><td><a href=3D"http://192.168.100.10/del?fmfreq=3D1=
+009">Remove</a></td></tr><tr class=3D"curr"><td>2</td><td><a href=3D"http:/=
+/192.168.100.10/get?fmfreq=3D104.70">Radio Beaumond</a></td><td>104.70</td>=
+<td><a href=3D"http://192.168.100.10/del?fmfreq=3D1047">Remove</a></td></tr=
+><tr><td>3</td><td><a href=3D"http://192.168.100.10/get?fmfreq=3D98.50">Rad=
+io Space</a></td><td>98.50</td><td><a href=3D"http://192.168.100.10/del?fmf=
+req=3D985">Remove</a></td></tr></tbody></table></div>
+</body></html>
+------MultipartBoundary--3PaFA9rABGThi8pkX6ElKwdlAYJaIW0ZsTHup4DCid----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://192.168.100.10/radio.css
+
+@charset "windows-1252";
+
+html { background-color: lightgrey; font-family: "Segoe UI", Tahoma, Geneva=
+, Verdana, sans-serif; }
+
+.radio { background-color: white; border-style: solid; border-radius: 10px;=
+ margin: 10px; padding: 10px; }
+
+.radio.web { border-color: orange; }
+
+.radio.web::before { content: "WEB Radio"; display: block; background-color=
+: orange; padding: 10px; }
+
+.radio.web .curr { background-color: orange; }
+
+.radio.fm { border-color: lightseagreen; }
+
+.radio.fm::before { content: "FM Radio"; display: block; background-color: =
+lightseagreen; padding: 10px; }
+
+.radio.fm .curr { background-color: lightseagreen; }
+------MultipartBoundary--3PaFA9rABGThi8pkX6ElKwdlAYJaIW0ZsTHup4DCid------

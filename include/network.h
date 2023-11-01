@@ -250,9 +250,9 @@ bool want_display_ui()
 		tft.println("2. Display UI Setup");
 		
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
-		if ((RemoteCode == KEY_PLUS || RemoteCode == KEY_MINUS) && !IsRepeat) dui = !dui;
-		if (RemoteCode == KEY_CH && !IsRepeat) break;
-		if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
+		if (IsCode(KEY_CH)) break;
+		else if (IsCode(KEY_PLAYPAUSE)) shutdown();
+		else dui = !dui;
 	}
 	return dui;
 }
@@ -296,23 +296,23 @@ bool get_network_ui()
 		
 
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
-		if (RemoteCode == KEY_MINUS && !IsRepeat)
+		if (IsCode(KEY_PLUS) || IsCode(KEY_NEXT) || IsCode (KEY_CH_MINUS))
 		{
 			if (yc > 0) yc--;
 			else if (yc == 0 && y0 > 0) y0--;
 			//else yc == y0 = 0;
 		}
-		if (RemoteCode == KEY_PLUS && !IsRepeat)
+		if (IsCode(KEY_MINUS) || IsCode(KEY_PREV) || IsCode (KEY_CH_PLUS))
 		{
 			if (yc < 5 && (yc + 1) < n_SSID) yc++;
 			else if (yc == 5 && y0 + 6 < n_SSID) y0++;
 			else yc = y0 = 0;
 		}
-		if (RemoteCode == KEY_CH && !IsRepeat)
+		if (IsCode(KEY_CH))
 		{
 			curnet.ssid = WiFi.SSID(y0 + yc);
 		}
-		if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
+		if (IsCode(KEY_PLAYPAUSE)) shutdown();
 	}
 
 	// Enter Password UI
@@ -333,70 +333,66 @@ bool get_network_ui()
 			tft.setTextColor(TFT_WHITE);
 			tft.println("Enter Password for");
 			tft.println(curnet.ssid);
-			tft.drawFastHLine(0,18,128,TFT_WHITE);
-			tft.setCursor(0, 20);
+			tft.drawFastHLine(0, 40, 240, TFT_WHITE);
+			tft.setCursor(0, 50);
 			tft.println(pwd);
-			tft.drawFastHLine(xc*6,30,6, (blink/10) ? TFT_WHITE : TFT_BLACK);
-			tft.drawFastHLine(38,18,128,TFT_WHITE);
-			tft.setCursor(0, 40);
-			tft.write(24);
-			tft.write(32);
-			tft.write(25);
-			tft.println(" - Change letter");
-			tft.write(27);
-			tft.write(32);
-			tft.write(26);
-			tft.println(" - Move cursor");
-			tft.println("* # - Case / Symbol");
+
+			tft.fillRect(xc*12, 66, 12, 4, (blink/10) ? TFT_WHITE : TFT_BLACK);
+
+			tft.setCursor(0, 75);
+			tft.println("+/-: Change letter");
+			tft.println("prev/next: Cursor");
+			tft.println("100/200: Case/Symbol");
 			
 
 			if (GetRemoteCode())
 			{
-				if (RemoteCode == KEY_1) xc = shift_chr(pwd, xc,'1');
-				if (RemoteCode == KEY_2) xc = shift_chr(pwd, xc,'2');
-				if (RemoteCode == KEY_3) xc = shift_chr(pwd, xc,'3');
-				if (RemoteCode == KEY_4) xc = shift_chr(pwd, xc,'4');
-				if (RemoteCode == KEY_5) xc = shift_chr(pwd, xc,'5');
-				if (RemoteCode == KEY_6) xc = shift_chr(pwd, xc,'6');
-				if (RemoteCode == KEY_7) xc = shift_chr(pwd, xc,'7');
-				if (RemoteCode == KEY_8) xc = shift_chr(pwd, xc,'8');
-				if (RemoteCode == KEY_9) xc = shift_chr(pwd, xc,'9');
-				if (RemoteCode == KEY_0) xc = shift_chr(pwd, xc,'0');
+				if (IsCode(KEY_1)) xc = shift_chr(pwd, xc,'1');
+				if (IsCode(KEY_2)) xc = shift_chr(pwd, xc,'2');
+				if (IsCode(KEY_3)) xc = shift_chr(pwd, xc,'3');
+				if (IsCode(KEY_4)) xc = shift_chr(pwd, xc,'4');
+				if (IsCode(KEY_5)) xc = shift_chr(pwd, xc,'5');
+				if (IsCode(KEY_6)) xc = shift_chr(pwd, xc,'6');
+				if (IsCode(KEY_7)) xc = shift_chr(pwd, xc,'7');
+				if (IsCode(KEY_8)) xc = shift_chr(pwd, xc,'8');
+				if (IsCode(KEY_9)) xc = shift_chr(pwd, xc,'9');
+				if (IsCode(KEY_0)) xc = shift_chr(pwd, xc,'0');
 
-				if (RemoteCode == KEY_100)
+				if (IsCode(KEY_100))
 				{
 					if (isupper(pwd[xc])) pwd[xc] = tolower(pwd[xc]);
 					else pwd[xc] = toupper(pwd[xc]);
 				}
-				if (RemoteCode == KEY_200) 
+				if (IsCode(KEY_200)) 
 				{
 					if (isalnum(pwd[xc])) pwd[xc] = '!';
 					else pwd[xc] = 'A';
 				}
-				if (RemoteCode == KEY_MINUS && !IsRepeat)
+				if (IsCode(KEY_MINUS, false))
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'A';
 					else if (pwd[xc] < MAX_CHAR) pwd[xc]++;
 				}
-				if (RemoteCode == KEY_PLUS && !IsRepeat)
+				if (IsCode(KEY_PLUS, false))
 				{
 					if (pwd[xc] == 0) pwd[xc] = 'Z';
 					else if (pwd[xc] > MIN_CHAR) pwd[xc]--;
 				}
-				if (RemoteCode == KEY_CH && !IsRepeat)
+				if (IsCode(KEY_CH))
 				{
 					curnet.password = String(pwd);
+					curnet.password.trim();
 					return true;
 				}
-				if (RemoteCode == KEY_PREV && !IsRepeat)
+				if (IsCode(KEY_CH_MINUS) || IsCode(KEY_PREV))
 				{
 					if (xc > 0) xc--;
 				}
-				if (RemoteCode == KEY_NEXT && !IsRepeat)
+				if (IsCode(KEY_CH_PLUS) || IsCode(KEY_NEXT))
 				{
 					if (xc < 19 && pwd[xc]) xc++;
 				}
-				if (RemoteCode == KEY_PLAYPAUSE && !IsRepeat) shutdown();
+				if (IsCode(KEY_PLAYPAUSE)) shutdown();
 			}
 			delay(10);
 		}

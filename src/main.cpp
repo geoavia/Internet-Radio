@@ -59,6 +59,8 @@ void setup()
 
 	// standalone cpu task 
 	//StartPlayerTask();
+
+	lastKeyTime = millis();
 }
 
 void loop()
