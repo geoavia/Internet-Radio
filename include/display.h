@@ -144,7 +144,8 @@ void DisplayHeader()
 	tft.printf("%.1fv", getVbat());
 
 	tft.setTextColor(TFT_GREEN);
-	tft.drawString("ver 2.0", 180, 15, 2);
+	tft.setCursor(180, 15);
+	tft.printf("ver %s\n", RADIO_VERSION);
 
 	tft.setCursor(0, 50);
 
