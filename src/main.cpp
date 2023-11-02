@@ -90,8 +90,8 @@ void loop()
 		if (IsCode(KEY_7)) SwitchStation(7);
 		if (IsCode(KEY_8)) SwitchStation(8);
 		if (IsCode(KEY_9)) SwitchStation(9);
-		if (IsCode(KEY_PREV)) TuneFMStation(FMStation.freq-1, "", false);
-		if (IsCode(KEY_NEXT)) TuneFMStation(FMStation.freq+1, "", false);
+		if (IsCode(KEY_PREV, false)) TuneFMStation(FMStation.freq-1, "", false);
+		if (IsCode(KEY_NEXT, false)) TuneFMStation(FMStation.freq+1, "", false);
 
 		if (IsCode(KEY_CH, false))
 		{
