@@ -157,32 +157,37 @@ bool GetRemoteCode()
 		{
 			//IrReceiver.printIRResultShort(&Serial);
 			//IrReceiver.printIRResultRawFormatted(&Serial, true);
+			IrReceiver.resume(); // Receive the next value
 		}
-		else IrReceiver.printIRResultShort(&Serial);
-		IrReceiver.resume(); // Receive the next value
-
-		// repeatable commands
-
-		if (IrReceiver.decodedIRData.command == KEY_LEFT ||
-			IrReceiver.decodedIRData.command == KEY_RIGHT ||
-			IrReceiver.decodedIRData.command == KEY_UP ||
-			IrReceiver.decodedIRData.command == KEY_DOWN)
+		else 
 		{
-			RemoteCode = IrReceiver.decodedIRData.command;
-			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-			lastKeyTime = millis();
-			IsRemote = true;
-			return true;
-		}
+			IrReceiver.printIRResultShort(&Serial);
 
-		// non repeatable commands
-		if (RemoteCode != IrReceiver.decodedIRData.command)
-		{
-			RemoteCode = IrReceiver.decodedIRData.command;
-			IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
-			lastKeyTime = millis();
-			IsRemote = true;
-			return true;
+			// repeatable commands
+
+			if (IrReceiver.decodedIRData.command == KEY_LEFT ||
+				IrReceiver.decodedIRData.command == KEY_RIGHT ||
+				IrReceiver.decodedIRData.command == KEY_UP ||
+				IrReceiver.decodedIRData.command == KEY_DOWN)
+			{
+				RemoteCode = IrReceiver.decodedIRData.command;
+				IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
+				lastKeyTime = millis();
+				IsRemote = true;
+				IrReceiver.resume(); // Receive the next value
+				return true;
+			}
+
+			// non repeatable commands
+			if (RemoteCode != IrReceiver.decodedIRData.command)
+			{
+				RemoteCode = IrReceiver.decodedIRData.command;
+				IsRepeat = ((millis() - lastKeyTime) <= KEY_REPEAT_INTERVAL_MS);
+				lastKeyTime = millis();
+				IsRemote = true;
+				IrReceiver.resume(); // Receive the next value
+				return true;
+			}
 		}
 		
 	}
