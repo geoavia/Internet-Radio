@@ -126,9 +126,8 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
-	return;
 	tft.fillScreen(TFT_BLACK);
-	//tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
+	tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
 
 	tft.setTextSize(1);
 	// tft.setTextColor(TFT_BLUE);
@@ -141,7 +140,7 @@ void DisplayHeader()
 
 	tft.setTextColor(TFT_GREEN);
 	tft.setCursor(180, 15);
-	tft.printf("ver %s\n", RADIO_VERSION);
+	tft.println("ver 2.0");
 
 	tft.setCursor(0, 50);
 
@@ -168,6 +167,10 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextColor(TFT_YELLOW);
 		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name);
 		else tft.println(FMStation.name);
+		tft.setCursor(0, 80);
+		tft.setTextColor(TFT_GREEN);
+		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.title);
+		else tft.println(String(((float)FMStation.freq)/10));
 	} 
 	else if (mode == DM_NORMAL) 
 	{
@@ -201,11 +204,11 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			tft.setTextFont(7);
 			tft.printf("%02d%s%02d", timeinfo.tm_hour, (bTimeDelimiter ? ":" : " "), timeinfo.tm_min);
 			tft.setTextColor(TFT_GREEN);
-			tft.setCursor(55, 60);
+			tft.setCursor(55, 70);
 			tft.setTextFont(4);
 			tft.printf("%2d.%02d.%d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
 			tft.setTextColor(TFT_YELLOW);
-			tft.setCursor(25, 100);
+			tft.setCursor(25, 110);
 			tft.setTextFont(4);
 			tft.printf("Battery: %.1f volts", getVbat());
 			bTimeDelimiter = !bTimeDelimiter;

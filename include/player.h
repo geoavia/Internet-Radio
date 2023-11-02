@@ -78,7 +78,7 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 	if (freq > MAX_FREQ) freq = MAX_FREQ;
 	//if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
-		if (name.length() == 0) name = String(((float)freq)/10);
+		if (name.length() == 0) name = "FM "+String(((float)freq)/10);
 		//audio.stopSong();
 		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);
@@ -168,6 +168,32 @@ void PlayerJob()
 	}
 
 	if (CurrentRadio == WEB_RADIO) audio.loop();
+}
+
+/////////////////////////////////////////////////////////////////
+// Audio Event Handlers
+
+//void audio_info(const char *info) {}
+
+void audio_showstation(const char *info)
+{
+	Serial.print("station     ");
+	Serial.println(info);
+	if (WebStation.name.length() == 0)
+	{
+		WebStation.name = info;
+		DisplayCurrentMode(DisplayMode);
+	}
+}
+void audio_showstreamtitle(const char *info)
+{
+	Serial.print("streamtitle ");
+	Serial.println(info);
+	WebStation.title = info;
+	if (DisplayMode == DM_SIMPLE)
+	{
+		DisplayCurrentMode(DisplayMode);
+	}
 }
 
 #endif //__PLAYER_H__

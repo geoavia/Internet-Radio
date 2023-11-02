@@ -104,6 +104,7 @@ struct RADIO_STATION
 	uint freq = 0;
 	String url = "";
 	String name = "";
+	String title = "";
 };
 
 RADIO_STATION WebStation, FMStation, Stations[MAX_STATIONS];
