@@ -3,9 +3,12 @@
 
 #include "main.hpp"
 
+#include <Audio.h>
 #include <HardwareSerial.h>
 
 HardwareSerial uart(2); // use UART2
+
+Audio audio;
 
 void SetWebVolume(uint8_t vol);
 

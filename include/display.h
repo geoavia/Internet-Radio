@@ -41,10 +41,6 @@ void DisplayInit()
 {
 	Serial.print("Display Init...");
 
-	// enable display from battery
-	//pinMode(15,OUTPUT);
-	//digitalWrite(15,1);
-
 	tft.init();
 
 	tft.setRotation(3);
@@ -54,7 +50,6 @@ void DisplayInit()
 	ledcAttachPin(TFT_BL, 0); // TFT_BL, 0 - 15	
 
 	ledcWrite(0, 150);
-	
 
 	Serial.println("Done");
 }
@@ -131,8 +126,9 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 
 void DisplayHeader()
 {
+	return;
 	tft.fillScreen(TFT_BLACK);
-	tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
+	//tft.pushImage(0, 0, HEADER_WIDTH, HEADER_HEIGHT, header);
 
 	tft.setTextSize(1);
 	// tft.setTextColor(TFT_BLUE);

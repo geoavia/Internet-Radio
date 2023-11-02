@@ -56,8 +56,8 @@ void load_networks()
 	String skey;
 	String pkey;
 	n_networks = 0;
-	preferences.begin("webradio", true);
-	while (n_networks < MAX_NETWORKS)
+	bool prefsOk = preferences.begin("webradio", true);
+	while (prefsOk && (n_networks < MAX_NETWORKS))
 	{
 		skey = String("s") + (n_networks + 1);
 		networks[n_networks].ssid = preferences.getString(skey.c_str(), "");
@@ -230,6 +230,7 @@ bool connect_saved_networks()
 bool want_display_ui()
 {
 	bool dui = false; // DUI - Display UI :)
+	Serial.println("WiFi connection UI...");
 	while (true) 
 	{
 		tft.fillScreen(TFT_BLACK);

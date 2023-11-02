@@ -10,8 +10,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-#include <Audio.h>
-
 #include <SPIFFS.h>
 
 #include "time.h"
@@ -95,8 +93,6 @@ float getVbat()
 	// VBAT = ((float)analogRead(ADC_VBAT)) * 3600 / 4095 * 2;
 	// return VBAT / 1000;
 }
-
-Audio audio;
 
 // Radio Volume
 uint WebVolume = 20;

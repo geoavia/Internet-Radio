@@ -22,7 +22,7 @@ unsigned long secondsFromMillis = 0;
 
 void setup()
 {
-	//Serial.begin(115200);
+	Serial.begin(115200);
 
 	initVbat();
 
@@ -56,9 +56,6 @@ void setup()
 	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
 
 	DisplayCurrentMode(DisplayMode);
-
-	// standalone cpu task 
-	//StartPlayerTask();
 
 	lastKeyTime = millis();
 }
