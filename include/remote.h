@@ -76,7 +76,8 @@ bool ButtonsProcess()
 		RemoteCode = KEY_CH_MINUS;
 		state = true;
 	}
-	if (digitalRead(BUTTON_PIN_OK) == HIGH)
+	if ((digitalRead(BUTTON_PIN_OK) == HIGH) || 
+		((digitalRead(BUTTON_PIN_DOWN) == LOW) && (digitalRead(BUTTON_PIN_UP) == LOW)))
 	{
 		RemoteCode = KEY_CH;
 		state = true;

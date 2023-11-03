@@ -12,9 +12,149 @@ Audio audio;
 
 void SetWebVolume(uint8_t vol);
 
+///////////////////////////////////////////////////////////////////////////////
+
+struct audioMessage
+{
+	uint8_t cmd;
+	const char *txt;
+	uint32_t value;
+	uint32_t ret;
+} audioTxMessage, audioRxMessage;
+
+enum : uint8_t
+{
+	MSG_SET_VOLUME,
+	MSG_GET_VOLUME,
+	MSG_CONNECTTOHOST,
+	MSG_STOPSONG
+};
+
+QueueHandle_t audioSetQueue = NULL;
+QueueHandle_t audioGetQueue = NULL;
+
+void CreateQueues()
+{
+	audioSetQueue = xQueueCreate(10, sizeof(struct audioMessage));
+	audioGetQueue = xQueueCreate(10, sizeof(struct audioMessage));
+}
+
+void audioTask(void *parameter)
+{
+	Serial.println("Start Aidio Task...");
+
+	CreateQueues();
+	if (!audioSetQueue || !audioGetQueue)
+	{
+		log_e("Queues are not initialized!!!");
+		while (true); // endless loop
+	}
+
+	struct audioMessage audioRxTaskMessage;
+	struct audioMessage audioTxTaskMessage;
+
+	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
+	audio.setVolume(WebVolume % (MAX_WEB_VOLUME + 1));
+
+	while (true)
+	{
+		if (xQueueReceive(audioSetQueue, &audioRxTaskMessage, 1) == pdPASS)
+		{
+			if (audioRxTaskMessage.cmd == MSG_SET_VOLUME)
+			{
+				audioTxTaskMessage.cmd = MSG_SET_VOLUME;
+				audio.setVolume(audioRxTaskMessage.value);
+				audioTxTaskMessage.ret = 1;
+				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
+			}
+			else if (audioRxTaskMessage.cmd == MSG_CONNECTTOHOST)
+			{
+				audioTxTaskMessage.cmd = MSG_CONNECTTOHOST;
+				audioTxTaskMessage.ret = audio.connecttohost(audioRxTaskMessage.txt);
+				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
+			}
+			else if (audioRxTaskMessage.cmd == MSG_GET_VOLUME)
+			{
+				audioTxTaskMessage.cmd = MSG_GET_VOLUME;
+				audioTxTaskMessage.ret = audio.getVolume();
+				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
+			}
+			else if (audioRxTaskMessage.cmd == MSG_STOPSONG)
+			{
+				audioTxTaskMessage.cmd = MSG_STOPSONG;
+				audio.stopSong();
+				audioTxTaskMessage.ret = 1;
+				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
+			}
+			else
+			{
+				log_i("Error");
+			}
+		}
+		audio.loop();
+	}
+}
+
+void audioInit()
+{
+	xTaskCreatePinnedToCore(
+		audioTask,			   /* Function to implement the task */
+		"audioplay",		   /* Name of the task */
+		5000,				   /* Stack size in words */
+		NULL,				   /* Task input parameter */
+		2 | portPRIVILEGE_BIT, /* Priority of the task */
+		NULL,				   /* Task handle. */
+		1					   /* Core where the task should run */
+	);
+}
+
+audioMessage transmitReceive(audioMessage msg)
+{
+	xQueueSend(audioSetQueue, &msg, portMAX_DELAY);
+	if (xQueueReceive(audioGetQueue, &audioRxMessage, portMAX_DELAY) == pdPASS)
+	{
+		if (msg.cmd != audioRxMessage.cmd)
+		{
+			log_e("Wrong reply from message queue");
+		}
+	}
+	return audioRxMessage;
+}
+
+void audioSetVolume(uint8_t vol)
+{
+	audioTxMessage.cmd = MSG_SET_VOLUME;
+	audioTxMessage.value = vol;
+	audioMessage RX = transmitReceive(audioTxMessage);
+}
+
+uint8_t audioGetVolume()
+{
+	audioTxMessage.cmd = MSG_GET_VOLUME;
+	audioMessage RX = transmitReceive(audioTxMessage);
+	return RX.ret;
+}
+
+bool audioConnecttohost(const char *host)
+{
+	audioTxMessage.cmd = MSG_CONNECTTOHOST;
+	audioTxMessage.txt = host;
+	audioMessage RX = transmitReceive(audioTxMessage);
+	return RX.ret;
+}
+
+void audioStopSong()
+{
+	audioTxMessage.cmd = MSG_STOPSONG;
+	audioMessage RX = transmitReceive(audioTxMessage);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void PlayerInit()
 {
-	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
+	audioInit();
+	//audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
 	SetWebVolume(WebVolume);
 	SetFMVolume(FMVolume);
 	PlayWebStation(WebStation.url, WebStation.name);
@@ -57,9 +197,9 @@ void PlayWebStation(String url, String name)
 {
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
-		audio.stopSong();
+		audioStopSong();
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
-		if (audio.connecttohost(url.c_str()))
+		if (audioConnecttohost(url.c_str()))
 		{
 			SwitchOutput(WEB_RADIO);
 			WebStation.url = url;
@@ -97,8 +237,8 @@ void SetWebVolume(uint8_t vol)
 {
 	if (vol <= MAX_WEB_VOLUME)
 	{
-		audio.setVolume(vol);
-		WebVolume = audio.getVolume();
+		audioSetVolume(vol);
+		WebVolume = audioGetVolume();
 		Serial.printf("Web volume: %d\n", WebVolume);
 		SetStateChanged();
 	}
@@ -167,7 +307,7 @@ void PlayerJob()
 		async_clear();
 	}
 
-	if (CurrentRadio == WEB_RADIO) audio.loop();
+	//if (CurrentRadio == WEB_RADIO) audio.loop();
 }
 
 /////////////////////////////////////////////////////////////////

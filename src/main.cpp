@@ -154,5 +154,5 @@ void loop()
 
 	PlayerJob();
 
-	//delay(1);
+	delay(10);
 }
