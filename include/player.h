@@ -6,6 +6,8 @@
 #include <Audio.h>
 #include <HardwareSerial.h>
 
+static const char DefaultWebStationName[] = "WEB Station";
+
 HardwareSerial uart(2); // use UART2
 
 Audio audio;
@@ -300,7 +302,7 @@ void PlayerJob()
 {
  	if (async_hot)
 	{
-		if (async_url.length() > 0) PlayWebStation(async_url, "WEB Station");
+		if (async_url.length() > 0) PlayWebStation(async_url, DefaultWebStationName);
 		else if (async_freq > 0) TuneFMStation(async_freq, "FM " + String(((float)async_freq)/10));
 		else if (async_fmvol >= 0) SetFMVolume(async_fmvol);
 		else if (async_webvol >= 0) SetWebVolume(async_webvol);
@@ -317,9 +319,9 @@ void PlayerJob()
 
 void audio_showstation(const char *info)
 {
-	Serial.print("station     ");
+	Serial.print("Station: ");
 	Serial.println(info);
-	if (WebStation.name.length() == 0)
+	if (WebStation.name.equals(DefaultWebStationName))
 	{
 		WebStation.name = info;
 		DisplayCurrentMode(DisplayMode);
@@ -327,7 +329,7 @@ void audio_showstation(const char *info)
 }
 void audio_showstreamtitle(const char *info)
 {
-	Serial.print("streamtitle ");
+	Serial.print("Title: ");
 	Serial.println(info);
 	WebStation.title = info;
 	if (DisplayMode == DM_SIMPLE)
