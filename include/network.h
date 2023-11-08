@@ -551,7 +551,13 @@ void start_radio_server()
 			if ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
 				(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) html += "<tr class='curr'><td>";
 			else html += "<tr><td>";
+			html += "<a href=\"/dec?num=";
 			html += i;
+			html += "\"> &#129093 </a> ";
+			html += i;
+			html += " <a href=\"/inc?num=";
+			html += i;
+			html += "\"> &#129095 </a>";
 			if (IsType(i, WEB_RADIO))
 			{
 				html += "</td><td><a href=\"/get?mp3url=";
@@ -673,6 +679,32 @@ void start_radio_server()
 		{
 			async_setVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
 			delay(1000); // for Job to finish
+			request->redirect("/");
+		}
+		else 
+		{
+			request->redirect("/?msg=Incorrect Param");
+		}
+	});
+
+	server.on("/inc", HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (request->hasParam("num"))
+		{
+			ShiftStation(request->getParam("num")->value().toInt(), 1);
+			SaveRadioStations();
+			request->redirect("/");
+		}
+		else 
+		{
+			request->redirect("/?msg=Incorrect Param");
+		}
+	});
+
+	server.on("/dec", HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (request->hasParam("num"))
+		{
+			ShiftStation(request->getParam("num")->value().toInt(), -1);
+			SaveRadioStations();
 			request->redirect("/");
 		}
 		else 

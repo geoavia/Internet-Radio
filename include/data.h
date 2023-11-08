@@ -47,6 +47,21 @@ void AddStation(uint freq, String url, String name = "")
 		}
 }
 
+void ShiftStation(uint index, int delta)
+{
+	RADIO_STATION st;
+	if (index < n_stations)
+	{
+		int nto = (index + delta);
+		if (nto < 0) nto = n_stations - 1;
+		else if (nto >= n_stations) nto = 0;
+		st = Stations[nto];
+		Stations[nto] = Stations[index];
+		Stations[index] = st;
+	}
+}
+
+
 void RemoveStation(uint index)
 {
 	if (index < n_stations)

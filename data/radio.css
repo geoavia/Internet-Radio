@@ -1,7 +1,7 @@
 
 html {
     background-color: lightgrey;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .radio {
@@ -24,3 +24,11 @@ html {
     background-color: orange
 }
 
+a {
+	text-decoration: none;
+	color: royalblue;
+}
+
+a:hover {
+	color: coral;
+}
