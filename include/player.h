@@ -342,7 +342,10 @@ void PlayerJob()
 	}
 
 #ifndef SEPARATE_TASK
-	audio.loop();
+	//if (CurrentRadio == WEB_RADIO)
+	{
+		audio.loop();
+	}
 #endif
 }
 

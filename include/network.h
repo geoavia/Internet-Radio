@@ -727,6 +727,7 @@ void NetworkInit()
 	DisplayHeader();
 
 	// Set WiFi to station mode and disconnect from an AP if it was previously connected
+	WiFi.setAutoReconnect(true);
 	WiFi.mode(WIFI_STA);
 	WiFi.disconnect();
 	delay(100);
@@ -734,7 +735,6 @@ void NetworkInit()
 	load_networks();
 	connect_network();
 	start_radio_server();
-	WiFi.setAutoReconnect(true);
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
