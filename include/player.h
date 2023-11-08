@@ -12,8 +12,6 @@ HardwareSerial uart(2); // use UART2
 
 Audio audio;
 
-void SetWebVolume(uint8_t vol);
-
 //#define SEPARATE_TASK
 
 // Audio as separate task...
@@ -178,15 +176,6 @@ void audioStopSong()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PlayerInit()
-{
-	audioInit();
-	SetWebVolume(WebVolume);
-	SetFMVolume(FMVolume);
-	PlayWebStation(WebStation.url, WebStation.name);
-	StateChanged = false;
-}
-
 void FMInit()
 {
 	Serial.println("UART Init...");
@@ -263,6 +252,16 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 		DisplayCurrentMode(DM_NORMAL);
 		SetStateChanged();
 	}
+}
+
+void PlayerInit()
+{
+	audioInit();
+	SetWebVolume(WebVolume);
+	SetFMVolume(FMVolume);
+	if (CurrentRadio == WEB_RADIO) PlayWebStation(WebStation.url, WebStation.name);
+	else TuneFMStation(FMStation.freq, FMStation.name);
+	StateChanged = false;
 }
 
 void SetWebVolume(uint8_t vol)
@@ -357,7 +356,7 @@ void audio_showstation(const char *info)
 {
 	Serial.print("Station: ");
 	Serial.println(info);
-	if (WebStation.name.equals(DefaultWebStationName))
+	if (WebStation.name.length() == 0 || WebStation.name.equals(DefaultWebStationName))
 	{
 		WebStation.name = info;
 		DisplayCurrentMode(DisplayMode);

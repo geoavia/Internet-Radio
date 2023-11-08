@@ -738,6 +738,7 @@ void NetworkInit()
 	load_networks();
 	connect_network();
 	start_radio_server();
+	WiFi.setAutoReconnect(true);
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 

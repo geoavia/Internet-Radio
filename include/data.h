@@ -12,13 +12,22 @@ void LoadRadioStations()
 		Serial.println("Saved radio stations:");
 		while (file.available() && n_stations < MAX_STATIONS)
 		{
-			Serial.print(n_stations + 1);
-			Serial.print(": ");
 			Stations[n_stations].freq = file.readStringUntil(',').toInt();
 			Stations[n_stations].url = file.readStringUntil(',');
-			Serial.print(Stations[n_stations].url);
-			Serial.print(" - ");
 			Stations[n_stations].name = file.readStringUntil('\n');
+			Serial.print(n_stations + 1);
+			Serial.print(": ");
+			if (Stations[n_stations].freq > 0) 
+			{
+				FMStation = Stations[n_stations];
+				Serial.print(String(((float)FMStation.freq)/10));
+			}
+			else 
+			{
+				WebStation = Stations[n_stations];
+				Serial.print(WebStation.url);
+			}
+			Serial.print(" - ");
 			Serial.println(Stations[n_stations].name);
 			n_stations++;
 		}
@@ -134,18 +143,27 @@ bool FindStationByFreq(uint freq, RADIO_STATION &station)
 void LoadRadioState()
 {
 	File file = SPIFFS.open(STATE_FILE_NAME);
+	RADIO_STATION st;
 	if (file)
 	{
 		Serial.println("Loading last state");
 		if (file.available())
 		{
-			// read FM state
-			int i = file.readStringUntil(',').toInt();
-			FindStationByFreq(Stations[i].freq, FMStation);
+			// read current station
+			st.freq = file.readStringUntil(',').toInt();
+			st.url = file.readStringUntil(',');
+			if (st.freq > 0) 
+			{
+				FMStation = st;
+				CurrentRadio = FM_RADIO;
+			}
+			else 
+			{
+				WebStation = st;
+				CurrentRadio = WEB_RADIO;
+			}
+			// read volumes
 			FMVolume = file.readStringUntil(',').toInt();
-			// read WEB state
-			i = file.readStringUntil(',').toInt();
-			FindStationByUrl(Stations[i].url, WebStation);
 			WebVolume = file.readStringUntil('\n').toInt();
 		}
 	}
@@ -158,11 +176,18 @@ void SaveRadioState()
 	if (file)
 	{
 		Serial.println("Saving state");
-		file.print(GetStationIndexByFreq(FMStation.freq));
+		if (CurrentRadio == WEB_RADIO)
+		{
+			file.print("0,");
+			file.print(WebStation.url);
+		}
+		else 
+		{
+			file.print(FMStation.freq);
+			file.print(",");
+		}
 		file.print(",");
 		file.print(FMVolume);
-		file.print(",");
-		file.print(GetStationIndexByUrl(WebStation.url));
 		file.print(",");
 		file.print(WebVolume);
 		file.print("\n");
