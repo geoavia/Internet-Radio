@@ -2,106 +2,98 @@
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="data/radio.css">
-    <title>Internet Radio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="data/radio.css">
+	<title>Internet Radio</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-    <div class='radio web'>
-        <p>Current URL: <b>http://us5.internet-radio.com:8201/stream</b></p>
-        <form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
-            &nbsp;<input type="submit" value="Play" name="play">&nbsp;
-            Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" name="add">
-        </form><br>
-        <form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-            <input type="range" name="mp3vol" min="0" max="21" value="7">
-        </form><br>
-        <p>Playlist</p>
-        <table>
-            <tr>
-                <th>#</th>
-                <th>Station</th>
-                <th>URL</th>
-                <th></th>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td><a href="/get?mp3url=http:%2F%2Fuk3.internet-radio.com:8405%2Flive">Live Stream
+	<div class='radio'>
+		<p>Now listening to WEB Station: <b>http://us5.internet-radio.com:8201/stream</b></p>
+		<table>
+			<tr>
+				<th></th>
+				<th>URL / Frequency</th>
+				<th></th>
+				<th>Name</th>
+				<th></th>
+				<th>Volume</th>
+			</tr>
+			<tr>
+				<td>MP3 Radio:</td>
+				<td><form action="/get"></form><input type="text" name="mp3url"></td>
+				<td><input type="submit" value="Play" name="play"></td>
+				<td><input type="text" name="mp3name"></td>
+				<td><input type="submit" value="Add" name="add"></form></td>
+				<td><form action="/vol"><input type="range" name="mp3vol" min="0" max="21" value="7" onchange="submit()"></form></td>
+			</tr>
+			<tr>
+				<td>FM Radio:</td>
+				<td><form action="/get"><input type="text" name="fmfreq"></td>
+				<td><input type="submit" value="Play" name="play"></td>
+				<td><input type="text" name="fmname"></td>
+				<td><input type="submit" value="Add" name="add"></form></td>
+				<td><form action="/vol"><input type="range" name="fmvol" min="0" max="30" value="20" onchange="submit()"></form></td>
+			</tr>
+		</table>
+		<p>Playlist</p>
+		<table>
+			<tr>
+				<th>Channel No</th>
+				<th>Station Name</th>
+				<th>URL / Frequency</th>
+				<th></th>
+			</tr>
+			<tr>
+				<td>0</td>
+				<td><a href="/get?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">UK Dance radio
 
-                </td>
-                <td>http://uk3.internet-radio.com:8405/live</td>
-                <td><a href="/del?mp3url=http:%2F%2Fuk3.internet-radio.com:8405%2Flive">Remove</a></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td><a href="/get?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">UK Dance radio
+				</td>
+				<td>http://uk7.internet-radio.com:8226/live</td>
+				<td><a href="/del?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">Remove</a></td>
+			</tr>
+			<tr class='curr'>
+				<td>1</td>
+				<td><a href="/get?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">WCJS Radio
 
-                </td>
-                <td>http://uk7.internet-radio.com:8226/live</td>
-                <td><a href="/del?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">Remove</a></td>
-            </tr>
-            <tr class='curr'>
-                <td>3</td>
-                <td><a href="/get?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">WCJS Radio
+				</td>
+				<td>http://us5.internet-radio.com:8201/stream</td>
+				<td><a href="/del?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">Remove</a></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td><a href="/get?mp3url=http:%2F%2F91.121.155.204:8097%2Fradio.mp3">Best Love
 
-                </td>
-                <td>http://us5.internet-radio.com:8201/stream</td>
-                <td><a href="/del?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">Remove</a></td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td><a href="/get?mp3url=http:%2F%2F91.121.155.204:8097%2Fradio.mp3">Best Love
+				</td>
+				<td>http://91.121.155.204:8097/radio.mp3</td>
+				<td><a href="/del?mp3url=http:%2F%2F91.121.155.204:8097%2Fradio.mp3">Remove</a></td>
+			</tr>
+			<tr>
+				<td>3</td>
+				<td><a href="/get?mp3url=http:%2F%2Fuk7.internet-radio.com:8000%2Fstream">Beat House
 
-                </td>
-                <td>http://91.121.155.204:8097/radio.mp3</td>
-                <td><a href="/del?mp3url=http:%2F%2F91.121.155.204:8097%2Fradio.mp3">Remove</a></td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td><a href="/get?mp3url=http:%2F%2Fuk7.internet-radio.com:8000%2Fstream">Beat House
+				</td>
+				<td>http://uk7.internet-radio.com:8000/stream</td>
+				<td><a href="/del?mp3url=http:%2F%2Fuk7.internet-radio.com:8000%2Fstream">Remove</a></td>
+			</tr>
+			<tr>
+				<td>4</td>
+				<td><a href="/get?fmfreq=100.90">Radio Georgia
 
-                </td>
-                <td>http://uk7.internet-radio.com:8000/stream</td>
-                <td><a href="/del?mp3url=http:%2F%2Fuk7.internet-radio.com:8000%2Fstream">Remove</a></td>
-            </tr>
-        </table>
-    </div>
-    <div class='radio fm'>
-        <p>Current Frequency: <b>98.50</b></p>
-        <form action="/get">FM Radio Frequency: <input type="text" name="fmfreq">
-            &nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
-            Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" name="add">
-        </form><br>
-        <form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-            <input type="range" name="fmvol" min="0" max="30" value="12">
-        </form><br>
-        <p>Playlist</p>
-        <table>
-            <tr>
-                <th>#</th>
-                <th>Station</th>
-                <th>Frequency</th>
-                <th></th>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td><a href="/get?fmfreq=100.90">Radio Georgia
+				</td>
+				<td>100.90</td>
+				<td><a href="/del?fmfreq=1009">Remove</a></td>
+			</tr>
+			<tr>
+				<td>5</td>
+				<td><a href="/get?fmfreq=99.70">Radio Sivrce
 
-                </td>
-                <td>100.90</td>
-                <td><a href="/del?fmfreq=1009">Remove</a></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td><a href="/get?fmfreq=99.70">Radio Sivrce
-
-                </td>
-                <td>99.70</td>
-                <td><a href="/del?fmfreq=997">Remove</a></td>
-            </tr>
-        </table>
-    </div>
+				</td>
+				<td>99.70</td>
+				<td><a href="/del?fmfreq=997">Remove</a></td>
+			</tr>
+		</table>
+	</div>
 </body>
 
 </html>

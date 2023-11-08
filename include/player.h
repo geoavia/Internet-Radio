@@ -216,7 +216,7 @@ void PlayWebStation(String url, String name)
 	DisplayCurrentMode(DM_NORMAL, true);
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
-		audioStopSong();
+		//audioStopSong();
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
 		// try n times...
 		for (size_t i = 0; i < 5; i++)
@@ -343,9 +343,8 @@ void PlayerJob()
 	}
 
 #ifndef SEPARATE_TASK
-	if (CurrentRadio == WEB_RADIO) 
+	if (CurrentRadio == WEB_RADIO)
 	{
-		//if (!audio.isRunning()) PlayWebStation(WebStation.url, WebStation.name);
 		audio.loop();
 	}
 #endif

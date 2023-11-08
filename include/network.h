@@ -505,32 +505,55 @@ void start_radio_server()
 			html += request->getParam("msg")->value();
 			html += "</b></p>";
 		}
-		html += "<div class='radio web'>";
-		html += "<p>Current URL: <b>";
-		html += WebStation.url;
-		html += "</b></p>";
-		html += R"===(<form action="/get">MP3 Radio URL: <input type="text" name="mp3url">
-&nbsp;<input type="submit" value="Play" name="play">&nbsp;
-Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" name="add">
-</form><br>)===";
-
-		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-<input type="range" name="mp3vol" min="0" max=")===";
+		html += "<div class='radio'>";
+		html += "<p>Now listening to ";
+		if (CurrentRadio == WEB_RADIO) html += ("WEB Station: <b>"+WebStation.url+"</b>");
+		else html += ("FM Station: <b>" + String(((float)FMStation.freq)/10) + "</b>");
+		html += R"===(</p><table>
+				<tr>
+					<th></th>
+					<th>URL / Frequency</th>
+					<th></th>
+					<th>Name</th>
+					<th></th>
+					<th>Volume</th>
+				</tr>
+				<tr>
+					<td>MP3 Radio:</td>
+					<td><form action="/get"><input type="text" name="mp3url"></td>
+					<td><input type="submit" value="Play" name="play"></td>
+					<td><input type="text" name="mp3name"></td>
+					<td><input type="submit" value="Add" name="add"></form></td>
+					<td><form action="/vol"><input type="range" name="mp3vol" min="0" max=")===";
 		html += MAX_WEB_VOLUME;
 		html += "\" value=\"";
 		html += WebVolume;
-		html += "\">";
-		html += "</form><br>";
+		html += R"===(" onchange="submit()"></form></td>
+				</tr>
+				<tr>
+					<td>FM Radio:</td>
+					<td><form action="/get"><input type="text" name="fmfreq"></td>
+					<td><input type="submit" value="Play" name="play"></td>
+					<td><input type="text" name="fmname"></td>
+					<td><input type="submit" value="Add" name="add"></form></td>
+					<td><form action="/vol"><input type="range" name="fmvol" min="0" max=")===";
+		html += MAX_FM_VOLUME;
+		html += "\" value=\"";
+		html += FMVolume;
+		html += R"===(" onchange="submit()"></form></td>
+				</tr>
+			</table>)===";
+		html += "<br>";
 		html += "<p>Playlist</p>";
-		html += "<table><tr><th>#</th><th>Station</th><th>URL</th><th></th></tr>";
-		int n = 1;
+		html += "<table><tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th></tr>";
 		for (uint i = 0; i < n_stations; i++)
 		{
+			if ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
+				(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) html += "<tr class='curr'><td>";
+			else html += "<tr><td>";
+			html += i;
 			if (IsType(i, WEB_RADIO))
 			{
-				if (Stations[i].url == WebStation.url) html += "<tr class='curr'><td>";
-				else html += "<tr><td>";
-				html += n;
 				html += "</td><td><a href=\"/get?mp3url=";
 				html += EncodeUrl(Stations[i].url);
 				html += "\">";
@@ -541,35 +564,9 @@ Name: <input type="text" name="mp3name">&nbsp;<input type="submit" value="Add" n
 				html += "<a href=\"/del?mp3url=";
 				html += EncodeUrl(Stations[i].url);
 				html += "\">Remove</a></td></tr>";
-				n++;
 			}
-		}
-		html += "</table></div><div class='radio fm'>";
-		html += "<p>Current Frequency: <b>";
-		html += String(((float)FMStation.freq)/10);
-		html += "</b></p>";
-		html += R"===(<form action="/get">FM Radio Frequency: <input type="text" name="fmfreq">
-&nbsp;<input type="submit" value="Tune" name="tune">&nbsp;
-Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" name="add">
-</form><br>)===";
-
-		html += R"===(<form action="/vol"><input type="submit" value="Set Volume">&nbsp;
-<input type="range" name="fmvol" min="0" max=")===";
-		html += MAX_FM_VOLUME;
-		html += "\" value=\"";
-		html += FMVolume;
-		html += "\">";
-		html += "</form><br>";
-		html += "<p>Playlist</p>";
-		html += "<table><tr><th>#</th><th>Station</th><th>Frequency</th><th></th></tr>";
-		n = 1;
-		for (uint i = 0; i < n_stations; i++)
-		{
-			if (IsType(i,FM_RADIO))
+			else
 			{
-				if (Stations[i].freq == FMStation.freq) html += "<tr class='curr'><td>";
-				else html += "<tr><td>";
-				html += n;
 				html += "</td><td><a href=\"/get?fmfreq=";
 				html += String(((float)Stations[i].freq)/10);
 				html += "\">";
@@ -580,7 +577,6 @@ Name: <input type="text" name="fmname">&nbsp;<input type="submit" value="Add" na
 				html += "<a href=\"/del?fmfreq=";
 				html += Stations[i].freq;
 				html += "\">Remove</a></td></tr>";
-				n++;
 			}
 		}
 		html += "</table></div>";
