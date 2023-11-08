@@ -210,6 +210,7 @@ void SwitchOutput(RADIO_TYPE op)
 
 void PlayWebStation(String url, String name)
 {
+	SwitchOutput(WEB_RADIO);
 	WebStation.url = url;
 	WebStation.name = name;
 	DisplayCurrentMode(DM_NORMAL, true);
@@ -222,7 +223,6 @@ void PlayWebStation(String url, String name)
 		{
 			if (audioConnecttohost(url.c_str()))
 			{
-				SwitchOutput(WEB_RADIO);
 				// WebStation.url = url;
 				// WebStation.name = name;
 				FindStationByUrl(url, WebStation);
