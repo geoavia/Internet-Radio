@@ -14,7 +14,10 @@ Audio audio;
 
 void SetWebVolume(uint8_t vol);
 
-///////////////////////////////////////////////////////////////////////////////
+//#define SEPARATE_TASK
+
+// Audio as separate task...
+#ifdef SEPARATE_TASK
 
 struct audioMessage
 {
@@ -97,19 +100,6 @@ void audioTask(void *parameter)
 	}
 }
 
-void audioInit()
-{
-	xTaskCreatePinnedToCore(
-		audioTask,			   /* Function to implement the task */
-		"audioplay",		   /* Name of the task */
-		5000,				   /* Stack size in words */
-		NULL,				   /* Task input parameter */
-		2 | portPRIVILEGE_BIT, /* Priority of the task */
-		NULL,				   /* Task handle. */
-		1					   /* Core where the task should run */
-	);
-}
-
 audioMessage transmitReceive(audioMessage msg)
 {
 	xQueueSend(audioSetQueue, &msg, portMAX_DELAY);
@@ -123,32 +113,67 @@ audioMessage transmitReceive(audioMessage msg)
 	return audioRxMessage;
 }
 
+#endif // Audio as separate task
+
+void audioInit()
+{
+#ifdef SEPARATE_TASK
+	xTaskCreatePinnedToCore(
+		audioTask,			   /* Function to implement the task */
+		"audioplay",		   /* Name of the task */
+		5000,				   /* Stack size in words */
+		NULL,				   /* Task input parameter */
+		2 | portPRIVILEGE_BIT, /* Priority of the task */
+		NULL,				   /* Task handle. */
+		1					   /* Core where the task should run */
+	);
+#else 
+	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
+#endif
+}
+
 void audioSetVolume(uint8_t vol)
 {
+#ifdef SEPARATE_TASK
 	audioTxMessage.cmd = MSG_SET_VOLUME;
 	audioTxMessage.value = vol;
 	audioMessage RX = transmitReceive(audioTxMessage);
+#else
+	audio.setVolume(vol);
+#endif
 }
 
 uint8_t audioGetVolume()
 {
+#ifdef SEPARATE_TASK
 	audioTxMessage.cmd = MSG_GET_VOLUME;
 	audioMessage RX = transmitReceive(audioTxMessage);
 	return RX.ret;
+#else
+	return audio.getVolume();
+#endif
 }
 
 bool audioConnecttohost(const char *host)
 {
+#ifdef SEPARATE_TASK
 	audioTxMessage.cmd = MSG_CONNECTTOHOST;
 	audioTxMessage.txt = host;
 	audioMessage RX = transmitReceive(audioTxMessage);
 	return RX.ret;
+#else
+	return audio.connecttohost(host);
+#endif
 }
 
 void audioStopSong()
 {
+#ifdef SEPARATE_TASK
 	audioTxMessage.cmd = MSG_STOPSONG;
 	audioMessage RX = transmitReceive(audioTxMessage);
+#else
+	audio.stopSong();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,7 +181,6 @@ void audioStopSong()
 void PlayerInit()
 {
 	audioInit();
-	//audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
 	SetWebVolume(WebVolume);
 	SetFMVolume(FMVolume);
 	PlayWebStation(WebStation.url, WebStation.name);
@@ -201,14 +225,20 @@ void PlayWebStation(String url, String name)
 	{
 		audioStopSong();
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
-		if (audioConnecttohost(url.c_str()))
+		// try n times...
+		for (size_t i = 0; i < 5; i++)
 		{
-			SwitchOutput(WEB_RADIO);
-			WebStation.url = url;
-			WebStation.name = name;
-			FindStationByUrl(url, WebStation);
-			DisplayCurrentMode(DM_NORMAL);
-			SetStateChanged();
+			if (audioConnecttohost(url.c_str()))
+			{
+				SwitchOutput(WEB_RADIO);
+				WebStation.url = url;
+				WebStation.name = name;
+				FindStationByUrl(url, WebStation);
+				DisplayCurrentMode(DM_NORMAL);
+				SetStateChanged();
+				return;
+			} 
+			delay(100);
 		}
 	}
 
@@ -309,7 +339,13 @@ void PlayerJob()
 		async_clear();
 	}
 
-	//if (CurrentRadio == WEB_RADIO) audio.loop();
+#ifndef SEPARATE_TASK
+	if (CurrentRadio == WEB_RADIO) 
+	{
+		//if (!audio.isRunning()) PlayWebStation(WebStation.url, WebStation.name);
+		audio.loop();
+	}
+#endif
 }
 
 /////////////////////////////////////////////////////////////////

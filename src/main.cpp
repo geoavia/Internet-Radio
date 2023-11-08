@@ -154,5 +154,8 @@ void loop()
 
 	PlayerJob();
 
+#ifdef SEPARATE_TASK
 	delay(10);
+#endif
+
 }
