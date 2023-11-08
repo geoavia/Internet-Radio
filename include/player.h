@@ -216,7 +216,6 @@ void PlayWebStation(String url, String name)
 	DisplayCurrentMode(DM_NORMAL, true);
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
-		//audioStopSong();
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
 		// try n times...
 		for (size_t i = 0; i < 5; i++)
@@ -243,7 +242,7 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 	//if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
 	{
 		if (name.length() == 0) name = "FM "+String(((float)freq)/10);
-		//audio.stopSong();
+		audioStopSong();
 		char cmd[16];
 		Serial.printf("Tune to FM: %d\n", freq);
 		sprintf(cmd, "AT+FRE=%d", freq);
@@ -343,7 +342,7 @@ void PlayerJob()
 	}
 
 #ifndef SEPARATE_TASK
-	if (CurrentRadio == WEB_RADIO)
+	//if (CurrentRadio == WEB_RADIO)
 	{
 		audio.loop();
 	}
