@@ -150,7 +150,7 @@ void DisplayHeader()
 
 bool bTimeDelimiter = false;
 
-void DisplayCurrentMode(DISPLAY_MODE mode)
+void DisplayCurrentMode(DISPLAY_MODE mode, bool tuning = false)
 {
 	if (mode == DM_SIMPLE) 
 	{
@@ -161,7 +161,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextWrap(false);
 		tft.setTextColor(TFT_WHITE);
 		tft.setCursor(0, 2);
-		tft.println((CurrentRadio == WEB_RADIO) ? "> WEB Station" : "> FM Station");
+		tft.println((CurrentRadio == WEB_RADIO) ? "WEB Station" : "FM Station");
 		tft.drawFastHLine(0,35,240,TFT_WHITE);
 		tft.setCursor(0, 50);
 		tft.setTextColor(TFT_YELLOW);
@@ -179,7 +179,9 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextSize(1);
 		tft.setTextFont(4);
 		tft.setTextColor(TFT_WHITE);
-		tft.println((CurrentRadio == WEB_RADIO) ? "> WEB Station" : "> FM Station");
+		tft.print(tuning ? "> " : "");
+		tft.print((CurrentRadio == WEB_RADIO) ? "WEB Station" : "FM Station");
+		tft.println(tuning ? "..." : "");
 		tft.setTextColor(TFT_YELLOW);
 		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.name); 
 		else tft.println(FMStation.name);

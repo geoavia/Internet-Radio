@@ -210,6 +210,9 @@ void SwitchOutput(RADIO_TYPE op)
 
 void PlayWebStation(String url, String name)
 {
+	WebStation.url = url;
+	WebStation.name = name;
+	DisplayCurrentMode(DM_NORMAL, true);
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
 		audioStopSong();
@@ -220,8 +223,8 @@ void PlayWebStation(String url, String name)
 			if (audioConnecttohost(url.c_str()))
 			{
 				SwitchOutput(WEB_RADIO);
-				WebStation.url = url;
-				WebStation.name = name;
+				// WebStation.url = url;
+				// WebStation.name = name;
 				FindStationByUrl(url, WebStation);
 				DisplayCurrentMode(DM_NORMAL);
 				SetStateChanged();
@@ -331,6 +334,7 @@ void PlayerJob()
 {
  	if (async_hot)
 	{
+		lastKeyTime = millis();
 		if (async_url.length() > 0) PlayWebStation(async_url, DefaultWebStationName);
 		else if (async_freq > 0) TuneFMStation(async_freq, "FM " + String(((float)async_freq)/10));
 		else if (async_fmvol >= 0) SetFMVolume(async_fmvol);
