@@ -56,6 +56,9 @@ void audioTask(void *parameter)
 	struct audioMessage audioRxTaskMessage;
 	struct audioMessage audioTxTaskMessage;
 
+	bool connected = false;
+	String host = "";
+
 	while (true)
 	{
 		if (xQueueReceive(audioSetQueue, &audioRxTaskMessage, 1) == pdPASS)
@@ -70,7 +73,8 @@ void audioTask(void *parameter)
 			else if (audioRxTaskMessage.cmd == MSG_CONNECTTOHOST)
 			{
 				audioTxTaskMessage.cmd = MSG_CONNECTTOHOST;
-				audioTxTaskMessage.ret = audio.connecttohost(audioRxTaskMessage.txt);
+				host = audioRxTaskMessage.txt;
+				audioTxTaskMessage.ret = connected = audio.connecttohost(host.c_str());
 				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
 			}
 			else if (audioRxTaskMessage.cmd == MSG_GET_VOLUME)
@@ -83,6 +87,7 @@ void audioTask(void *parameter)
 			{
 				audioTxTaskMessage.cmd = MSG_STOPSONG;
 				audio.stopSong();
+				connected = false;
 				audioTxTaskMessage.ret = 1;
 				xQueueSend(audioGetQueue, &audioTxTaskMessage, portMAX_DELAY);
 			}
@@ -92,6 +97,7 @@ void audioTask(void *parameter)
 			}
 		}
 		audio.loop();
+		if (connected && !audio.isRunning()) audio.connecttohost(host.c_str());
 	}
 }
 

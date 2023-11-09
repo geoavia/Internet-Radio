@@ -179,6 +179,8 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextColor(TFT_GREEN);
 		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.title);
 		else tft.println(String(((float)FMStation.freq)/10));
+
+		DisplayRSSI(220, 25, WiFi.RSSI(), TFT_GREENYELLOW);
 	} 
 	else if (mode == DM_NORMAL) 
 	{
