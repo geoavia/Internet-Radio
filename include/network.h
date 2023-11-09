@@ -3,7 +3,12 @@
 
 #include "main.hpp"
 
-//WiFiClient client;
+#include "WiFiMulti.h"
+
+#ifdef WIFICLIENTMULTI_H_
+WiFiMulti wifiMulti;
+#endif
+
 AsyncWebServer server(80);
 
 bool async_hot = false;
@@ -152,6 +157,11 @@ bool connect_ssid(String ssid, String password)
 	
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
+
+#ifdef WIFICLIENTMULTI_H_
+	wifiMulti.addAP(ssid.c_str(), password.c_str());
+	return (wifiMulti.run() == WL_CONNECTED);
+#else
 	WiFi.begin(ssid.c_str(), password.c_str());
 	int tries = 20;
 	while (!WiFi.isConnected())
@@ -176,6 +186,8 @@ bool connect_ssid(String ssid, String password)
 	
 	//delay(1000);
 	return true;
+#endif
+
 }
 
 void list_networks()

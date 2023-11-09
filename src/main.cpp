@@ -78,8 +78,8 @@ void loop()
 			//FMCommand("AT+VOLU");
 			DisplayVolume();
 		}
-		if (IsCode(KEY_CH_MINUS)) NextStation(-1);
-		if (IsCode(KEY_CH_PLUS)) NextStation(1);
+		if (IsCode(KEY_CH_MINUS)) NextStation(1);
+		if (IsCode(KEY_CH_PLUS)) NextStation(-1);
 		if (IsCode(KEY_0)) SwitchStation(0);
 		if (IsCode(KEY_1)) SwitchStation(1);
 		if (IsCode(KEY_2)) SwitchStation(2);

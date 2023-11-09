@@ -138,6 +138,10 @@ int GetStationIndexByFreq(uint freq)
 	return -1;
 }
 
+int GetCurrentStationIndex()
+{
+	return (CurrentRadio == FM_RADIO) ? GetStationIndexByFreq(FMStation.freq) : GetStationIndexByUrl(WebStation.url);
+}
 
 bool FindStationByUrl(String url, RADIO_STATION &station)
 {

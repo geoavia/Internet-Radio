@@ -56,9 +56,6 @@ void audioTask(void *parameter)
 	struct audioMessage audioRxTaskMessage;
 	struct audioMessage audioTxTaskMessage;
 
-	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
-	audio.setVolume(WebVolume % (MAX_WEB_VOLUME + 1));
-
 	while (true)
 	{
 		if (xQueueReceive(audioSetQueue, &audioRxTaskMessage, 1) == pdPASS)
@@ -115,6 +112,10 @@ audioMessage transmitReceive(audioMessage msg)
 
 void audioInit()
 {
+	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
+	audio.setConnectionTimeout(2000, 3000);
+	audio.setVolume(WebVolume % (MAX_WEB_VOLUME + 1));
+
 #ifdef SEPARATE_TASK
 	xTaskCreatePinnedToCore(
 		audioTask,			   /* Function to implement the task */
@@ -125,9 +126,7 @@ void audioInit()
 		NULL,				   /* Task handle. */
 		1					   /* Core where the task should run */
 	);
-#else 
-	audio.setPinout(I2S_BCLK_PIN, I2S_LRC_PIN, I2S_DOUT_PIN);
-#endif
+#endif 
 }
 
 void audioSetVolume(uint8_t vol)
@@ -176,6 +175,11 @@ void audioStopSong()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool IsPlaying()
+{
+	return (CurrentRadio == FM_RADIO || audio.isRunning());
+}
+
 void FMInit()
 {
 	Serial.println("UART Init...");
@@ -213,7 +217,8 @@ void PlayWebStation(String url, String name)
 	SwitchOutput(WEB_RADIO);
 	WebStation.url = url;
 	WebStation.name = name;
-	DisplayCurrentMode(DM_NORMAL, true);
+	WebStation.connected = false;
+	DisplayCurrentMode(DM_NORMAL);
 	if (WiFi.isConnected() && (WiFi.getMode() == WIFI_STA))
 	{
 		Serial.printf("Tune to URL: '%s'\n", url.c_str());
@@ -224,12 +229,13 @@ void PlayWebStation(String url, String name)
 			{
 				// WebStation.url = url;
 				// WebStation.name = name;
+				WebStation.connected = true;
 				FindStationByUrl(url, WebStation);
 				DisplayCurrentMode(DM_NORMAL);
 				SetStateChanged();
 				return;
 			} 
-			delay(100);
+			delay(200);
 		}
 	}
 
@@ -254,16 +260,6 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 		DisplayCurrentMode(DM_NORMAL);
 		SetStateChanged();
 	}
-}
-
-void PlayerInit()
-{
-	audioInit();
-	SetWebVolume(WebVolume);
-	SetFMVolume(FMVolume);
-	if (CurrentRadio == WEB_RADIO) PlayWebStation(WebStation.url, WebStation.name);
-	else TuneFMStation(FMStation.freq, FMStation.name);
-	StateChanged = false;
 }
 
 void SetWebVolume(uint8_t vol)
@@ -293,25 +289,13 @@ void SetFMVolume(uint vol)
 void NextStation(int dir = 1)
 {
 	Serial.printf("%s station\n", (dir > 0)?"Next":"Previous");
-	int ci = (CurrentRadio == FM_RADIO) ? 
-		GetStationIndexByFreq(FMStation.freq) : 
-		GetStationIndexByUrl(WebStation.url);
-	int n = 0;
+	int ci = GetCurrentStationIndex();
 	dir = (dir > 0) ? 1 : -1;
-	while (n < n_stations)
-	{
-		ci += dir;
-		if (ci < 0) ci = (n_stations - 1);
-		else if (ci >= n_stations) ci = 0;
-
-		if (IsType(ci, CurrentRadio))
-		{
-			if (CurrentRadio == FM_RADIO) TuneFMStation(Stations[ci].freq, Stations[ci].name);
-			else PlayWebStation(Stations[ci].url, Stations[ci].name);
-			break;
-		}
-		n++;
-	}
+	ci += dir;
+	if (ci < 0) ci = (n_stations - 1);
+	else if (ci >= n_stations) ci = 0;
+	if (Stations[ci].freq > 0) TuneFMStation(Stations[ci].freq, Stations[ci].name);
+	else PlayWebStation(Stations[ci].url, Stations[ci].name);
 }
 
 void SwitchStation(uint n)
@@ -329,6 +313,15 @@ void SwitchStation(uint n)
 	}
 }
 
+void PlayerInit()
+{
+	audioInit();
+	SetFMVolume(FMVolume);
+	if (CurrentRadio == WEB_RADIO) PlayWebStation(WebStation.url, WebStation.name);
+	else TuneFMStation(FMStation.freq, FMStation.name);
+	StateChanged = false;
+}
+
 void PlayerJob()
 {
  	if (async_hot)
@@ -343,18 +336,29 @@ void PlayerJob()
 
 #ifndef SEPARATE_TASK
 	audio.loop();
+	if (CurrentRadio == WEB_RADIO && WebStation.connected && !audio.isRunning())
+	{
+		if (DisplayMode == DM_TIME) DisplayCurrentMode(DM_NORMAL);
+		else DisplayCurrentMode(DisplayMode);
+		Serial.print("Reconnecting: ");
+		Serial.println(WebStation.url);
+		if (audioConnecttohost(WebStation.url.c_str())) DisplayCurrentMode(DisplayMode);
+		delay(200);
+	}
 #endif
 }
 
 /////////////////////////////////////////////////////////////////
 // Audio Event Handlers
 
-//void audio_info(const char *info) {}
-
-void audio_showstation(const char *info)
+void audio_info(const char *info) 
 {
 	Serial.print("Station: ");
 	Serial.println(info);
+}
+
+void audio_showstation(const char *info)
+{
 	if (WebStation.name.length() == 0 || WebStation.name.equals(DefaultWebStationName))
 	{
 		WebStation.name = info;
@@ -363,8 +367,6 @@ void audio_showstation(const char *info)
 }
 void audio_showstreamtitle(const char *info)
 {
-	Serial.print("Title: ");
-	Serial.println(info);
 	WebStation.title = info;
 	if (DisplayMode == DM_SIMPLE)
 	{

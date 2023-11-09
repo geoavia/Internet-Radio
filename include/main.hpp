@@ -5,8 +5,6 @@
 
 #include <Preferences.h>
 
-#include <WiFi.h>
-
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -105,6 +103,7 @@ struct RADIO_STATION
 	String url = "";
 	String name = "";
 	String title = "";
+	bool connected = true;
 };
 
 RADIO_STATION WebStation, FMStation, Stations[MAX_STATIONS];
@@ -152,5 +151,6 @@ void PlayWebStation(String url, String name);
 void TuneFMStation(uint freq, String name, bool fout);
 void SetWebVolume(uint8_t vol);
 void SetFMVolume(uint vol);
+bool IsPlaying();
 
 #endif // __IRADIO_MAIN__
