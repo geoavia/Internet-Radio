@@ -3,12 +3,6 @@
 
 #include "main.hpp"
 
-#include "WiFiMulti.h"
-
-#ifdef WIFICLIENTMULTI_H_
-WiFiMulti wifiMulti;
-#endif
-
 AsyncWebServer server(80);
 
 bool async_hot = false;
@@ -158,10 +152,6 @@ bool connect_ssid(String ssid, String password)
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 
-#ifdef WIFICLIENTMULTI_H_
-	wifiMulti.addAP(ssid.c_str(), password.c_str());
-	return (wifiMulti.run() == WL_CONNECTED);
-#else
 	WiFi.begin(ssid.c_str(), password.c_str());
 	int tries = 20;
 	while (!WiFi.isConnected())
@@ -186,7 +176,6 @@ bool connect_ssid(String ssid, String password)
 	
 	//delay(1000);
 	return true;
-#endif
 
 }
 
@@ -200,8 +189,6 @@ void list_networks()
 		tft.setTextSize(1);
 		tft.setTextColor(TFT_WHITE);
 		tft.println("WiFi not detected!");
-		
-
 		Serial.println("No networks found");
 	}
 	else
@@ -247,7 +234,7 @@ bool want_display_ui()
 	{
 		tft.fillScreen(TFT_BLACK);
 		tft.setCursor(0, 0);
-		tft.setTextColor(TFT_WHITE);
+		tft.setTextColor(TFT_YELLOW);
 		tft.println("WiFi Setup method");
 
 		tft.setCursor(0, 20);
@@ -292,7 +279,7 @@ bool get_network_ui()
 	{
 		tft.fillScreen(TFT_BLACK);
 		tft.setCursor(0, 0);
-		tft.setTextColor(TFT_WHITE);
+		tft.setTextColor(TFT_YELLOW);
 		tft.println("Select WiFi Network");
 
 		tft.setCursor(0, 20);
@@ -304,18 +291,18 @@ bool get_network_ui()
 			tft.print("  ");
 			//tft.print((WiFi.encryptionType(y0 + y) == WIFI_AUTH_OPEN) ? "  " : "* ");
 			tft.println(WiFi.SSID(y0 + y));
-			DisplayRSSI(0, 10+(y+1)*8, WiFi.RSSI(y0 + y), ((yc == y) ? TFT_BLACK : TFT_WHITE));
+			DisplayRSSI(5, 20+(y+1)*16, WiFi.RSSI(y0 + y), ((yc == y) ? TFT_BLACK : TFT_WHITE));
 		}
 		
 
 		while (!GetRemoteCode() || IsRepeat) delay(10); 
-		if (IsCode(KEY_PLUS) || IsCode(KEY_NEXT) || IsCode (KEY_CH_MINUS))
+		if (IsCode(KEY_PLUS) || IsCode(KEY_NEXT) || IsCode (KEY_CH_PLUS))
 		{
 			if (yc > 0) yc--;
 			else if (yc == 0 && y0 > 0) y0--;
 			//else yc == y0 = 0;
 		}
-		if (IsCode(KEY_MINUS) || IsCode(KEY_PREV) || IsCode (KEY_CH_PLUS))
+		if (IsCode(KEY_MINUS) || IsCode(KEY_PREV) || IsCode (KEY_CH_MINUS))
 		{
 			if (yc < 5 && (yc + 1) < n_SSID) yc++;
 			else if (yc == 5 && y0 + 6 < n_SSID) y0++;
@@ -340,19 +327,22 @@ bool get_network_ui()
 		//tft.cp437(true);         // Use full 256 char 'Code Page 437' font
 		while(curnet.password == "")
 		{
-			blink = (blink+1)%20;
+			blink = (blink+1)%2;
 			tft.fillScreen(TFT_BLACK);
 			tft.setCursor(0, 0);
-			tft.setTextColor(TFT_WHITE);
+			tft.setTextColor(TFT_YELLOW);
 			tft.println("Enter Password for");
+			tft.setTextColor(TFT_WHITE);
 			tft.println(curnet.ssid);
-			tft.drawFastHLine(0, 40, 240, TFT_WHITE);
+			tft.drawFastHLine(0, 40, 240, TFT_CYAN);
 			tft.setCursor(0, 50);
+			tft.setTextColor(TFT_WHITE);
 			tft.println(pwd);
 
-			tft.fillRect(xc*12, 66, 12, 4, (blink/10) ? TFT_WHITE : TFT_BLACK);
+			tft.fillRect(xc*12, 66, 12, 4, blink ? TFT_YELLOW : TFT_BLACK);
 
 			tft.setCursor(0, 75);
+			tft.setTextColor(TFT_DARKCYAN);
 			tft.println("+/-: Change letter");
 			tft.println("prev/next: Cursor");
 			tft.println("100/200: Case/Symbol");
@@ -407,7 +397,7 @@ bool get_network_ui()
 				}
 				if (IsCode(KEY_PLAYPAUSE)) shutdown();
 			}
-			delay(10);
+			delay(100);
 		}
 	}
 

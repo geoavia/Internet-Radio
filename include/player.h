@@ -12,7 +12,7 @@ HardwareSerial uart(2); // use UART2
 
 Audio audio;
 
-//#define SEPARATE_TASK
+#define SEPARATE_TASK
 
 // Audio as separate task...
 #ifdef SEPARATE_TASK
@@ -353,7 +353,7 @@ void PlayerJob()
 
 void audio_info(const char *info) 
 {
-	Serial.print("Station: ");
+	Serial.print("Info: ");
 	Serial.println(info);
 }
 

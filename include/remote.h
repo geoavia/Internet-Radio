@@ -52,8 +52,8 @@ bool IsCode(uint16_t code, bool noRepeat = true)
 
 void ButtonsInit()
 {
-	pinMode(BUTTON_PIN_UP, INPUT); // has internal pullup
-	pinMode(BUTTON_PIN_DOWN, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_UP, INPUT_PULLUP);
+	pinMode(BUTTON_PIN_DOWN, INPUT); // has internal pullup
 	pinMode(BUTTON_PIN_OK, INPUT);
 	pinMode(BUTTON_PIN_LEFT, INPUT);
 	pinMode(BUTTON_PIN_RIGHT, INPUT);

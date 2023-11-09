@@ -120,7 +120,7 @@ void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
 	int nb = Get4BarsFromRSSI(rssi);
 	for (int b = 0; b < nb; b++)
 	{
-		tft.drawFastHLine(x, y-b*2, b+1, color);
+		tft.drawFastHLine(x, y-b*4, (b+1)*2, color);
 	}
 }
 
@@ -133,15 +133,18 @@ void DisplayHeader()
 	// tft.setTextColor(TFT_BLUE);
 	// tft.drawString("WWW Radio", 0, 0, 4);
 
+	DisplayRSSI(175, 20, WiFi.RSSI(), TFT_WHITE);
+
 	tft.setTextColor(TFT_YELLOW);
 	tft.setTextFont(2);
-	tft.setCursor(200, 0);
+	tft.setCursor(210, 0);
 	tft.printf("%.1fv", getVbat());
 
-	tft.setTextColor(TFT_GREEN);
-	tft.setCursor(180, 15);
+	tft.setTextColor(TFT_DARKCYAN);
+	tft.setCursor(190, 15);
 	tft.println("ver 2.0");
 
+	tft.setTextColor(TFT_GREEN);
 	tft.setCursor(0, 50);
 
 	tft.setTextFont(1);
