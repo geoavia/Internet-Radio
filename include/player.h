@@ -12,10 +12,10 @@ HardwareSerial uart(2); // use UART2
 
 Audio audio;
 
-#define SEPARATE_TASK
+#define SEPARATE_AUDIO_TASK
 
 // Audio as separate task...
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 
 struct audioMessage
 {
@@ -122,7 +122,7 @@ void audioInit()
 	audio.setConnectionTimeout(2000, 3000);
 	audio.setVolume(WebVolume % (MAX_WEB_VOLUME + 1));
 
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	xTaskCreatePinnedToCore(
 		audioTask,			   /* Function to implement the task */
 		"audioplay",		   /* Name of the task */
@@ -137,7 +137,7 @@ void audioInit()
 
 void audioSetVolume(uint8_t vol)
 {
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	audioTxMessage.cmd = MSG_SET_VOLUME;
 	audioTxMessage.value = vol;
 	audioMessage RX = transmitReceive(audioTxMessage);
@@ -148,7 +148,7 @@ void audioSetVolume(uint8_t vol)
 
 uint8_t audioGetVolume()
 {
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	audioTxMessage.cmd = MSG_GET_VOLUME;
 	audioMessage RX = transmitReceive(audioTxMessage);
 	return RX.ret;
@@ -159,7 +159,7 @@ uint8_t audioGetVolume()
 
 bool audioConnecttohost(const char *host)
 {
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	audioTxMessage.cmd = MSG_CONNECTTOHOST;
 	audioTxMessage.txt = host;
 	audioMessage RX = transmitReceive(audioTxMessage);
@@ -171,7 +171,7 @@ bool audioConnecttohost(const char *host)
 
 void audioStopSong()
 {
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	audioTxMessage.cmd = MSG_STOPSONG;
 	audioMessage RX = transmitReceive(audioTxMessage);
 #else
@@ -340,7 +340,7 @@ void PlayerJob()
 		async_clear();
 	}
 
-#ifndef SEPARATE_TASK
+#ifndef SEPARATE_AUDIO_TASK
 	audio.loop();
 	if (CurrentRadio == WEB_RADIO && WebStation.connected && !audio.isRunning())
 	{

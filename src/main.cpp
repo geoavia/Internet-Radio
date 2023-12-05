@@ -154,7 +154,7 @@ void loop()
 
 	PlayerJob();
 
-#ifdef SEPARATE_TASK
+#ifdef SEPARATE_AUDIO_TASK
 	delay(10);
 #endif
 
