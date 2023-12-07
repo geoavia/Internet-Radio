@@ -84,7 +84,9 @@ float getVbat()
 {
 	digitalWrite(ADC_EN, HIGH);
 	delay(1);
-	VBAT = ((float)analogRead(ADC_VBAT)) / 4095.0 * 7.26;
+	VBAT = 0;
+	for (size_t i = 0; i < 20; i++) VBAT += ((float)analogRead(ADC_VBAT)) / 4095.0 * 7.7;
+	VBAT /= 20.0;
 	digitalWrite(ADC_EN, LOW);
 	return VBAT;
 
