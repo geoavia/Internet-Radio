@@ -200,9 +200,9 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		else tft.println(FMStation.name);
 		
 		tft.setTextWrap(false);
-		tft.drawFastHLine(0,102,240,TFT_YELLOW);
+		tft.drawFastHLine(0,105,240,TFT_YELLOW);
 		tft.setTextColor(TFT_WHITE);
-		tft.setCursor(0, 109);
+		tft.setCursor(0, 115);
 		tft.printf("IP: %s\n", WiFi.localIP().toString().c_str());
 		
 	}
