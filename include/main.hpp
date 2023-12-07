@@ -89,9 +89,6 @@ float getVbat()
 	VBAT /= 20.0;
 	digitalWrite(ADC_EN, LOW);
 	return VBAT;
-
-	// VBAT = ((float)analogRead(ADC_VBAT)) * 3600 / 4095 * 2;
-	// return VBAT / 1000;
 }
 
 // Radio Volume
