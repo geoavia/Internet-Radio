@@ -509,7 +509,11 @@ void start_radio_server()
 		}
 		html += "<div class='radio'>";
 		html += "<p>Now listening to ";
-		if (CurrentRadio == WEB_RADIO) html += ("WEB Station: <b>"+WebStation.url+"</b>");
+		if (CurrentRadio == WEB_RADIO) 
+		{
+			html += ("WEB Station: <b>"+WebStation.url+"</b>");
+			if (WebStation.title.length() > 0) html += " ("+WebStation.title+")";
+		}
 		else html += ("FM Station: <b>" + String(((float)FMStation.freq)/10) + "</b>");
 		html += R"===(</p><table>
 				<tr>
