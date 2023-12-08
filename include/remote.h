@@ -44,10 +44,10 @@ unsigned long lastRepeatTime = 0;
 bool lastButtonState = false;
 bool buttonState = false;
 
-bool IsCode(uint16_t code, bool noRepeat = true)
+bool IsCode(uint16_t code, bool canRepeat = false)
 {
-	if (noRepeat) return (RemoteCode == code && !IsRepeat);
-	return (RemoteCode == code);
+	if (canRepeat) return (RemoteCode == code);
+	return (RemoteCode == code && !IsRepeat);
 }
 
 void ButtonsInit()

@@ -152,35 +152,52 @@ void DisplayHeader()
 }
 
 bool bTimeDelimiter = false;
+int nScrollPos = 0;
 
 void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
-		tft.setTextFont(2);
-		tft.setTextSize(2);
-		Serial.println("-- DM_SIMPLE --");
-		tft.fillScreen(TFT_BLACK);
-		tft.setTextWrap(false);
-		tft.setTextColor(TFT_WHITE);
-		tft.setCursor(0, 2);
-		if (CurrentRadio == WEB_RADIO) tft.print(WebStation.connected ? "WEB Station " : "> WEB Station... ");
-		else tft.print("FM Station ");
-		tft.setTextColor(TFT_CYAN);
-		int ci = GetCurrentStationIndex();
-		if (ci >= 0) tft.print(ci);
-		tft.println();
-		tft.drawFastHLine(0,35,240,TFT_WHITE);
-		tft.setCursor(0, 50);
-		tft.setTextColor(TFT_YELLOW);
-		if (CurrentRadio == WEB_RADIO) tft.println(IsPlaying() ? WebStation.name : "...");
-		else tft.println(FMStation.name);
-		tft.setCursor(0, 80);
-		tft.setTextColor(TFT_GREEN);
-		if (CurrentRadio == WEB_RADIO) tft.println(WebStation.title);
-		else tft.println(String(((float)FMStation.freq)/10));
+		if (DisplayMode != mode)
+		{
+			nScrollPos = 0;
+			tft.setTextFont(2);
+			tft.setTextSize(2);
+			Serial.println("-- DM_SIMPLE --");
+			tft.fillScreen(TFT_BLACK);
+			tft.setTextWrap(false);
+			tft.setTextColor(TFT_WHITE);
+			tft.setCursor(0, 2);
+			if (CurrentRadio == WEB_RADIO) tft.print(WebStation.connected ? "WEB Station " : "> WEB Station... ");
+			else tft.print("FM Station ");
+			tft.setTextColor(TFT_CYAN);
+			int ci = GetCurrentStationIndex();
+			if (ci >= 0) tft.print(ci);
+			tft.println();
+			tft.drawFastHLine(0,35,240,TFT_WHITE);
+			tft.setCursor(0, 50);
+			tft.setTextColor(TFT_YELLOW);
+			if (CurrentRadio == WEB_RADIO) tft.println(IsPlaying() ? WebStation.name : "...");
+			else tft.println(FMStation.name);
+			tft.setCursor(0, 80);
+			tft.setTextColor(TFT_GREEN);
+			if (CurrentRadio == WEB_RADIO) tft.println(WebStation.title.substring(nScrollPos));
+			else tft.println(String(((float)FMStation.freq)/10));
 
-		DisplayRSSI(220, 25, WiFi.RSSI(), TFT_GREENYELLOW);
+			DisplayRSSI(220, 25, WiFi.RSSI(), TFT_GREENYELLOW);
+		}
+		else
+		{
+			String st = WebStation.title;
+			if (nScrollPos > 2) st = st.substring(nScrollPos-2); // start later
+			tft.fillRect(0,80, TFT_HEIGHT, TFT_WIDTH-80, TFT_BLACK);
+			tft.setCursor(0, 80);
+			tft.setTextColor(TFT_GREEN);
+			tft.println(st);
+			int wt = tft.textWidth(st);
+			if (wt > TFT_HEIGHT) nScrollPos++;
+			else nScrollPos = 0;
+		}
 	} 
 	else if (mode == DM_NORMAL) 
 	{

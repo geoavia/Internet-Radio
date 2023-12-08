@@ -64,14 +64,14 @@ void loop()
 {
 	if (GetRemoteCode())
 	{
-		if (IsCode(KEY_MINUS, false))
+		if (IsCode(KEY_MINUS, true))
 		{
 			if (CurrentRadio == WEB_RADIO) SetWebVolume(WebVolume-1);
 			else SetFMVolume(FMVolume-1);
 			//FMCommand("AT+VOLD");
 			DisplayVolume();
 		}
-		if (IsCode(KEY_PLUS, false))
+		if (IsCode(KEY_PLUS, true))
 		{
 			if (CurrentRadio == WEB_RADIO) SetWebVolume(WebVolume+1);
 			else SetFMVolume(FMVolume+1);
@@ -90,10 +90,10 @@ void loop()
 		if (IsCode(KEY_7)) SwitchStation(7);
 		if (IsCode(KEY_8)) SwitchStation(8);
 		if (IsCode(KEY_9)) SwitchStation(9);
-		if (IsCode(KEY_PREV, false)) TuneFMStation(FMStation.freq-1, "", false);
-		if (IsCode(KEY_NEXT, false)) TuneFMStation(FMStation.freq+1, "", false);
+		if (IsCode(KEY_PREV, true)) TuneFMStation(FMStation.freq-1, "", false);
+		if (IsCode(KEY_NEXT, true)) TuneFMStation(FMStation.freq+1, "", false);
 
-		if (IsCode(KEY_CH, false))
+		if (IsCode(KEY_CH, true))
 		{
 			if (IsRepeat) 
 			{
@@ -148,6 +148,7 @@ void loop()
 			}
 
 			if (DisplayMode == DM_TIME) DisplayCurrentMode(DisplayMode);
+			if (DisplayMode == DM_SIMPLE && CurrentRadio == WEB_RADIO) DisplayCurrentMode(DisplayMode);
 			secondsFromMillis = (millis()/1000UL);
 		}
 	}
