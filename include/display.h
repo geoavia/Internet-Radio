@@ -106,8 +106,8 @@ bool DisplaySleepBar(int count)
 	else 
 	{
 		tft.setCursor(20, 50);
-		tft.print(F("Going to sleep now"));
-		delay(2000);
+		tft.print(F("Going to sleep..."));
+		delay(1000);
 	}
 
 	//tft.fillScreen(TFT_BLACK);
