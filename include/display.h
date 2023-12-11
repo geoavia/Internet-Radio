@@ -145,7 +145,7 @@ void DisplayHeader()
 	tft.println("ver 2.0");
 
 	tft.setTextColor(TFT_GREEN);
-	tft.setCursor(0, 50);
+	tft.setCursor(0, 40);
 
 	tft.setTextFont(1);
 	tft.setTextSize(2);
@@ -158,11 +158,11 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 {
 	if (mode == DM_SIMPLE) 
 	{
+		tft.setTextFont(2);
+		tft.setTextSize(2);
 		if (DisplayMode != mode)
 		{
 			nScrollPos = 0;
-			tft.setTextFont(2);
-			tft.setTextSize(2);
 			Serial.println("-- DM_SIMPLE --");
 			tft.fillScreen(TFT_BLACK);
 			tft.setTextWrap(false);
@@ -175,7 +175,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 			if (ci >= 0) tft.print(ci);
 			tft.println();
 			tft.drawFastHLine(0,35,240,TFT_WHITE);
-			tft.setCursor(0, 50);
+			tft.setCursor(0, 45);
 			tft.setTextColor(TFT_YELLOW);
 			if (CurrentRadio == WEB_RADIO) tft.println(IsPlaying() ? WebStation.name : "...");
 			else tft.println(FMStation.name);
@@ -212,6 +212,7 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		int ci = GetCurrentStationIndex();
 		if (ci >= 0) tft.print(ci);
 		tft.println();
+		tft.setCursor(0, 70);
 		tft.setTextColor(TFT_YELLOW);
 		if (CurrentRadio == WEB_RADIO) tft.println(IsPlaying() ? WebStation.name : "...");
 		else tft.println(FMStation.name);

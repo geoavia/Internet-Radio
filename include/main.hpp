@@ -16,6 +16,8 @@
 #include "esp_adc_cal.h"
 
 
+const char *RADIO_HOSTNAME = "Internet Radio";
+
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 3600*4; // Georgia
 const int daylightOffset_sec = 0; // Georgia

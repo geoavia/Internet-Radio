@@ -152,6 +152,7 @@ bool connect_ssid(String ssid, String password)
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 
+	WiFi.setHostname(RADIO_HOSTNAME);
 	WiFi.begin(ssid.c_str(), password.c_str());
 	int tries = 20;
 	while (!WiFi.isConnected())
