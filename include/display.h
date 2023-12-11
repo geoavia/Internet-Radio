@@ -80,6 +80,8 @@ bool DisplaySleepBar(int count)
 	tft.setTextFont(4);
 	tft.setTextSize(1);
 
+	bool shutdown = false;
+
 	if (count < SLEEP_BAR_COUNT)
 	{
 		tft.setCursor(0, 40);
@@ -94,7 +96,7 @@ bool DisplaySleepBar(int count)
 			if (i < count) 
 			{
 				tft.setTextColor(TFT_YELLOW);
-				tft.print("#");
+				tft.print("o");
 			}
 			else 
 			{
@@ -107,12 +109,12 @@ bool DisplaySleepBar(int count)
 	{
 		tft.setCursor(20, 50);
 		tft.print(F("Going to sleep..."));
-		delay(1000);
+		delay(2000);
+		shutdown = true;
 	}
 
 	//tft.fillScreen(TFT_BLACK);
-	return (count >= SLEEP_BAR_COUNT);
-	
+	return shutdown;
 }
 
 void DisplayRSSI(int x, int y, int32_t rssi, uint16_t color)
