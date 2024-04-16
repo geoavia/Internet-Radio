@@ -64,6 +64,8 @@ void loop()
 {
 	if (GetRemoteCode())
 	{
+		DisplayDim(false);
+
 		if (IsCode(KEY_MINUS, true))
 		{
 			if (CurrentRadio == WEB_RADIO) SetWebVolume(WebVolume-1);
@@ -110,8 +112,7 @@ void loop()
 			else
 			{
 				sleepBar = 0;
-				if (isDisplayDimmed()) DisplayDim(false);
-				else if (IsRemote) DisplayCurrentMode(DM_NORMAL);
+				if (IsRemote) DisplayCurrentMode(DM_NORMAL);
 				else {
 					if (DisplayMode == DM_NORMAL) DisplayCurrentMode(DM_TIME);
 					else DisplayCurrentMode(DM_NORMAL);

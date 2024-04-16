@@ -367,13 +367,13 @@ void audio_showstation(const char *info)
 {
 	if (WebStation.name.length() == 0 || WebStation.name.equals(DefaultWebStationName))
 	{
-		WebStation.name = info;
+		WebStation.name = String(info);
 		DisplayCurrentMode(DisplayMode);
 	}
 }
 void audio_showstreamtitle(const char *info)
 {
-	WebStation.title = info;
+	WebStation.title = String(info);
 	if (DisplayMode == DM_SIMPLE)
 	{
 		DisplayCurrentMode(DisplayMode);

@@ -9,28 +9,22 @@ void LoadRadioStations()
 	File file = SPIFFS.open(STATIONS_FILE_NAME);
 	if (file)
 	{
-		Serial.println("Saved radio stations:");
+		Serial.println("==== Start of stations data ====");
 		while (file.available() && n_stations < MAX_STATIONS)
 		{
 			Stations[n_stations].freq = file.readStringUntil(',').toInt();
 			Stations[n_stations].url = file.readStringUntil(',');
 			Stations[n_stations].name = file.readStringUntil('\n');
-			Serial.print(n_stations + 1);
-			Serial.print(": ");
-			if (Stations[n_stations].freq > 0) 
-			{
-				FMStation = Stations[n_stations];
-				Serial.print(String(((float)FMStation.freq)/10));
-			}
-			else 
-			{
-				WebStation = Stations[n_stations];
-				Serial.print(WebStation.url);
-			}
-			Serial.print(" - ");
+			Serial.print(Stations[n_stations].freq);
+			Serial.print(",");
+			Serial.print(Stations[n_stations].url);
+			Serial.print(",");
 			Serial.println(Stations[n_stations].name);
+			if (Stations[n_stations].freq > 0) FMStation = Stations[n_stations];
+			else WebStation = Stations[n_stations];
 			n_stations++;
 		}
+		Serial.println("==== End of stations data ====");
 	}
 	file.close();
 }
