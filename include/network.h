@@ -677,10 +677,6 @@ void NetworkJob()
 	pubsub.loop();
 }
 
-// void start_radio_server()
-// {
-// 	server.reset();
-
 // 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 // 		String html = html_header;
 // 		if (request->hasParam("msg")) 
@@ -901,15 +897,6 @@ void NetworkJob()
 // 		}
 // 	});
 
-// 	server.on("/radio.css", HTTP_GET, [](AsyncWebServerRequest *request){
-// 		request->send(SPIFFS, "/radio.css", "text/css");
-// 	});
-// 	server.onNotFound(handle_NotFound);
-
-// 	server.begin();
-
-// 	Serial.println("Radio HTTP server started");
-// }
 
 
 #endif //__NETWORK_H__
