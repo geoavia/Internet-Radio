@@ -340,6 +340,8 @@ void PlayerJob()
 		async_clear();
 	}
 
+	NetworkJob();
+
 #ifndef SEPARATE_AUDIO_TASK
 	audio.loop();
 	if (CurrentRadio == WEB_RADIO && WebStation.connected && !audio.isRunning())

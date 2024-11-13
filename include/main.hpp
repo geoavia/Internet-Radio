@@ -4,10 +4,9 @@
 #include <Arduino.h>
 
 #include <Preferences.h>
-
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-
+#include <WebServer.h>
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
 #include <SPIFFS.h>
 
 #include "time.h"

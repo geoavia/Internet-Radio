@@ -3,7 +3,25 @@
 
 #include "main.hpp"
 
-AsyncWebServer server(80);
+WebServer server(80);
+
+const char* mqtt_server = "broker.emqx.io";
+const uint16_t mqtt_port = 1883;
+
+#define MQTT_KEEPALIVE_SEC 100
+#define MQTT_ID "ggm-home-internet-radio-2"
+
+char topic_command[32];
+char topic_status[32];
+char topic_settings[32];
+
+WiFiClient espClient;
+//BearSSL::WiFiClientSecure espClient;
+PubSubClient pubsub(mqtt_server, mqtt_port, espClient);
+
+#define RECONNECT_INTERVAL_MS 5000
+unsigned long lastReconnectTime = 0;
+bool isConnected = false;
 
 bool async_hot = false;
 int async_webvol = -1;
@@ -405,12 +423,78 @@ bool get_network_ui()
 	return false;
 }
 
-void handle_NotFound(AsyncWebServerRequest *request)
-{
-	request->send(404, "text/plain", "Not found");
-}
 
 const char *AP_SSID = "Internet-Radio";
+
+void handle_root()
+{
+	String html = html_header;
+	if (server.hasArg("ssid"))
+	{
+		int i = server.arg("ssid").toInt();
+		html += "<p>Connect to WiFi:";
+		html += WiFi.SSID(i);
+		html += "</p>";
+		html += "<form action=\"/\" method=\"post\">Password: <input type=\"text\" name=\"pwd\">";
+		html += "<input type=\"hidden\" name=\"ssid\" value=\"";
+		html += i;
+		html += "\"><input type=\"submit\" value=\"Connect\">";
+		html += "</form><br>";
+		html += "<a href=\"/\">Back to WiFi List</a>";
+	}
+	else
+	{
+		html += "<p>WiFi Networks</p>";
+		html += "<ol>";
+		for (uint i = 0; i < n_SSID; i++)
+		{
+			// Print SSID and RSSI for each network found
+			html += "<li><a href=\"/?ssid=";
+			html += i;
+			html += "\">";
+			html += WiFi.SSID(i);
+			html += "</a> (";
+			html += WiFi.RSSI(i);
+			html += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? ") " : ")*";
+			html += "</li>";
+		}
+		html += "</ol>";
+	}
+	html += html_footer;
+	server.send(200, "text/html", html);
+}
+
+void handle_post()
+{
+	String html = html_header;
+	if (server.hasArg("ssid"))
+	{
+		int i = server.arg("ssid").toInt();
+		if (server.hasArg("pwd"))
+		{
+			String password = server.arg("pwd");
+			Serial.print("SSID: ");
+			Serial.println(WiFi.SSID(i));
+			Serial.print("Password: ");
+			Serial.println(password);
+
+			curnet.ssid = WiFi.SSID(i);
+			curnet.password = password;
+			html += "<p>Connecting to: ";
+			html += curnet.ssid;
+			html += "...</p>";
+		}
+	}
+
+	html += "<br><a href=\"https://pilot.ge/radio\">Go to Control Interface</a>";
+	html += html_footer;
+	server.send(200, "text/html", html);
+}
+
+void handle_notfound()
+{
+	server.send(404, "text/plain", "Not found");
+}
 
 void start_ap_server()
 {
@@ -425,309 +509,107 @@ void start_ap_server()
 	Serial.print("AP IP address: ");
 	Serial.println(WiFi.softAPIP());
 
-	server.reset();
-	server.on("/", HTTP_POST, [](AsyncWebServerRequest *request) {
-		String html = html_header;
-		if (request->hasParam("ssid", true))
-		{
-			int i = request->getParam("ssid", true)->value().toInt();
-			if (request->hasParam("pwd", true))
-			{
-				String password = request->getParam("pwd", true)->value();
-				Serial.print("SSID: ");
-				Serial.println(WiFi.SSID(i));
-				Serial.print("Password: ");
-				Serial.println(password);
-
-				curnet.ssid = WiFi.SSID(i);
-				curnet.password = password;
-				html += "<p>Connecting to: ";
-				html += curnet.ssid;
-				html += "...</p>";
-			}
-		}
-		html += html_footer;
-		request->send(200, "text/html", html);
-	});
-	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		String html = html_header;
-		if (request->hasParam("ssid"))
-		{
-			int i = request->getParam("ssid")->value().toInt();
-			html += "<p>Connect to WiFi:";
-			html += WiFi.SSID(i);
-			html += "</p>";
-			html += "<form action=\"/\" method=\"post\">Password: <input type=\"text\" name=\"pwd\">";
-			html += "<input type=\"hidden\" name=\"ssid\" value=\"";
-			html += i;
-			html += "\"><input type=\"submit\" value=\"Connect\">";
-			html += "</form><br>";
-			html += "<a href=\"/\">Back to WiFi List</a>";
-		}
-		else
-		{
-			html += "<p>WiFi Networks</p>";
-			html += "<ol>";
-			for (int i = 0; i < n_SSID; ++i)
-			{
-				// Print SSID and RSSI for each network found
-				html += "<li><a href=\"/?ssid=";
-				html += i;
-				html += "\">";
-				html += WiFi.SSID(i);
-				html += "</a> (";
-				html += WiFi.RSSI(i);
-				html += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? ") " : ")*";
-				html += "</li>";
-			}
-			html += "</ol>";
-		}
-		html += html_footer;
-		request->send(200, "text/html", html);
-	});
-	server.onNotFound(handle_NotFound);
+	//server.reset();
+	server.on("/", HTTP_POST, handle_post);
+	server.on("/", HTTP_GET, handle_root);
+	server.onNotFound(handle_notfound);
 	server.begin();
 	Serial.println("AP HTTP server started");
 
 	DisplayHeader();
 	tft.print("Setup WiFi Network\nAP: ");
 	tft.println(AP_SSID);
-	tft.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());
-	
+	tft.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());	
 }
 
-void start_radio_server()
+char *getUptime()
 {
-	server.reset();
+	static char r[32];
+	ulong m = millis()/60000;
+	uint h = m/60;
+	uint d = h/24;
+	if (d > 0) sprintf(r, "Ready (%d day %d hr %ld min)", d, h%24, m%60);
+	else if (h > 0) sprintf(r, "Ready (%d hr %ld min)", h%24, m%60);
+	else sprintf(r, "Ready (%ld min)", m%60);
+	return r;
+}
 
-	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		String html = html_header;
-		if (request->hasParam("msg")) 
-		{
-			html += "<p><b>";
-			html += request->getParam("msg")->value();
-			html += "</b></p>";
-		}
-		html += "<div class='radio'>";
-		html += "<p>Now listening to ";
-		if (CurrentRadio == WEB_RADIO) 
-		{
-			html += ("WEB Station: <b>"+WebStation.url+"</b>");
-			if (WebStation.title.length() > 0) html += " ("+WebStation.title+")";
-		}
-		else html += ("FM Station: <b>" + String(((float)FMStation.freq)/10) + "</b>");
-		html += R"===(</p><table>
-				<tr>
-					<th></th>
-					<th>URL / Frequency</th>
-					<th></th>
-					<th>Name</th>
-					<th></th>
-					<th>Volume</th>
-				</tr>
-				<tr>
-					<td>MP3 Radio:</td>
-					<td><form action="/get"><input type="text" name="mp3url"></td>
-					<td><input type="submit" value="Play" name="play"></td>
-					<td><input type="text" name="mp3name"></td>
-					<td><input type="submit" value="Add" name="add"></form></td>
-					<td><form action="/vol"><input type="range" name="mp3vol" min="0" max=")===";
-		html += MAX_WEB_VOLUME;
-		html += "\" value=\"";
-		html += WebVolume;
-		html += R"===(" onchange="submit()"></form></td>
-				</tr>
-				<tr>
-					<td>FM Radio:</td>
-					<td><form action="/get"><input type="text" name="fmfreq"></td>
-					<td><input type="submit" value="Play" name="play"></td>
-					<td><input type="text" name="fmname"></td>
-					<td><input type="submit" value="Add" name="add"></form></td>
-					<td><form action="/vol"><input type="range" name="fmvol" min="0" max=")===";
-		html += MAX_FM_VOLUME;
-		html += "\" value=\"";
-		html += FMVolume;
-		html += R"===(" onchange="submit()"></form></td>
-				</tr>
-			</table>)===";
-		html += "<br>";
-		html += "<p>Playlist</p>";
-		html += "<table><tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th></tr>";
-		for (uint i = 0; i < n_stations; i++)
-		{
-			if ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
-				(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) html += "<tr class='curr'><td>";
-			else html += "<tr><td>";
-			html += "<a href=\"/dec?num=";
-			html += i;
-			html += "\"> &#129093 </a> ";
-			html += i;
-			html += " <a href=\"/inc?num=";
-			html += i;
-			html += "\"> &#129095 </a>";
-			if (IsType(i, WEB_RADIO))
-			{
-				html += "</td><td><a href=\"/get?mp3url=";
-				html += EncodeUrl(Stations[i].url);
-				html += "\">";
-				html += Stations[i].name;
-				html += "</td><td>";
-				html += Stations[i].url;
-				html += "</td><td>";
-				html += "<a href=\"/del?mp3url=";
-				html += EncodeUrl(Stations[i].url);
-				html += "\">Remove</a></td></tr>";
-			}
-			else
-			{
-				html += "</td><td><a href=\"/get?fmfreq=";
-				html += String(((float)Stations[i].freq)/10);
-				html += "\">";
-				html += Stations[i].name;
-				html += "</td><td>";
-				html += String(((float)Stations[i].freq)/10);
-				html += "</td><td>";
-				html += "<a href=\"/del?fmfreq=";
-				html += Stations[i].freq;
-				html += "\">Remove</a></td></tr>";
-			}
-		}
-		html += "</table></div>";
-		html += html_footer;
-		request->send(200, "text/html", html);
-	});
-			
-	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("mp3url"))
-		{
-			String url = request->getParam("mp3url")->value();
-			if (request->hasParam("add")) 
-			{
-				String name = "";
-				if (request->hasParam("mp3name"))
-					name = request->getParam("mp3name")->value();
-				name.trim();
-				if (name == "")
-				{
-					name = "Station ";
-					name += n_stations;
-				}
-				
-				AddStation(0, url, name);
-				SaveRadioStations();
-			} 
-			else // play
-			{
-				async_setUrl(url);
-				delay(1000); // for Job to finish
-			}
-			request->redirect("/");
-		}
-		else if (request->hasParam("fmfreq"))
-		{
-			uint freq = request->getParam("fmfreq")->value().toFloat() * 10;
-			if (request->hasParam("add")) 
-			{
-				String name = "";
-				if (request->hasParam("fmname"))
-					name = request->getParam("fmname")->value();
-				name.trim();
-				if (name == "")
-				{
-					name = "Station ";
-					name += n_stations;
-				}
-				
-				AddStation(freq, "", name);
-				SaveRadioStations();
-			} 
-			else // tune
-			{
-				async_setFreq(freq);
-				delay(1000); // for Job to finish
-			}
-			request->redirect("/");
-		}
-		else 
-		{
-			request->redirect("/?msg=Incorrect Param");
-		}
-	});
+void updateTopics()
+{
+	strcpy(topic_command, MQTT_ID);
+	strcpy(topic_status, MQTT_ID);
+	strcpy(topic_settings, MQTT_ID);
+	
+	strcat(topic_command, "/command");
+	strcat(topic_status, "/status");
+	strcat(topic_settings, "/settings");
+}
 
-	server.on("/del", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("mp3url"))
-		{
-			String url = request->getParam("mp3url")->value();
-			RemoveStationByUrl(url);
-			SaveRadioStations();
-			request->redirect("/");
-		}
-		else if (request->hasParam("fmfreq"))
-		{
-			uint freq = request->getParam("fmfreq")->value().toInt();
-			RemoveStationByFreq(freq);
-			SaveRadioStations();
-			request->redirect("/");
-		}
-		else 
-		{
-			request->redirect("/?msg=Incorrect Param");
-		}
-	});
+void publishStatus()
+{
+	String json = "{ \"amount\":";
+	// json += foodAmount;
+	// json += ",\"feedtimes\":[";
+	// json += arrayToString(feedTimes, feedtimesCount);
+	// json += "],\"weekdays\":[";
+	// json += arrayToString(weekdays, weekdaysCount);
+	json += "]}";
+	pubsub.publish(topic_settings, json.c_str());
+	pubsub.publish(topic_status, getUptime());
+}
 
-	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("mp3vol"))
-		{
-			async_setVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
-			delay(1000); // for Job to finish
-			request->redirect("/");
-		}
-		if (request->hasParam("fmvol"))
-		{
-			async_setVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
-			delay(1000); // for Job to finish
-			request->redirect("/");
-		}
-		else 
-		{
-			request->redirect("/?msg=Incorrect Param");
-		}
-	});
+void callback(char *topic, byte *payload, unsigned int length)
+{
+	Serial.print("Message arrived [");
+	Serial.print(topic);
+	Serial.print("] ");
+	String sjson = "";
+	for (uint i = 0; i < length; i++)
+	{
+		sjson += (char)payload[i];
+	}
+	Serial.println(sjson);
 
-	server.on("/inc", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("num"))
-		{
-			ShiftStation(request->getParam("num")->value().toInt(), 1);
-			SaveRadioStations();
-			request->redirect("/");
-		}
-		else 
-		{
-			request->redirect("/?msg=Incorrect Param");
-		}
-	});
+	DynamicJsonDocument doc(256);
+	DeserializationError error = deserializeJson(doc, sjson);
 
-	server.on("/dec", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("num"))
+	if (error)
+	{
+		Serial.print(F("deserializeJson() failed: "));
+		Serial.println(error.f_str());
+		return;
+	}
+
+	//blink(1, true);
+
+	if (!strcmp(topic_command, topic))
+	{
+		if (!doc["status"].isNull())
 		{
-			ShiftStation(request->getParam("num")->value().toInt(), -1);
-			SaveRadioStations();
-			request->redirect("/");
+			publishStatus();
 		}
-		else 
-		{
-			request->redirect("/?msg=Incorrect Param");
-		}
-	});
+	}
+}
 
-	server.on("/radio.css", HTTP_GET, [](AsyncWebServerRequest *request){
-		request->send(SPIFFS, "/radio.css", "text/css");
-	});
-	server.onNotFound(handle_NotFound);
-
-	server.begin();
-
-	Serial.println("Radio HTTP server started");
+void reconnect_mqtt()
+{
+	Serial.print("Attempting MQTT connection...");
+	// Attempt to connect
+	if (pubsub.connect(MQTT_ID))
+	{
+		Serial.println("connected");
+		// Once connected, publish an announcement...
+		pubsub.subscribe(topic_command);
+		Serial.printf("Subscribed to: %s\n",topic_command);
+		//blink(2);
+	}
+	else
+	{
+		Serial.print("failed, rc=");
+		Serial.print(pubsub.state());
+		Serial.println(" try again later...");
+		//blink(5);
+	}
 }
 
 void connect_network()
@@ -773,9 +655,261 @@ void NetworkInit()
 
 	load_networks();
 	connect_network();
-	start_radio_server();
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
+	pubsub.setKeepAlive(MQTT_KEEPALIVE_SEC);
+	pubsub.setCallback(callback);
 }
+
+void NetworkJob()
+{
+	if (!pubsub.connected()) 
+	{
+		isConnected = false;
+		
+		if (millis() - lastReconnectTime > RECONNECT_INTERVAL_MS)
+		{
+			reconnect_mqtt();
+			lastReconnectTime = millis();
+		}
+	}
+
+	pubsub.loop();
+}
+
+// void start_radio_server()
+// {
+// 	server.reset();
+
+// 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		String html = html_header;
+// 		if (request->hasParam("msg")) 
+// 		{
+// 			html += "<p><b>";
+// 			html += request->getParam("msg")->value();
+// 			html += "</b></p>";
+// 		}
+// 		html += "<div class='radio'>";
+// 		html += "<p>Now listening to ";
+// 		if (CurrentRadio == WEB_RADIO) 
+// 		{
+// 			html += ("WEB Station: <b>"+WebStation.url+"</b>");
+// 			if (WebStation.title.length() > 0) html += " ("+WebStation.title+")";
+// 		}
+// 		else html += ("FM Station: <b>" + String(((float)FMStation.freq)/10) + "</b>");
+// 		html += R"===(</p><table>
+// 				<tr>
+// 					<th></th>
+// 					<th>URL / Frequency</th>
+// 					<th></th>
+// 					<th>Name</th>
+// 					<th></th>
+// 					<th>Volume</th>
+// 				</tr>
+// 				<tr>
+// 					<td>MP3 Radio:</td>
+// 					<td><form action="/get"><input type="text" name="mp3url"></td>
+// 					<td><input type="submit" value="Play" name="play"></td>
+// 					<td><input type="text" name="mp3name"></td>
+// 					<td><input type="submit" value="Add" name="add"></form></td>
+// 					<td><form action="/vol"><input type="range" name="mp3vol" min="0" max=")===";
+// 		html += MAX_WEB_VOLUME;
+// 		html += "\" value=\"";
+// 		html += WebVolume;
+// 		html += R"===(" onchange="submit()"></form></td>
+// 				</tr>
+// 				<tr>
+// 					<td>FM Radio:</td>
+// 					<td><form action="/get"><input type="text" name="fmfreq"></td>
+// 					<td><input type="submit" value="Play" name="play"></td>
+// 					<td><input type="text" name="fmname"></td>
+// 					<td><input type="submit" value="Add" name="add"></form></td>
+// 					<td><form action="/vol"><input type="range" name="fmvol" min="0" max=")===";
+// 		html += MAX_FM_VOLUME;
+// 		html += "\" value=\"";
+// 		html += FMVolume;
+// 		html += R"===(" onchange="submit()"></form></td>
+// 				</tr>
+// 			</table>)===";
+// 		html += "<br>";
+// 		html += "<p>Playlist</p>";
+// 		html += "<table><tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th></tr>";
+// 		for (uint i = 0; i < n_stations; i++)
+// 		{
+// 			if ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
+// 				(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) html += "<tr class='curr'><td>";
+// 			else html += "<tr><td>";
+// 			html += "<a href=\"/dec?num=";
+// 			html += i;
+// 			html += "\"> &#129093 </a> ";
+// 			html += i;
+// 			html += " <a href=\"/inc?num=";
+// 			html += i;
+// 			html += "\"> &#129095 </a>";
+// 			if (IsType(i, WEB_RADIO))
+// 			{
+// 				html += "</td><td><a href=\"/get?mp3url=";
+// 				html += EncodeUrl(Stations[i].url);
+// 				html += "\">";
+// 				html += Stations[i].name;
+// 				html += "</td><td>";
+// 				html += Stations[i].url;
+// 				html += "</td><td>";
+// 				html += "<a href=\"/del?mp3url=";
+// 				html += EncodeUrl(Stations[i].url);
+// 				html += "\">Remove</a></td></tr>";
+// 			}
+// 			else
+// 			{
+// 				html += "</td><td><a href=\"/get?fmfreq=";
+// 				html += String(((float)Stations[i].freq)/10);
+// 				html += "\">";
+// 				html += Stations[i].name;
+// 				html += "</td><td>";
+// 				html += String(((float)Stations[i].freq)/10);
+// 				html += "</td><td>";
+// 				html += "<a href=\"/del?fmfreq=";
+// 				html += Stations[i].freq;
+// 				html += "\">Remove</a></td></tr>";
+// 			}
+// 		}
+// 		html += "</table></div>";
+// 		html += html_footer;
+// 		request->send(200, "text/html", html);
+// 	});
+			
+// 	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		if (request->hasParam("mp3url"))
+// 		{
+// 			String url = request->getParam("mp3url")->value();
+// 			if (request->hasParam("add")) 
+// 			{
+// 				String name = "";
+// 				if (request->hasParam("mp3name"))
+// 					name = request->getParam("mp3name")->value();
+// 				name.trim();
+// 				if (name == "")
+// 				{
+// 					name = "Station ";
+// 					name += n_stations;
+// 				}
+				
+// 				AddStation(0, url, name);
+// 				SaveRadioStations();
+// 			} 
+// 			else // play
+// 			{
+// 				async_setUrl(url);
+// 				delay(1000); // for Job to finish
+// 			}
+// 			request->redirect("/");
+// 		}
+// 		else if (request->hasParam("fmfreq"))
+// 		{
+// 			uint freq = request->getParam("fmfreq")->value().toFloat() * 10;
+// 			if (request->hasParam("add")) 
+// 			{
+// 				String name = "";
+// 				if (request->hasParam("fmname"))
+// 					name = request->getParam("fmname")->value();
+// 				name.trim();
+// 				if (name == "")
+// 				{
+// 					name = "Station ";
+// 					name += n_stations;
+// 				}
+				
+// 				AddStation(freq, "", name);
+// 				SaveRadioStations();
+// 			} 
+// 			else // tune
+// 			{
+// 				async_setFreq(freq);
+// 				delay(1000); // for Job to finish
+// 			}
+// 			request->redirect("/");
+// 		}
+// 		else 
+// 		{
+// 			request->redirect("/?msg=Incorrect Param");
+// 		}
+// 	});
+
+// 	server.on("/del", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		if (request->hasParam("mp3url"))
+// 		{
+// 			String url = request->getParam("mp3url")->value();
+// 			RemoveStationByUrl(url);
+// 			SaveRadioStations();
+// 			request->redirect("/");
+// 		}
+// 		else if (request->hasParam("fmfreq"))
+// 		{
+// 			uint freq = request->getParam("fmfreq")->value().toInt();
+// 			RemoveStationByFreq(freq);
+// 			SaveRadioStations();
+// 			request->redirect("/");
+// 		}
+// 		else 
+// 		{
+// 			request->redirect("/?msg=Incorrect Param");
+// 		}
+// 	});
+
+// 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		if (request->hasParam("mp3vol"))
+// 		{
+// 			async_setVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
+// 			delay(1000); // for Job to finish
+// 			request->redirect("/");
+// 		}
+// 		if (request->hasParam("fmvol"))
+// 		{
+// 			async_setVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
+// 			delay(1000); // for Job to finish
+// 			request->redirect("/");
+// 		}
+// 		else 
+// 		{
+// 			request->redirect("/?msg=Incorrect Param");
+// 		}
+// 	});
+
+// 	server.on("/inc", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		if (request->hasParam("num"))
+// 		{
+// 			ShiftStation(request->getParam("num")->value().toInt(), 1);
+// 			SaveRadioStations();
+// 			request->redirect("/");
+// 		}
+// 		else 
+// 		{
+// 			request->redirect("/?msg=Incorrect Param");
+// 		}
+// 	});
+
+// 	server.on("/dec", HTTP_GET, [](AsyncWebServerRequest *request) {
+// 		if (request->hasParam("num"))
+// 		{
+// 			ShiftStation(request->getParam("num")->value().toInt(), -1);
+// 			SaveRadioStations();
+// 			request->redirect("/");
+// 		}
+// 		else 
+// 		{
+// 			request->redirect("/?msg=Incorrect Param");
+// 		}
+// 	});
+
+// 	server.on("/radio.css", HTTP_GET, [](AsyncWebServerRequest *request){
+// 		request->send(SPIFFS, "/radio.css", "text/css");
+// 	});
+// 	server.onNotFound(handle_NotFound);
+
+// 	server.begin();
+
+// 	Serial.println("Radio HTTP server started");
+// }
 
 
 #endif //__NETWORK_H__
