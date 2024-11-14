@@ -13,11 +13,17 @@ html {
 	border-color: orange;
 }
 
-.radio::before {
-    content: "WEB / FM Radio";
+.title {
     display: block;
     background-color: orange;
     padding: 10px;
+    font-weight: bold;
+}
+
+.title>span {
+    background-color: orange;
+    padding: 10px;
+    font-weight: normal;
 }
 
 .radio .curr {

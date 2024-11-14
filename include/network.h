@@ -9,7 +9,7 @@ const char* mqtt_server = "broker.emqx.io";
 const uint16_t mqtt_port = 1883;
 
 #define MQTT_KEEPALIVE_SEC 100
-#define MQTT_ID "ggm-home-internet-radio-2"
+#define MQTT_ID "ggm-web-radio-2"
 
 char topic_command[32];
 char topic_status[32];
@@ -522,7 +522,7 @@ void start_ap_server()
 	tft.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());	
 }
 
-char *getUptime()
+String getStatus()
 {
 	static char r[32];
 	ulong m = millis()/60000;
@@ -531,10 +531,10 @@ char *getUptime()
 	if (d > 0) sprintf(r, "Ready (%d day %d hr %ld min)", d, h%24, m%60);
 	else if (h > 0) sprintf(r, "Ready (%d hr %ld min)", h%24, m%60);
 	else sprintf(r, "Ready (%ld min)", m%60);
-	return r;
+	return String(r);
 }
 
-void updateTopics()
+void initTopics()
 {
 	strcpy(topic_command, MQTT_ID);
 	strcpy(topic_status, MQTT_ID);
@@ -547,15 +547,36 @@ void updateTopics()
 
 void publishStatus()
 {
-	String json = "{ \"amount\":";
-	// json += foodAmount;
-	// json += ",\"feedtimes\":[";
-	// json += arrayToString(feedTimes, feedtimesCount);
-	// json += "],\"weekdays\":[";
-	// json += arrayToString(weekdays, weekdaysCount);
-	json += "]}";
-	pubsub.publish(topic_settings, json.c_str());
-	pubsub.publish(topic_status, getUptime());
+	String json = "{ \"status\":\"" +  getStatus() + "\",";
+	json += "\"webvol\":";
+	json += WebVolume;
+	json += ",\"fmvol\":";
+	json += FMVolume;
+	if (CurrentRadio == WEB_RADIO) {
+		WebStation.name.trim();
+		WebStation.title.trim();
+		json += ",\"station\":\"web\",";
+		json += ",\"url\":\"";
+		json += WebStation.url;
+		json += ",\"name\":\"";
+		json += WebStation.name;
+		json += "\",\"title\":\"";
+		json += WebStation.title;
+		json += "\"";
+	} 
+	else 
+	{
+		FMStation.name.trim();
+		json += ",\"station\":\"fm\",";
+		json += ",\"freq\":";
+		json += FMStation.freq;
+		json += ",\"name\":\"";
+		json += FMStation.name;
+		json += "\"";
+	}
+	json += "}";
+	//pubsub.publish(topic_settings, json.c_str());
+	pubsub.publish(topic_status, json.c_str());
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -628,7 +649,9 @@ void connect_network()
 			{
 				// run web based Wifi setup
 				start_ap_server();
-				while (curnet.ssid == "") delay(100);
+				while (curnet.ssid == "") server.handleClient();
+				server.handleClient();
+				server.stop();
 				WiFi.mode(WIFI_STA);
 				WiFi.disconnect();
 			}
@@ -657,6 +680,7 @@ void NetworkInit()
 	connect_network();
 	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
+	initTopics();
 	pubsub.setKeepAlive(MQTT_KEEPALIVE_SEC);
 	pubsub.setCallback(callback);
 }
@@ -673,8 +697,7 @@ void NetworkJob()
 			lastReconnectTime = millis();
 		}
 	}
-
-	pubsub.loop();
+	else pubsub.loop();
 }
 
 // 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {

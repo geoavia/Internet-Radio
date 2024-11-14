@@ -5,10 +5,12 @@
 	<link rel="stylesheet" type="text/css" href="radio.css">
 	<title>Internet Radio</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.min.js"></script>
 </head>
 
 <body>
 	<div class='radio'>
+		<div class="title">WEB / FM Radio:<span id="status">Loading...</span></div>
 		<p>Now listening to WEB Station: <b>http://us5.internet-radio.com:8201/stream</b></p>
 		<table>
 			<tr>
@@ -69,6 +71,75 @@
 			</tr>
 		</table>
 	</div>
+
+<script>
+
+	var topic_prefix = "ggm-web-radio-2/";
+	const host = "broker.emqx.io";
+	const port = 8084;
+	const clientid = "ggm-web-radio-control-" + parseInt(Math.random() * 1000);
+	const mqtt_options = {
+		useSSL: true,
+		onSuccess: onConnect,
+		onFailure: onFail
+	}
+
+	var statusLabel = document.getElementById('status')
+	
+
+	function onConnect() {
+		console.log("Connected");
+		client.subscribe(topic_prefix + "status");
+
+		statusLabel.innerHTML = "Waiting for device..."
+
+		msg = '{ "status": 1 }';
+		Message = new Paho.MQTT.Message(msg);
+		Message.destinationName = topic_prefix + "command";
+		client.send(Message);
+		console.log("Message sent for: " + Message.destinationName);
+	}
+	function onFail() {
+		statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
+		console.warn(statusLabel.innerHTML)
+		setTimeout(startConnect, 5000);
+	}
+	function onConnectionLost(responseObject) {
+		console.warn("Connection lost");
+		if (responseObject != 0) {
+			console.error("Error: " + responseObject.errorMessage);
+		}
+		statusLabel.innerHTML = "Disconnected, trying again in 5 sec..."
+		console.warn(statusLabel.innerHTML)
+		setTimeout(startConnect, 5000);
+	}
+	function onMessageArrived(message) {
+		console.log("Message arrived: " + message.payloadString);
+		if (message.destinationName == (topic_prefix + "status")) {
+			try {
+				const obj = JSON.parse(message.payloadString);
+				statusLabel.innerHTML = obj["status"];
+
+			} catch (e) {
+				console.log(e)
+				statusLabel.innerHTML = message.payloadString
+			}
+		}
+	}
+
+	function startConnect() {
+		console.log("Attemting to connect MQTT broker...");
+		client = new Paho.MQTT.Client(host, port, clientid);
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+		client.connect(mqtt_options);
+	}
+
+	startConnect();
+
+</script>
+
+
 </body>
 
 </html>

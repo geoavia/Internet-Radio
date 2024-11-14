@@ -1,0 +1,448 @@
+
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Temperature & Humidity Monitor</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: #181818;
+			color: #EFEFEF;
+			font-size: 16px;
+		}
+
+		.container {
+			flex-wrap: nowrap;
+			min-width: 300px;
+			max-width: 640px;
+			background: #363636;
+			padding: 8px;
+			border-radius: 4px;
+			margin-left: auto;
+			margin-right: auto;
+			margin-top: 10px;
+		}
+
+		.container>section {
+			display: flex;
+			flex-wrap: nowrap;
+		}
+
+		.container>section>label {
+			padding: 10px;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		section>label {
+			display: inline-block;
+			padding-right: 10px;
+			padding-left: 8px;
+			padding-top: 6px;
+			min-width: 40%
+		}
+
+		button {
+			display: block;
+			margin: 5px;
+			padding: 0 20px;
+			border: 0;
+			line-height: 32px;
+			cursor: pointer;
+			color: #fff;
+			background: #ff3034;
+			border-radius: 5px;
+			font-size: 16px;
+			outline: 0
+		}
+
+		button:active {
+			background: #cf181c;
+		}
+
+		button.gray {
+			background: #696969;
+		}
+
+		button.gray:active {
+			background: #595959;
+		}
+
+		#feedlog {
+			margin-left: 50%;
+
+		}
+
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+			margin-top: 20px;
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+
+		td,
+		th {
+			border: 1px solid #555;
+			text-align: left;
+			padding: 2px;
+			font-size: 14px;
+		}
+
+		th {
+			background-color: #696969;
+			color: black;
+			text-align: center;
+		}
+
+		tr.r1 {
+			background-color: #222;
+		}
+
+		td:nth-child(1) {
+			color: #888;
+			font-weight: bold;
+		}
+
+		td:nth-child(2) {
+			text-align: right;
+		}
+
+		td:nth-child(3) {
+			color: #f33;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		td:nth-child(4) {
+			color: #33f;
+			font-weight: bold;
+			text-align: center;
+			
+		}
+
+		/* tr:nth-child(even) {
+			background-color: #707070;
+		} */
+
+		.graph {
+			width: 100%;
+			height: 200px;
+		}
+
+		.red {
+			color: #f33;
+		}
+
+		.blue {
+			color: #33f;
+		}
+
+		label>span {
+			font-weight: bold;
+			background-color: black;
+			padding: 5px;
+			border-radius: 6px;
+			margin-left: 5px;
+		}
+
+		label#status {
+			border: 1px solid #888;
+			border-radius: 6px;
+			display: block;
+			width: 100%;
+			text-align: center;
+		}
+
+		div.events {
+			border: 1px solid #888;
+			border-radius: 6px;
+		}
+
+		.icon {
+			padding-right: 5px;
+			vertical-align: bottom;
+			width: 20px;
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<section>
+			<label id="status">Connecting...</label>
+		</section>
+		<br>
+		<section>
+			<label class="red"><img src="thermometer.svg" class="icon" />ტემპერატურა:<span
+					id="temperatureLabel">N/A</span></label>
+			<label class="blue"><img src="humidity.svg" class="icon" />ტენიანობა:<span
+					id="humidityLabel">N/A</span></label>
+		</section>
+		<div class="container events">
+			<section>
+				<button id="history" class="gray hidden">▼ ისტორია</button>
+				<button id="lasthistory" class="gray hidden">ბოლო დღე</button>
+			</section>
+			<div id="eventsGraph" class="graph"></div>
+			<table id="eventsTable" class="hidden">
+			</table>
+			<section>
+				<button id="clearhistory" class="gray hidden">გასუფთავება</button>
+			</section>
+		</div>
+		<script>
+			var iteration = 0;
+			var pdate = 0;
+			var gdata = [[], []];
+
+			line1 = new RGraph.SVG.Line({
+				id: 'eventsGraph',
+				data: gdata,
+				options: {
+					marginInner: 0,
+					marginBottom: 30,
+					xaxisLabels: [],
+					xaxisColor: '#aaa',
+					xaxisLabelsAngle: 60,
+					xaxisLabelsColor: '#eee',
+					xaxisLabelsSize: 8,
+					yaxis: false,
+					yaxisLabelsColor: '#eee',
+					yaxisLabelsSize: 10,
+					backgroundGridColor: '#555',
+					backgroundGridVlines: false,
+					backgroundGridBorder: false,
+					colors: ['#f33', '#33f'],
+					linewidth: 1,
+					tooltipsEvent: 'mousemove',
+					tooltips: '%{value}%{property:names[%{dataset}]}',
+					names: ['°C','%'],
+					tooltipsCss: { fontSize: '12pt' },
+					tickmarksStyle: 'filledcircle'
+				}
+			});
+
+			// line1.on('tooltip', function (obj) {
+			// 	console.log(obj);
+			// });
+
+			function startGraph() {
+				show(eventsGraph);
+				iteration = 0;
+				pdate = 0;
+				// line1.originalData[0] = [];
+				// line1.originalData[1] = [];
+				// line1.properties.xaxisLabels = [];
+				line1.originalData[0] = RGraph.SVG.arrayPad([], 1);
+				line1.originalData[1] = RGraph.SVG.arrayPad([], 1)
+				line1.properties.xaxisLabels = RGraph.SVG.arrayPad([], 1, '');
+
+				RGraph.SVG.redraw();
+				return ("<tr><th>თარიღი</th><th>საათი</th><th>ტემპერატურა</th><th>ტენიანობა</th></tr>");
+			}
+
+			function hideGraph() {
+				hide(eventsGraph);
+			}
+
+			function updateGraph(ndate, ntemp, nhumi) {
+
+				nhour = (ndate % 100);
+				nd = Math.floor(ndate / 100);
+				nday = nd % 100;
+				nmonth = Math.floor(nd / 100) % 100;
+				nyear = Math.floor(nd / 10000);
+
+				//if (pdate > 0) pdate = ndate;
+
+				ph = (pdate % 100);
+				pd = Math.floor(pdate / 100);
+
+
+				if (iteration <= 24) {
+					line1.originalData[0].push(ntemp);
+					line1.originalData[1].push(nhumi);
+
+					//line1.originalData[0].shift();
+					//line1.originalData[1].shift();
+					//if (nhour % 2 == 0) line1.properties.xaxisLabels.push(nhour)
+
+					slabel = nhour.toString();
+					if (slabel.length < 2) slabel = "0" + slabel;
+
+					line1.properties.xaxisLabels.push(slabel)
+					//line1.properties.xaxisLabels.shift();
+
+					RGraph.SVG.redraw();
+				}
+
+				pdate = ndate;
+				iteration++;
+
+				shour = nhour + ":00 ";
+				sdate = nday + "/" + nmonth + "/" + nyear;
+
+				return ("<tr class='r" + (nday % 2) + "'><td>" + sdate + "</td><td>" + shour + "</td><td>" + ntemp + "°C</td><td>" + nhumi + "%</td></tr>");
+			}
+
+			var topic_prefix = "oakland-home-station-1/";
+			const host = "broker.emqx.io";
+			const port = 8084;
+			const clientid = "oakland-home-station-dashboard-" + parseInt(Math.random() * 1000);
+			const mqtt_options = {
+				useSSL: true,
+				onSuccess: onConnect,
+				onFailure: onFail
+			}
+
+			var statusLabel = document.getElementById('status')
+			var humidityLabel = document.getElementById('humidityLabel')
+			var temperatureLabel = document.getElementById('temperatureLabel')
+			var eventsTable = document.getElementById('eventsTable')
+			var eventsGraph = document.getElementById("eventsGraph")
+			var historyButton = document.getElementById('history')
+			var clearhistory = document.getElementById('clearhistory')
+			var lasthistory = document.getElementById('lasthistory')
+			
+
+			function onConnect() {
+				console.log("Connected");
+				client.subscribe(topic_prefix + "status");
+				client.subscribe(topic_prefix + "events");
+
+				statusLabel.innerHTML = "Waiting for device"
+
+				msg = '{ "status": 1 }';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+				console.log("Message sent for: " + Message.destinationName);
+			}
+			function onFail() {
+				console.warn("Failed to connect, trying again in 5 sec...")
+				setTimeout(startConnect, 5000);
+			}
+			function onConnectionLost(responseObject) {
+				console.warn("Connection lost");
+				if (responseObject != 0) {
+					console.error("Error: " + responseObject.errorMessage);
+				}
+				statusLabel.innerHTML = "Disconnected"
+				console.warn("Disconnected, trying again in 5 sec...")
+				setTimeout(startConnect, 5000);
+			}
+			function onMessageArrived(message) {
+				console.log("Message arrived: " + message.payloadString);
+				show(historyButton)
+				if (message.destinationName == (topic_prefix + "status")) {
+					try {
+						const obj = JSON.parse(message.payloadString);
+						var uptime_m = Math.floor(obj["uptime"] ? obj["uptime"] : 0)
+						var uptime_h = Math.floor(uptime_m / 60)
+						var uptime_d = Math.floor(uptime_h / 24)
+						if (uptime_d > 0) statusLabel.innerHTML = "Ready (" + uptime_d + " day " + (uptime_h % 24) + " hr " + (uptime_m % 60) + " min)"
+						else if (uptime_h > 0) statusLabel.innerHTML = "Ready (" + (uptime_h % 24) + " hr " + (uptime_m % 60) + " min)"
+						else statusLabel.innerHTML = "Ready (" + (uptime_m % 60) + " min)"
+
+						var tempC = obj["temp"] ? obj["temp"] : "N/A"
+						var humi = obj["humi"] ? obj["humi"] : "N/A"
+
+						temperatureLabel.innerHTML = tempC + "°C"
+						humidityLabel.innerHTML = humi + "%"
+					} catch (e) {
+						console.log(e)
+						statusLabel.innerHTML = message.payloadString
+						temperatureLabel.innerHTML = "N/A"
+						humidityLabel.innerHTML = "N/A"
+					}
+				}
+				else if (message.destinationName == (topic_prefix + "events")) {
+					parts = message.payloadString.split(",");
+					ndate = parseInt(parts[0]);
+					ntemp = Math.round(parseFloat(parts[1]));
+					nhumi = Math.round(parseFloat(parts[2]));
+					eventsTable.innerHTML += updateGraph(ndate, ntemp, nhumi);
+				}
+			}
+
+			function startConnect() {
+				console.log("Attemting to connect MQTT broker...");
+				client = new Paho.MQTT.Client(host, port, clientid);
+				client.onConnectionLost = onConnectionLost;
+				client.onMessageArrived = onMessageArrived;
+				client.connect(mqtt_options);
+			}
+
+			const hide = el => {
+				el.classList.add('hidden')
+			}
+			const show = el => {
+				el.classList.remove('hidden')
+			}
+
+			historyButton.onclick = () => {
+				const eventsVisible = historyButton.innerHTML === '▲ დახურვა'
+				if (eventsVisible) {
+					historyButton.innerHTML = "▼ ისტორია"
+					hide(eventsTable)
+					hide(clearhistory)
+					hide(lasthistory)
+					
+					hideGraph();
+				} else {
+					historyButton.innerHTML = '▲ დახურვა'
+					show(eventsTable)
+					show(clearhistory)
+					show(lasthistory)
+					eventsTable.innerHTML = startGraph();
+					msg = '{"events": -1}';
+					Message = new Paho.MQTT.Message(msg);
+					Message.destinationName = topic_prefix + "command";
+					client.send(Message);
+					console.log("Message sent for: " + Message.destinationName);
+				}
+			}
+
+			clearhistory.onclick = () => {
+				eventsTable.innerHTML = "";
+				historyButton.innerHTML = "▼ ისტორია"
+				hide(eventsTable)
+				hide(clearhistory)
+				hide(lasthistory)
+				hideGraph();
+				msg = '{"events": 0}';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+				console.log("Message sent for: " + Message.destinationName);
+			}
+
+			lasthistory.onclick = () => {
+				msg = '{"events": 24}';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+				console.log("Message sent for: " + Message.destinationName);
+				// now reload events list
+				eventsTable.innerHTML = startGraph();
+				msg = '{"events": -1}';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+				console.log("Message sent for: " + Message.destinationName);
+			}
+
+			startConnect();
+
+		</script>
+</body>
+
+</html>
