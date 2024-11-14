@@ -555,10 +555,10 @@ void publishStatus()
 	if (CurrentRadio == WEB_RADIO) {
 		WebStation.name.trim();
 		WebStation.title.trim();
-		json += ",\"station\":\"web\",";
+		json += ",\"station\":\"web\"";
 		json += ",\"url\":\"";
 		json += WebStation.url;
-		json += ",\"name\":\"";
+		json += "\",\"name\":\"";
 		json += WebStation.name;
 		json += "\",\"title\":\"";
 		json += WebStation.title;
@@ -567,7 +567,7 @@ void publishStatus()
 	else 
 	{
 		FMStation.name.trim();
-		json += ",\"station\":\"fm\",";
+		json += ",\"station\":\"fm\"";
 		json += ",\"freq\":";
 		json += FMStation.freq;
 		json += ",\"name\":\"";
