@@ -222,8 +222,8 @@ void DisplayCurrentMode(DISPLAY_MODE mode)
 		tft.setTextWrap(false);
 		tft.drawFastHLine(0,105,240,TFT_YELLOW);
 		tft.setTextColor(TFT_WHITE);
-		tft.setCursor(0, 115);
-		tft.printf("IP: %s\n", WiFi.localIP().toString().c_str());
+		tft.setCursor(0, 110);
+		tft.printf("www.pilot.ge/radio");
 		
 	}
 	else if (mode == DM_TIME) 
