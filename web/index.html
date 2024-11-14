@@ -11,7 +11,7 @@
 <body>
 	<div class='radio'>
 		<div class="title">WEB / FM Radio:<span id="status">Loading...</span></div>
-		<p>Now listening to <span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></p>
+		<p>Now listening to <span id="sourceType"></span> Station: <b><span id="sourceName"></span></b><span id="sourceTitle"></span></p>
 		<table>
 			<tr>
 				<th></th>
@@ -59,6 +59,7 @@
 	var statusLabel = document.getElementById('status')
 	var sourceType = document.getElementById('sourceType')
 	var sourceName = document.getElementById('sourceName')
+	var sourceTitle = document.getElementById('sourceTitle')
 	var playlist = document.getElementById('playlist')
 
 	function onConnect() {
@@ -102,6 +103,8 @@
 				statusLabel.innerHTML = obj["status"];
 				sourceType.innerHTML = obj["source"].toUpperCase();
 				sourceName.innerHTML = obj["name"];
+				if (obj["title"]) sourceTitle.innerHTML = " ("+obj["title"]+")";
+				else sourceTitle.innerHTML = "";
 
 			} catch (e) {
 				console.log(e)

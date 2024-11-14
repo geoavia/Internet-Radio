@@ -375,6 +375,7 @@ void audio_showstation(const char *info)
 	{
 		WebStation.name = String(info);
 		DisplayCurrentMode(DisplayMode);
+		publishStatus();
 	}
 }
 void audio_showstreamtitle(const char *info)
@@ -384,6 +385,7 @@ void audio_showstreamtitle(const char *info)
 	{
 		DisplayCurrentMode(DisplayMode);
 	}
+	publishStatus();
 }
 
 #endif //__PLAYER_H__
