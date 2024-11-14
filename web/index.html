@@ -27,7 +27,7 @@
 				<td><input type="submit" value="Play" name="play"></td>
 				<td><input type="text" name="mp3name"></td>
 				<td><input type="submit" value="Add" name="add"></form></td>
-				<td><form action="/vol"><input type="range" name="mp3vol" min="0" max="21" value="7" onchange="submit()"></form></td>
+				<td><input type="range" id="mp3vol" min="0" max="21" value="7" onchange="submit()"></td>
 			</tr>
 			<tr>
 				<td>FM Radio:</td>
@@ -35,40 +35,11 @@
 				<td><input type="submit" value="Play" name="play"></td>
 				<td><input type="text" name="fmname"></td>
 				<td><input type="submit" value="Add" name="add"></form></td>
-				<td><form action="/vol"><input type="range" name="fmvol" min="0" max="30" value="20" onchange="submit()"></form></td>
+				<td><input type="range" id="fmvol" min="0" max="30" value="20" onchange="submit()"></td>
 			</tr>
 		</table>
 		<p>Playlist</p>
-		<table>
-			<tr>
-				<th>Channel No</th>
-				<th>Station Name</th>
-				<th>URL / Frequency</th>
-				<th></th>
-			</tr>
-			<tr>
-				<td><a href="/inc?num=0">&#129093</a> 0 <a href="/dec?num=0">&#129095</a></td>
-				<td><a href="/get?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">UK Dance radio
-				</td>
-				<td>http://uk7.internet-radio.com:8226/live</td>
-				<td><a href="/del?mp3url=http:%2F%2Fuk7.internet-radio.com:8226%2Flive">Remove</a></td>
-			</tr>
-			<tr class='curr'>
-				<td><a href="/inc?num=0">▼</a> 1 <a href="/dec?num=0">▲</a></td>
-				<td><a href="/get?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">WCJS Radio
-
-				</td>
-				<td>http://us5.internet-radio.com:8201/stream</td>
-				<td><a href="/del?mp3url=http:%2F%2Fus5.internet-radio.com:8201%2Fstream">Remove</a></td>
-			</tr>
-			<tr>
-				<td><a href="/inc?num=0">▼</a> 2 <a href="/dec?num=0">▲</a></td>
-				<td><a href="/get?fmfreq=100.90">Radio Georgia
-
-				</td>
-				<td>100.90</td>
-				<td><a href="/del?fmfreq=1009">Remove</a></td>
-			</tr>
+		<table id="playlist">
 		</table>
 	</div>
 
@@ -84,17 +55,26 @@
 		onFailure: onFail
 	}
 
+	var listIndex;
 	var statusLabel = document.getElementById('status')
 	var sourceType = document.getElementById('sourceType')
 	var sourceName = document.getElementById('sourceName')
+	var playlist = document.getElementById('playlist')
 
 	function onConnect() {
 		console.log("Connected");
 		client.subscribe(topic_prefix + "status");
+		client.subscribe(topic_prefix + "list");
 
 		statusLabel.innerHTML = "Waiting for device..."
 
 		msg = '{ "status": 1 }';
+		Message = new Paho.MQTT.Message(msg);
+		Message.destinationName = topic_prefix + "command";
+		client.send(Message);
+		console.log("Message sent for: " + Message.destinationName);
+
+		msg = '{ "list": 1 }';
 		Message = new Paho.MQTT.Message(msg);
 		Message.destinationName = topic_prefix + "command";
 		client.send(Message);
@@ -126,6 +106,28 @@
 			} catch (e) {
 				console.log(e)
 				statusLabel.innerHTML = message.payloadString
+			}
+		} else if (message.destinationName == (topic_prefix + "list")) {
+			if (message.payloadString == "-") {
+				playlist.innerHTML = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
+				listIndex = 0;
+			} else {
+				listIndex++;
+				parts = message.payloadString.split(",");
+				row = ""
+				if (parts[0] == "1") row += "<tr class='curr'><td>"
+				else row += "<tr><td>"
+				row += "&#129093 "
+				row += listIndex
+				row += " &#129095"
+				row += "</td><td>"
+				row += parts[3]
+				row += "</td><td>"
+				row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1])/10)
+				row += "</td><td>"
+				row += "Remove"
+				row += "</td></tr>"
+				playlist.innerHTML += row
 			}
 		}
 	}

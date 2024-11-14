@@ -239,6 +239,7 @@ void PlayWebStation(String url, String name)
 				FindStationByUrl(url, WebStation);
 				DisplayCurrentMode(DM_NORMAL);
 				SetStateChanged();
+				publishStatus();
 				return;
 			} 
 			delay(200);
@@ -265,10 +266,11 @@ void TuneFMStation(uint freq, String name, bool fout = true)
 		FindStationByFreq(freq, FMStation);
 		DisplayCurrentMode(DM_NORMAL);
 		SetStateChanged();
+		publishStatus();
 	}
 }
 
-void SetWebVolume(uint8_t vol)
+void SetWebVolume(uint8_t vol, bool pub = true)
 {
 	if (vol <= MAX_WEB_VOLUME)
 	{
@@ -276,10 +278,11 @@ void SetWebVolume(uint8_t vol)
 		WebVolume = audioGetVolume();
 		Serial.printf("Web volume: %d\n", WebVolume);
 		SetStateChanged();
+		if (pub) publishStatus();
 	}
 }
 
-void SetFMVolume(uint vol)
+void SetFMVolume(uint vol, bool pub = true)
 {
 	if (vol <= MAX_FM_VOLUME)
 	{
@@ -289,6 +292,7 @@ void SetFMVolume(uint vol)
 		FMVolume = vol;
 		Serial.printf("FM volume: %d\n", FMVolume);
 		SetStateChanged();
+		if (pub) publishStatus();
 	}
 }
 

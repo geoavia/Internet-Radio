@@ -13,7 +13,7 @@ const uint16_t mqtt_port = 1883;
 
 char topic_command[32];
 char topic_status[32];
-char topic_settings[32];
+char topic_list[32];
 
 WiFiClient espClient;
 //BearSSL::WiFiClientSecure espClient;
@@ -538,17 +538,17 @@ void initTopics()
 {
 	strcpy(topic_command, MQTT_ID);
 	strcpy(topic_status, MQTT_ID);
-	strcpy(topic_settings, MQTT_ID);
+	strcpy(topic_list, MQTT_ID);
 	
 	strcat(topic_command, "/command");
 	strcat(topic_status, "/status");
-	strcat(topic_settings, "/settings");
+	strcat(topic_list, "/list");
 }
 
 void publishStatus()
 {
-	String json = "{ \"status\":\"" +  getStatus() + "\",";
-	json += "\"webvol\":";
+	String json = "{ \"status\":\"" +  getStatus() + "\"";
+	json += ",\"webvol\":";
 	json += WebVolume;
 	json += ",\"fmvol\":";
 	json += FMVolume;
@@ -575,8 +575,24 @@ void publishStatus()
 		json += "\"";
 	}
 	json += "}";
-	//pubsub.publish(topic_settings, json.c_str());
 	pubsub.publish(topic_status, json.c_str());
+}
+
+void publishList()
+{
+	pubsub.publish(topic_list, "-");
+	for (uint i = 0; i < n_stations; i++)
+	{
+		String line = ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
+			(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) ? "1" : "0";
+		line += ",";
+		line += Stations[i].freq;
+		line += ",";
+		line += Stations[i].url;
+		line += ",";
+		line += Stations[i].name;
+		pubsub.publish(topic_list, line.c_str());
+	}
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -608,6 +624,10 @@ void callback(char *topic, byte *payload, unsigned int length)
 		if (!doc["status"].isNull())
 		{
 			publishStatus();
+		}
+		if (!doc["list"].isNull())
+		{
+			publishList();
 		}
 	}
 }
@@ -700,103 +720,7 @@ void NetworkJob()
 	else pubsub.loop();
 }
 
-// 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-// 		String html = html_header;
-// 		if (request->hasParam("msg")) 
-// 		{
-// 			html += "<p><b>";
-// 			html += request->getParam("msg")->value();
-// 			html += "</b></p>";
-// 		}
-// 		html += "<div class='radio'>";
-// 		html += "<p>Now listening to ";
-// 		if (CurrentRadio == WEB_RADIO) 
-// 		{
-// 			html += ("WEB Station: <b>"+WebStation.url+"</b>");
-// 			if (WebStation.title.length() > 0) html += " ("+WebStation.title+")";
-// 		}
-// 		else html += ("FM Station: <b>" + String(((float)FMStation.freq)/10) + "</b>");
-// 		html += R"===(</p><table>
-// 				<tr>
-// 					<th></th>
-// 					<th>URL / Frequency</th>
-// 					<th></th>
-// 					<th>Name</th>
-// 					<th></th>
-// 					<th>Volume</th>
-// 				</tr>
-// 				<tr>
-// 					<td>MP3 Radio:</td>
-// 					<td><form action="/get"><input type="text" name="mp3url"></td>
-// 					<td><input type="submit" value="Play" name="play"></td>
-// 					<td><input type="text" name="mp3name"></td>
-// 					<td><input type="submit" value="Add" name="add"></form></td>
-// 					<td><form action="/vol"><input type="range" name="mp3vol" min="0" max=")===";
-// 		html += MAX_WEB_VOLUME;
-// 		html += "\" value=\"";
-// 		html += WebVolume;
-// 		html += R"===(" onchange="submit()"></form></td>
-// 				</tr>
-// 				<tr>
-// 					<td>FM Radio:</td>
-// 					<td><form action="/get"><input type="text" name="fmfreq"></td>
-// 					<td><input type="submit" value="Play" name="play"></td>
-// 					<td><input type="text" name="fmname"></td>
-// 					<td><input type="submit" value="Add" name="add"></form></td>
-// 					<td><form action="/vol"><input type="range" name="fmvol" min="0" max=")===";
-// 		html += MAX_FM_VOLUME;
-// 		html += "\" value=\"";
-// 		html += FMVolume;
-// 		html += R"===(" onchange="submit()"></form></td>
-// 				</tr>
-// 			</table>)===";
-// 		html += "<br>";
-// 		html += "<p>Playlist</p>";
-// 		html += "<table><tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th></tr>";
-// 		for (uint i = 0; i < n_stations; i++)
-// 		{
-// 			if ((CurrentRadio == WEB_RADIO && Stations[i].url == WebStation.url) ||	
-// 				(CurrentRadio == FM_RADIO && Stations[i].freq == FMStation.freq)) html += "<tr class='curr'><td>";
-// 			else html += "<tr><td>";
-// 			html += "<a href=\"/dec?num=";
-// 			html += i;
-// 			html += "\"> &#129093 </a> ";
-// 			html += i;
-// 			html += " <a href=\"/inc?num=";
-// 			html += i;
-// 			html += "\"> &#129095 </a>";
-// 			if (IsType(i, WEB_RADIO))
-// 			{
-// 				html += "</td><td><a href=\"/get?mp3url=";
-// 				html += EncodeUrl(Stations[i].url);
-// 				html += "\">";
-// 				html += Stations[i].name;
-// 				html += "</td><td>";
-// 				html += Stations[i].url;
-// 				html += "</td><td>";
-// 				html += "<a href=\"/del?mp3url=";
-// 				html += EncodeUrl(Stations[i].url);
-// 				html += "\">Remove</a></td></tr>";
-// 			}
-// 			else
-// 			{
-// 				html += "</td><td><a href=\"/get?fmfreq=";
-// 				html += String(((float)Stations[i].freq)/10);
-// 				html += "\">";
-// 				html += Stations[i].name;
-// 				html += "</td><td>";
-// 				html += String(((float)Stations[i].freq)/10);
-// 				html += "</td><td>";
-// 				html += "<a href=\"/del?fmfreq=";
-// 				html += Stations[i].freq;
-// 				html += "\">Remove</a></td></tr>";
-// 			}
-// 		}
-// 		html += "</table></div>";
-// 		html += html_footer;
-// 		request->send(200, "text/html", html);
-// 	});
-			
+
 // 	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
 // 		if (request->hasParam("mp3url"))
 // 		{

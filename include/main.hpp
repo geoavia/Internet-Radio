@@ -149,8 +149,8 @@ void SetStateChanged()
 void FMCommand(const char *cmd);
 void PlayWebStation(String url, String name);
 void TuneFMStation(uint freq, String name, bool fout);
-void SetWebVolume(uint8_t vol);
-void SetFMVolume(uint vol);
+void SetWebVolume(uint8_t vol, bool pub);
+void SetFMVolume(uint vol, bool pub);
 bool IsPlaying();
 
 #endif // __IRADIO_MAIN__
