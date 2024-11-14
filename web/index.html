@@ -11,7 +11,7 @@
 <body>
 	<div class='radio'>
 		<div class="title">WEB / FM Radio:<span id="status">Loading...</span></div>
-		<p>Now listening to WEB Station: <b>http://us5.internet-radio.com:8201/stream</b></p>
+		<p>Now listening to <span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></p>
 		<table>
 			<tr>
 				<th></th>
@@ -85,7 +85,8 @@
 	}
 
 	var statusLabel = document.getElementById('status')
-	
+	var sourceType = document.getElementById('sourceType')
+	var sourceName = document.getElementById('sourceName')
 
 	function onConnect() {
 		console.log("Connected");
@@ -119,6 +120,8 @@
 			try {
 				const obj = JSON.parse(message.payloadString);
 				statusLabel.innerHTML = obj["status"];
+				sourceType.innerHTML = obj["source"].toUpperCase();
+				sourceName.innerHTML = obj["name"];
 
 			} catch (e) {
 				console.log(e)
