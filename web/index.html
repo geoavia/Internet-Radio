@@ -11,31 +11,29 @@
 <body>
 	<div class='radio'>
 		<div class="title">WEB / FM Radio:<span id="status">Loading...</span></div>
-		<p>Now listening to <span id="sourceType"></span> Station: <b><span id="sourceName"></span></b><span id="sourceTitle"></span></p>
+		<p>Now listening to <span id="sourceType"></span> Station: 
+			<b><span id="sourceName"></span></b>
+			<span id="sourceTitle"></span></p>
+		<table>
+			<tr>
+				<td id="sourceVolTitle">Volume</td>
+				<td><input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"></td>
+			</tr>
+		</table>
 		<table>
 			<tr>
 				<th></th>
 				<th>URL / Frequency</th>
 				<th></th>
-				<th>Name</th>
+				<th>New Station Name</th>
 				<th></th>
-				<th>Volume</th>
 			</tr>
 			<tr>
-				<td>MP3 Radio:</td>
-				<td><form action="/get"></form><input type="text" name="mp3url"></td>
-				<td><input type="submit" value="Play" name="play"></td>
-				<td><input type="text" name="mp3name"></td>
-				<td><input type="submit" value="Add" name="add"></form></td>
-				<td><input type="range" id="mp3vol" min="0" max="21" value="7" onchange="submit()"></td>
-			</tr>
-			<tr>
-				<td>FM Radio:</td>
-				<td><form action="/get"><input type="text" name="fmfreq"></td>
-				<td><input type="submit" value="Play" name="play"></td>
-				<td><input type="text" name="fmname"></td>
-				<td><input type="submit" value="Add" name="add"></form></td>
-				<td><input type="range" id="fmvol" min="0" max="30" value="20" onchange="submit()"></td>
+				<td>Radio Station:</td>
+				<td><input type="text" id="urlfreq"></td>
+				<td><button id="playnew" onclick="onPlay()">Play</td>
+				<td><input type="text" id="namenew"></td>
+				<td><button id="addnew" onclick="onAdd()">Add</td>
 			</tr>
 		</table>
 		<p>Playlist</p>
@@ -43,109 +41,149 @@
 		</table>
 	</div>
 
-<script>
+	<script>
 
-	var topic_prefix = "ggm-web-radio-2/";
-	const host = "broker.emqx.io";
-	const port = 8084;
-	const clientid = "ggm-web-radio-control-" + parseInt(Math.random() * 1000);
-	const mqtt_options = {
-		useSSL: true,
-		onSuccess: onConnect,
-		onFailure: onFail
-	}
-
-	var listIndex;
-	var statusLabel = document.getElementById('status')
-	var sourceType = document.getElementById('sourceType')
-	var sourceName = document.getElementById('sourceName')
-	var sourceTitle = document.getElementById('sourceTitle')
-	var playlist = document.getElementById('playlist')
-
-	function onConnect() {
-		console.log("Connected");
-		client.subscribe(topic_prefix + "status");
-		client.subscribe(topic_prefix + "list");
-
-		statusLabel.innerHTML = "Waiting for device..."
-
-		msg = '{ "status": 1 }';
-		Message = new Paho.MQTT.Message(msg);
-		Message.destinationName = topic_prefix + "command";
-		client.send(Message);
-		console.log("Message sent for: " + Message.destinationName);
-
-		msg = '{ "list": 1 }';
-		Message = new Paho.MQTT.Message(msg);
-		Message.destinationName = topic_prefix + "command";
-		client.send(Message);
-		console.log("Message sent for: " + Message.destinationName);
-	}
-	function onFail() {
-		statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
-		console.warn(statusLabel.innerHTML)
-		setTimeout(startConnect, 5000);
-	}
-	function onConnectionLost(responseObject) {
-		console.warn("Connection lost");
-		if (responseObject != 0) {
-			console.error("Error: " + responseObject.errorMessage);
+		var topic_prefix = "ggm-web-radio-2/";
+		const host = "broker.emqx.io";
+		const port = 8084;
+		const clientid = "ggm-web-radio-control-" + parseInt(Math.random() * 1000);
+		const mqtt_options = {
+			useSSL: true,
+			onSuccess: onConnect,
+			onFailure: onFail
 		}
-		statusLabel.innerHTML = "Disconnected, trying again in 5 sec..."
-		console.warn(statusLabel.innerHTML)
-		setTimeout(startConnect, 5000);
-	}
-	function onMessageArrived(message) {
-		console.log("Message arrived: " + message.payloadString);
-		if (message.destinationName == (topic_prefix + "status")) {
-			try {
-				const obj = JSON.parse(message.payloadString);
-				statusLabel.innerHTML = obj["status"];
-				sourceType.innerHTML = obj["source"].toUpperCase();
-				sourceName.innerHTML = obj["name"];
-				if (obj["title"]) sourceTitle.innerHTML = " ("+obj["title"]+")";
-				else sourceTitle.innerHTML = "";
 
-			} catch (e) {
-				console.log(e)
-				statusLabel.innerHTML = message.payloadString
+		var listIndex;
+		var statusLabel = document.getElementById('status')
+		var sourceType = document.getElementById('sourceType')
+		var sourceName = document.getElementById('sourceName')
+		var sourceTitle = document.getElementById('sourceTitle')
+		var sourceVol = document.getElementById('sourceVol')
+		var sourceVolTitle = document.getElementById('sourceVolTitle')
+		var playlist = document.getElementById('playlist')
+
+		function onConnect() {
+			console.log("Connected");
+			client.subscribe(topic_prefix + "status");
+			client.subscribe(topic_prefix + "list");
+
+			statusLabel.innerHTML = "Waiting for device..."
+
+			msg = '{ "status": 1 }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
+			console.log("Message sent for: " + Message.destinationName);
+
+			msg = '{ "list": 1 }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
+			console.log("Message sent for: " + Message.destinationName);
+		}
+		function onFail() {
+			statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
+			console.warn(statusLabel.innerHTML)
+			setTimeout(startConnect, 5000);
+		}
+		function onConnectionLost(responseObject) {
+			console.warn("Connection lost");
+			if (responseObject != 0) {
+				console.error("Error: " + responseObject.errorMessage);
 			}
-		} else if (message.destinationName == (topic_prefix + "list")) {
-			if (message.payloadString == "-") {
-				playlist.innerHTML = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
-				listIndex = 0;
-			} else {
-				listIndex++;
-				parts = message.payloadString.split(",");
-				row = ""
-				if (parts[0] == "1") row += "<tr class='curr'><td>"
-				else row += "<tr><td>"
-				row += "&#129093 "
-				row += listIndex
-				row += " &#129095"
-				row += "</td><td>"
-				row += parts[3]
-				row += "</td><td>"
-				row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1])/10)
-				row += "</td><td>"
-				row += "Remove"
-				row += "</td></tr>"
-				playlist.innerHTML += row
+			statusLabel.innerHTML = "Disconnected, trying again in 5 sec..."
+			console.warn(statusLabel.innerHTML)
+			setTimeout(startConnect, 5000);
+		}
+		function onMessageArrived(message) {
+			console.log("Message arrived: " + message.payloadString);
+			if (message.destinationName == (topic_prefix + "status")) {
+				try {
+					const obj = JSON.parse(message.payloadString);
+					statusLabel.innerHTML = obj["status"];
+					sourceType.innerHTML = obj["source"].toUpperCase();
+					sourceName.innerHTML = obj["name"];
+					if (obj["title"]) sourceTitle.innerHTML = " (" + obj["title"] + ")";
+					else sourceTitle.innerHTML = "";
+
+					if (sourceType.innerHTML == "WEB") {
+						sourceVolTitle.innerHTML = "WEB Volume"
+						sourceVol.max = 21;
+						sourceVol.value = obj["vebvol"];
+					} else if (sourceType.innerHTML == "FM") {
+						sourceVolTitle.innerHTML = "FM Volume"
+						sourceVol.max = 30;
+						sourceVol.value = obj["fmvol"];
+					} else {
+						sourceVolTitle.innerHTML = "Volume"
+						sourceVol.max = 0;
+						sourceVol.value = 0;
+					}
+
+				} catch (e) {
+					console.log(e)
+					statusLabel.innerHTML = message.payloadString
+				}
+			} else if (message.destinationName == (topic_prefix + "list")) {
+				if (message.payloadString == "-") {
+					playlist.innerHTML = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
+					listIndex = 0;
+				} else {
+					listIndex++;
+					parts = message.payloadString.split(",");
+					row = ""
+					if (parts[0] == "1") row += "<tr class='curr'><td>"
+					else row += "<tr><td>"
+					row += "&#129093 "
+					row += listIndex
+					row += " &#129095"
+					row += "</td><td>"
+					row += parts[3]
+					row += "</td><td>"
+					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
+					row += "</td><td>"
+					row += "Remove"
+					row += "</td></tr>"
+					playlist.innerHTML += row
+				}
 			}
 		}
-	}
 
-	function startConnect() {
-		console.log("Attemting to connect MQTT broker...");
-		client = new Paho.MQTT.Client(host, port, clientid);
-		client.onConnectionLost = onConnectionLost;
-		client.onMessageArrived = onMessageArrived;
-		client.connect(mqtt_options);
-	}
+		function onVolume() {
 
-	startConnect();
+		}
 
-</script>
+		function onPlay(source) {
+
+		}
+
+		function onAdd() {
+
+		}
+
+		function onUp() {
+
+		}
+
+		function onDown() {
+
+		}
+
+		function onDelete() {
+
+		}
+
+		function startConnect() {
+			console.log("Attemting to connect MQTT broker...");
+			client = new Paho.MQTT.Client(host, port, clientid);
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+			client.connect(mqtt_options);
+		}
+
+		startConnect();
+
+	</script>
 
 
 </body>
