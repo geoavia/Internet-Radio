@@ -167,7 +167,12 @@
 		}
 
 		function onPlay(source) {
-			if (!source) source = urlfreq.value
+			if (!source) 
+			{
+				source = urlfreq.value
+				freq = parseFloat(source) * 10;
+				if (freq >= 870 && freq < 1080) source = freq;
+			}
 			msg = '{ "play": "' + source + '" }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
@@ -175,7 +180,10 @@
 		}
 
 		function onAdd() {
-			msg = '{ "add": "' + urlfreq.value + '"';
+			source = urlfreq.value
+			freq = parseFloat(source) * 10;
+			if (freq >= 870 && freq < 1080) source = freq;
+			msg = '{ "add": "' + source + '"';
 			msg += ', "name": "' + namenew.value +'" }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";

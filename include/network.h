@@ -604,7 +604,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 		{
 			String src = doc["play"];
 			uint freq = src.toInt();
-			if (freq > 0 && freq < MAX_FREQ)
+			if (freq >= MIN_FREQ && freq <= MAX_FREQ)
 			{
 				TuneFMStation(freq, "FM " + String(((float)freq)/10), true);
 			}
@@ -620,7 +620,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 			String name = doc["name"];
 			name.trim();
 			if (name == "") name = "Station " + n_stations;
-			if (freq > 0 && freq < MAX_FREQ)
+			if (freq >= MIN_FREQ && freq <= MAX_FREQ)
 			{
 				AddStation(freq, "", name);
 				SaveRadioStations();
