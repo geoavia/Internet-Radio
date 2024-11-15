@@ -116,6 +116,8 @@ enum RADIO_TYPE
 
 uint n_stations = 0;
 
+static const char DefaultWebStationName[] = "WEB Station";
+
 RADIO_TYPE CurrentRadio = WEB_RADIO;
 
 // http://wbgo.streamguys.net/thejazzstream - ok

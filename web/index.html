@@ -31,9 +31,9 @@
 			<tr>
 				<td>Radio Station:</td>
 				<td><input type="text" id="urlfreq"></td>
-				<td><button id="playnew" onclick="onPlay()">Play</td>
+				<td><button onclick="onPlay()">Play</td>
 				<td><input type="text" id="namenew"></td>
-				<td><button id="addnew" onclick="onAdd()">Add</td>
+				<td><button onclick="onAdd()">Add</td>
 			</tr>
 		</table>
 		<p>Playlist</p>
@@ -61,6 +61,8 @@
 		var sourceVol = document.getElementById('sourceVol')
 		var sourceVolTitle = document.getElementById('sourceVolTitle')
 		var playlist = document.getElementById('playlist')
+		var urlfreq = document.getElementById('urlfreq')
+		var namenew = document.getElementById('namenew')
 
 		function onConnect() {
 			console.log("Connected");
@@ -109,7 +111,7 @@
 					if (sourceType.innerHTML == "WEB") {
 						sourceVolTitle.innerHTML = "WEB Volume"
 						sourceVol.max = 21;
-						sourceVol.value = obj["vebvol"];
+						sourceVol.value = obj["webvol"];
 					} else if (sourceType.innerHTML == "FM") {
 						sourceVolTitle.innerHTML = "FM Volume"
 						sourceVol.max = 30;
@@ -129,48 +131,76 @@
 					playlist.innerHTML = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
 					listIndex = 0;
 				} else {
-					listIndex++;
 					parts = message.payloadString.split(",");
+					source = (parts[1] == "0") ? parts[2] : parts[1]
 					row = ""
 					if (parts[0] == "1") row += "<tr class='curr'><td>"
 					else row += "<tr><td>"
-					row += "&#129093 "
+					row += '<a href="#" onclick="onUp('+ listIndex +')">&#129093</a> '
 					row += listIndex
-					row += " &#129095"
+					row += ' <a href="#" onclick="onDown('+ listIndex +')">&#129095</a>'
 					row += "</td><td>"
-					row += parts[3]
+					row += ' <a href="#" onclick="onPlay(\'' + source + '\')">' + parts[3] + '</a>'
 					row += "</td><td>"
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
 					row += "</td><td>"
-					row += "Remove"
+					row += '<a href="#" onclick="onRemove('+ listIndex +')">Remove</a>'
 					row += "</td></tr>"
 					playlist.innerHTML += row
+					listIndex++;
 				}
 			}
 		}
 
 		function onVolume() {
-
+			if (sourceType.innerHTML == "WEB") {
+				msg = '{ "webvol": ' + sourceVol.value + ' }';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+			} else if (sourceType.innerHTML == "FM") {
+				msg = '{ "fmvol": ' + sourceVol.value + ' }';
+				Message = new Paho.MQTT.Message(msg);
+				Message.destinationName = topic_prefix + "command";
+				client.send(Message);
+			}			
 		}
 
 		function onPlay(source) {
-
+			if (!source) source = urlfreq.value
+			msg = '{ "play": "' + source + '" }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
 		}
 
 		function onAdd() {
-
+			msg = '{ "add": "' + urlfreq.value + '"';
+			msg += ', "name": "' + namenew.value +'" }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
 		}
 
-		function onUp() {
-
+		function onUp(index) {
+			msg = '{ "up": ' + index + ' }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
 		}
 
-		function onDown() {
-
+		function onDown(index) {
+			msg = '{ "down": ' + index + ' }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
 		}
 
-		function onDelete() {
-
+		function onRemove(index) {
+			msg = '{ "remove": ' + index + ' }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
 		}
 
 		function startConnect() {

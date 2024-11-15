@@ -23,43 +23,6 @@ PubSubClient pubsub(mqtt_server, mqtt_port, espClient);
 unsigned long lastReconnectTime = 0;
 bool isConnected = false;
 
-bool async_hot = false;
-int async_webvol = -1;
-int async_fmvol = -1;
-uint async_freq = 0;
-String async_url = "";
-
-void async_clear()
-{
-	async_hot = false;
-	async_webvol = async_fmvol = -1;
-	async_freq = 0;
-	async_url = "";
-}
-
-void async_setFreq(uint f)
-{
-	async_clear();
-	async_freq = f;
-	async_hot = true;
-}
-
-void async_setUrl(String u)
-{
-	async_clear();
-	async_url = u;
-	async_hot = true;
-}
-
-void async_setVol(uint v, RADIO_TYPE t)
-{
-	async_clear();
-	if (t == FM_RADIO) async_fmvol = v;
-	else async_webvol = v;
-	async_hot = true;
-}
-
-
 void shutdown()
 {
 	digitalWrite(PWR_PIN, LOW);
@@ -629,6 +592,68 @@ void callback(char *topic, byte *payload, unsigned int length)
 		{
 			publishList();
 		}
+		if (!doc["webvol"].isNull())
+		{
+			SetWebVolume(doc["webvol"], false);
+		}
+		if (!doc["fmvol"].isNull())
+		{
+			SetFMVolume(doc["fmvol"], false);
+		}
+		if (!doc["play"].isNull())
+		{
+			String src = doc["play"];
+			uint freq = src.toInt();
+			if (freq > 0 && freq < MAX_FREQ)
+			{
+				TuneFMStation(freq, "FM " + String(((float)freq)/10), true);
+			}
+			else if (src.length() > 0)
+			{
+				PlayWebStation(src, DefaultWebStationName);
+			}
+		}
+		if (!doc["add"].isNull())
+		{
+			String src = doc["add"];
+			uint freq = src.toInt();
+			String name = doc["name"];
+			name.trim();
+			if (name == "") name = "Station " + n_stations;
+			if (freq > 0 && freq < MAX_FREQ)
+			{
+				AddStation(freq, "", name);
+				SaveRadioStations();
+				publishList();
+			}
+			else if (src.length() > 0)
+			{
+				AddStation(0, src, name);
+				SaveRadioStations();
+				publishList();
+			}
+		}
+		if (!doc["up"].isNull())
+		{
+			uint index = doc["up"];
+			ShiftStation(index, -1);
+			SaveRadioStations();
+			publishList();
+		}
+		if (!doc["down"].isNull())
+		{
+			uint index = doc["down"];
+			ShiftStation(index, 1);
+			SaveRadioStations();
+			publishList();
+		}
+		if (!doc["remove"].isNull())
+		{
+			uint index = doc["remove"];
+			RemoveStation(index);
+			SaveRadioStations();
+			publishList();
+		}
 	}
 }
 
@@ -719,117 +744,6 @@ void NetworkJob()
 	}
 	else pubsub.loop();
 }
-
-
-// 	server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
-// 		if (request->hasParam("mp3url"))
-// 		{
-// 			String url = request->getParam("mp3url")->value();
-// 			if (request->hasParam("add")) 
-// 			{
-// 				String name = "";
-// 				if (request->hasParam("mp3name"))
-// 					name = request->getParam("mp3name")->value();
-// 				name.trim();
-// 				if (name == "")
-// 				{
-// 					name = "Station ";
-// 					name += n_stations;
-// 				}
-				
-// 				AddStation(0, url, name);
-// 				SaveRadioStations();
-// 			} 
-// 			else // play
-// 			{
-// 				async_setUrl(url);
-// 				delay(1000); // for Job to finish
-// 			}
-// 			request->redirect("/");
-// 		}
-// 		else if (request->hasParam("fmfreq"))
-// 		{
-// 			uint freq = request->getParam("fmfreq")->value().toFloat() * 10;
-// 			if (request->hasParam("add")) 
-// 			{
-// 				String name = "";
-// 				if (request->hasParam("fmname"))
-// 					name = request->getParam("fmname")->value();
-// 				name.trim();
-// 				if (name == "")
-// 				{
-// 					name = "Station ";
-// 					name += n_stations;
-// 				}
-				
-// 				AddStation(freq, "", name);
-// 				SaveRadioStations();
-// 			} 
-// 			else // tune
-// 			{
-// 				async_setFreq(freq);
-// 				delay(1000); // for Job to finish
-// 			}
-// 			request->redirect("/");
-// 		}
-// 		else 
-// 		{
-// 			request->redirect("/?msg=Incorrect Param");
-// 		}
-// 	});
-
-// 	server.on("/del", HTTP_GET, [](AsyncWebServerRequest *request) {
-// 		if (request->hasParam("mp3url"))
-// 		{
-// 			String url = request->getParam("mp3url")->value();
-// 			RemoveStationByUrl(url);
-// 			SaveRadioStations();
-// 			request->redirect("/");
-// 		}
-// 		else if (request->hasParam("fmfreq"))
-// 		{
-// 			uint freq = request->getParam("fmfreq")->value().toInt();
-// 			RemoveStationByFreq(freq);
-// 			SaveRadioStations();
-// 			request->redirect("/");
-// 		}
-// 		else 
-// 		{
-// 			request->redirect("/?msg=Incorrect Param");
-// 		}
-// 	});
-
-// 	server.on("/vol", HTTP_GET, [](AsyncWebServerRequest *request) {
-// 		if (request->hasParam("mp3vol"))
-// 		{
-// 			async_setVol(request->getParam("mp3vol")->value().toInt(), WEB_RADIO);
-// 			delay(1000); // for Job to finish
-// 			request->redirect("/");
-// 		}
-// 		if (request->hasParam("fmvol"))
-// 		{
-// 			async_setVol(request->getParam("fmvol")->value().toInt(), FM_RADIO);
-// 			delay(1000); // for Job to finish
-// 			request->redirect("/");
-// 		}
-// 		else 
-// 		{
-// 			request->redirect("/?msg=Incorrect Param");
-// 		}
-// 	});
-
-// 	server.on("/inc", HTTP_GET, [](AsyncWebServerRequest *request) {
-// 		if (request->hasParam("num"))
-// 		{
-// 			ShiftStation(request->getParam("num")->value().toInt(), 1);
-// 			SaveRadioStations();
-// 			request->redirect("/");
-// 		}
-// 		else 
-// 		{
-// 			request->redirect("/?msg=Incorrect Param");
-// 		}
-// 	});
 
 // 	server.on("/dec", HTTP_GET, [](AsyncWebServerRequest *request) {
 // 		if (request->hasParam("num"))
