@@ -218,6 +218,8 @@ void SwitchOutput(RADIO_TYPE op)
 
 void PlayWebStation(String url, String name)
 {
+	url.trim();
+	name.trim();
 	SwitchOutput(WEB_RADIO);
 	WebStation.url = url;
 	WebStation.name = name;
@@ -249,6 +251,7 @@ void PlayWebStation(String url, String name)
 
 void TuneFMStation(uint freq, String name, bool fout = true)
 {
+	name.trim();
 	if (freq < MIN_FREQ) freq = MIN_FREQ;
 	if (freq > MAX_FREQ) freq = MAX_FREQ;
 	//if (freq >= MIN_FREQ && freq <= MAX_FREQ) 
@@ -364,6 +367,7 @@ void audio_showstation(const char *info)
 	if (WebStation.name.length() == 0 || WebStation.name.equals(DefaultWebStationName))
 	{
 		WebStation.name = String(info);
+		WebStation.name.trim();
 		DisplayCurrentMode(DisplayMode);
 		publishStatus();
 	}
@@ -371,6 +375,7 @@ void audio_showstation(const char *info)
 void audio_showstreamtitle(const char *info)
 {
 	WebStation.title = String(info);
+	WebStation.title.trim();
 	if (DisplayMode == DM_SIMPLE)
 	{
 		DisplayCurrentMode(DisplayMode);

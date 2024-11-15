@@ -511,13 +511,17 @@ void initTopics()
 void publishStatus()
 {
 	String json = "{ \"status\":\"" +  getStatus() + "\"";
+	json += ",\"voltage\":";
+	json += getVbat();
+	json += ",\"ssid\":\"";
+	json += WiFi.SSID();
+	json += "\",\"rssi\":";
+	json += WiFi.RSSI();
 	json += ",\"webvol\":";
 	json += WebVolume;
 	json += ",\"fmvol\":";
 	json += FMVolume;
 	if (CurrentRadio == WEB_RADIO) {
-		WebStation.name.trim();
-		WebStation.title.trim();
 		json += ",\"source\":\"web\"";
 		json += ",\"url\":\"";
 		json += WebStation.url;
@@ -529,7 +533,6 @@ void publishStatus()
 	} 
 	else 
 	{
-		FMStation.name.trim();
 		json += ",\"source\":\"fm\"";
 		json += ",\"freq\":";
 		json += FMStation.freq;
@@ -653,6 +656,14 @@ void callback(char *topic, byte *payload, unsigned int length)
 			RemoveStation(index);
 			SaveRadioStations();
 			publishList();
+		}
+		if (!doc["sleep"].isNull())
+		{
+			shutdown();
+		}
+		if (!doc["display"].isNull())
+		{
+			DisplayCurrentMode(doc["display"]);
 		}
 	}
 }

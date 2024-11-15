@@ -14,7 +14,9 @@ void LoadRadioStations()
 		{
 			Stations[n_stations].freq = file.readStringUntil(',').toInt();
 			Stations[n_stations].url = file.readStringUntil(',');
+			Stations[n_stations].url.trim();
 			Stations[n_stations].name = file.readStringUntil('\n');
+			Stations[n_stations].name.trim();
 			Serial.print(Stations[n_stations].freq);
 			Serial.print(",");
 			Serial.print(Stations[n_stations].url);
@@ -34,6 +36,8 @@ void AddStation(uint freq, String url, String name = "")
 	if (n_stations < MAX_STATIONS)
 		if ((freq >= MIN_FREQ && freq <= MAX_FREQ) || url.length() > 0)
 		{
+			url.trim();
+			name.trim();
 			Stations[n_stations].freq = freq;
 			Stations[n_stations].url = url;
 			Stations[n_stations].name = name;
