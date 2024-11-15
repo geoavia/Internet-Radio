@@ -559,6 +559,7 @@ void publishList()
 		line += Stations[i].name;
 		pubsub.publish(topic_list, line.c_str());
 	}
+	pubsub.publish(topic_list, "+");
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -664,6 +665,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 		if (!doc["display"].isNull())
 		{
 			DisplayCurrentMode(doc["display"]);
+			lastKeyTime = millis();
 		}
 	}
 }

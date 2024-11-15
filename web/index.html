@@ -10,7 +10,7 @@
 
 <body>
 	<div class='radio'>
-		<div class="title">WEB / FM Radio:<span id="status">Loading...</span></div>
+		<div class="title">WEB / FM Radio:<span id="status">Loading...</span><button onclick="onSleep()">Sleep</button></div>
 		<p>Now listening to <span id="sourceType"></span> Station: 
 			<b><span id="sourceName"></span></b>
 			<span id="sourceTitle"></span></p>
@@ -18,6 +18,12 @@
 			<tr>
 				<td id="sourceVolTitle">Volume</td>
 				<td><input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"></td>
+			</tr>
+			<tr>
+				<td>Display</td>
+				<td><a onclick="onDisplay(0)">Normal</a>
+					<a onclick="onDisplay(1)">Simple</a>
+					<a onclick="onDisplay(2)">Time</a></td>
 			</tr>
 		</table>
 		<table>
@@ -54,6 +60,7 @@
 		}
 
 		var listIndex;
+		var listCache;
 		var statusLabel = document.getElementById('status')
 		var sourceType = document.getElementById('sourceType')
 		var sourceName = document.getElementById('sourceName')
@@ -128,25 +135,29 @@
 				}
 			} else if (message.destinationName == (topic_prefix + "list")) {
 				if (message.payloadString == "-") {
-					playlist.innerHTML = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
+					listCache = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
 					listIndex = 0;
+					playlist.classList.add('updating')
+				} else if (message.payloadString == "+") {
+					playlist.innerHTML = listCache;
+					playlist.classList.remove('updating')
 				} else {
 					parts = message.payloadString.split(",");
 					source = (parts[1] == "0") ? parts[2] : parts[1]
 					row = ""
 					if (parts[0] == "1") row += "<tr class='curr'><td>"
 					else row += "<tr><td>"
-					row += '<a href="#" onclick="onUp('+ listIndex +')">&#129093</a> '
+					row += '<a onclick="onUp('+ listIndex +')">&#129093</a> '
 					row += listIndex
-					row += ' <a href="#" onclick="onDown('+ listIndex +')">&#129095</a>'
+					row += ' <a onclick="onDown('+ listIndex +')">&#129095</a>'
 					row += "</td><td>"
-					row += ' <a href="#" onclick="onPlay(\'' + source + '\')">' + parts[3] + '</a>'
+					row += ' <a onclick="onPlay(\'' + source + '\')">' + parts[3] + '</a>'
 					row += "</td><td>"
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
 					row += "</td><td>"
 					row += '<a href="#" onclick="onRemove('+ listIndex +')">Remove</a>'
 					row += "</td></tr>"
-					playlist.innerHTML += row
+					listCache += row
 					listIndex++;
 				}
 			}
@@ -206,6 +217,20 @@
 
 		function onRemove(index) {
 			msg = '{ "remove": ' + index + ' }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
+		}
+
+		function onDisplay(mode) {
+			msg = '{ "display": ' + mode + ' }';
+			Message = new Paho.MQTT.Message(msg);
+			Message.destinationName = topic_prefix + "command";
+			client.send(Message);
+		}
+
+		function onSleep() {
+			msg = '{ "sleep": 1 }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
