@@ -680,7 +680,9 @@ void reconnect_mqtt()
 		// Once connected, publish an announcement...
 		pubsub.subscribe(topic_command);
 		Serial.printf("Subscribed to: %s\n",topic_command);
-		//blink(2);
+
+		publishStatus();
+		publishList();
 	}
 	else
 	{

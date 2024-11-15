@@ -9,8 +9,9 @@
 </head>
 
 <body>
-	<div class='radio'>
-		<div class="title">WEB / FM Radio:<span id="status">Loading...</span><button onclick="onSleep()">Sleep</button></div>
+	<div class="radio title">WEB / FM Radio:<span id="status">Loading...</span></div>
+	<div id="radio" class='radio hidden'>
+		<button onclick="onSleep()" class="right">Sleep</button>
 		<p>Now listening to <span id="sourceType"></span> Station: 
 			<b><span id="sourceName"></span></b>
 			<span id="sourceTitle"></span></p>
@@ -35,7 +36,7 @@
 				<th></th>
 			</tr>
 			<tr>
-				<td>Radio Station:</td>
+				<td>Station:</td>
 				<td><input type="text" id="urlfreq"></td>
 				<td><button onclick="onPlay()">Play</td>
 				<td><input type="text" id="namenew"></td>
@@ -70,6 +71,7 @@
 		var playlist = document.getElementById('playlist')
 		var urlfreq = document.getElementById('urlfreq')
 		var namenew = document.getElementById('namenew')
+		var radio = document.getElementById('radio')
 
 		function onConnect() {
 			console.log("Connected");
@@ -82,13 +84,12 @@
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
-			console.log("Message sent for: " + Message.destinationName);
 
 			msg = '{ "list": 1 }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
-			console.log("Message sent for: " + Message.destinationName);
+
 		}
 		function onFail() {
 			statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
@@ -105,6 +106,7 @@
 			setTimeout(startConnect, 5000);
 		}
 		function onMessageArrived(message) {
+			show(radio)
 			console.log("Message arrived: " + message.payloadString);
 			if (message.destinationName == (topic_prefix + "status")) {
 				try {
@@ -234,6 +236,8 @@
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
+			statusLabel.innerHTML = "Going to sleep..."
+			setTimeout(() => { document.location.reload() }, 2000)
 		}
 
 		function startConnect() {
@@ -243,6 +247,13 @@
 			client.onMessageArrived = onMessageArrived;
 			client.connect(mqtt_options);
 		}
+
+		const hide = el => {
+			el.classList.add('hidden')
+		}
+		const show = el => {
+			el.classList.remove('hidden')
+		}		
 
 		startConnect();
 
