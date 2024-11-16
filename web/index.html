@@ -73,23 +73,28 @@
 		var namenew = document.getElementById('namenew')
 		var radio = document.getElementById('radio')
 
-		function onConnect() {
-			console.log("Connected");
-			client.subscribe(topic_prefix + "status");
-			client.subscribe(topic_prefix + "list");
-
-			statusLabel.innerHTML = "Waiting for device..."
-
+		function getStatus() {
 			msg = '{ "status": 1 }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
+		}
 
+		function getList() {
 			msg = '{ "list": 1 }';
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
+		}
 
+		function onConnect() {
+			console.log("Connected");
+			client.subscribe(topic_prefix + "status");
+			client.subscribe(topic_prefix + "list");
+			statusLabel.innerHTML = "Waiting for device..."
+
+			getStatus();
+			getList();
 		}
 		function onFail() {
 			statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
