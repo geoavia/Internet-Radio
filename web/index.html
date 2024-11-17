@@ -9,7 +9,7 @@
 </head>
 
 <body>
-	<div class="title">WEB/FM Radio:<span id="status">Loading...</span><span id="sigvolt" class="right"></span></div>
+	<div class="title">WEB Radio:<span id="status">Loading...</span><span id="sigvolt"></span></div>
 	<div id="radio" class='radio hidden'>
 		<div class="current">
 			<div><span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></div>
@@ -21,17 +21,17 @@
 		</div>
 		<div>
 			Display: 
-				<a onclick="onDisplay(0)">Normal</a> >
-				<a onclick="onDisplay(1)">Simple</a> >
+				<a onclick="onDisplay(0)">Normal</a>,
+				<a onclick="onDisplay(1)">Simple</a>,
 				<a onclick="onDisplay(2)">Time</a>
 				<a onclick="onSleep()" class="right red">Sleep!</a>				
 		</div>
 		<p>Play or Add New Station</p>
 		<div>
-			<span class="label">URL/Frequency: </span>
-			<input type="text" id="urlfreq"/><button onclick="onPlay()">Play</button>
-			<span class="label">Station Name: </span>
-			<input type="text" id="namenew"/><button onclick="onAdd()">Add</button>
+			<span class="label">URL/Frequency </span>
+			<input title="URL/Frequency" type="text" id="urlfreq"/><button onclick="onPlay()">Play</button>
+			<span class="label">Station Name </span>
+			<input title="Station Name" type="text" id="namenew"/><button onclick="onAdd()">Add</button>
 		</div>
 		<p>Preset Play List</p>
 		<table id="playlist">
@@ -107,7 +107,7 @@
 				try {
 					const obj = JSON.parse(message.payloadString);
 					statusLabel.innerHTML = obj["status"];
-					sigvolt.innerHTML = parseFloat(obj["voltage"])+"v ("+obj["rssi"]+")";
+					sigvolt.innerHTML = parseFloat(obj["voltage"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
 
 					sourceType.innerHTML = obj["source"].toUpperCase();
 					sourceName.innerHTML = obj["name"];

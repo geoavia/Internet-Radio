@@ -5,22 +5,20 @@ html {
 
 .radio {
 	background-color: white;
-	border-style: solid;
+	border: 2px solid orange;
 	border-radius: 10px;
-	margin: 10px;
 	padding: 10px;
-	border-color: orange;
 }
 
 .radio>div {
-	padding: 10px;
+	margin-bottom: 10px;
 }
 
 .title {
 	display: block;
 	background-color: orange;
 	border-radius: 10px;
-	margin: 10px;
+	margin-bottom: 10px;
 	padding: 10px;
 	font-weight: bold;
 }
@@ -121,7 +119,7 @@ input[type=range]:focus::-ms-thumb {
 }
 
 button {
-	padding: 7px 20px;
+	padding: 7px 10px;
 	margin-left: 10px;
 	border: 0;
 	cursor: pointer;
@@ -129,7 +127,7 @@ button {
 	border-radius: 5px;
 	outline: 0;
 	box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
-	min-width: 100px;
+	min-width: 60px;
 }
 
 button:hover {
@@ -188,6 +186,7 @@ td:nth-child(2) div {
 
 td:nth-child(2) span {
 	font-size: 12px;
+	word-break: break-all;
 }
 
 td:nth-child(2):hover {
@@ -218,6 +217,14 @@ a:hover {
 	float: right;
 }
 
+#sigvolt {
+	font-size: 12px;
+	position: absolute;
+	top: 14px;
+	right: 25px;
+	text-align: right;
+}
+
 .hidden {
 	display: none;
 }
@@ -235,4 +242,5 @@ a:hover {
 .current {
 	border: 1px solid orange;
 	border-radius: 5px;
+	padding: 10px;
 }
