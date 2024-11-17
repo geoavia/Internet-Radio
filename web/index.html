@@ -9,41 +9,31 @@
 </head>
 
 <body>
-	<div class="radio title">WEB / FM Radio:<span id="status">Loading...</span></div>
+	<div class="title">WEB/FM Radio:<span id="status">Loading...</span><span id="sigvolt" class="right"></span></div>
 	<div id="radio" class='radio hidden'>
-		<button onclick="onSleep()" class="right">Sleep</button>
-		<p>Now listening to <span id="sourceType"></span> Station: 
-			<b><span id="sourceName"></span></b>
-			<span id="sourceTitle"></span></p>
-		<table>
-			<tr>
-				<td id="sourceVolTitle">Volume</td>
-				<td><input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"></td>
-			</tr>
-			<tr>
-				<td>Display</td>
-				<td><a onclick="onDisplay(0)">Normal</a>
-					<a onclick="onDisplay(1)">Simple</a>
-					<a onclick="onDisplay(2)">Time</a></td>
-			</tr>
-		</table>
-		<table>
-			<tr>
-				<th></th>
-				<th>URL / Frequency</th>
-				<th></th>
-				<th>New Station Name</th>
-				<th></th>
-			</tr>
-			<tr>
-				<td>Station:</td>
-				<td><input type="text" id="urlfreq"></td>
-				<td><button onclick="onPlay()">Play</td>
-				<td><input type="text" id="namenew"></td>
-				<td><button onclick="onAdd()">Add</td>
-			</tr>
-		</table>
-		<p>Playlist</p>
+		<div class="current">
+			<div><span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></div>
+			<div><span id="sourceTitle"></span></div>
+		</div>
+		<div>
+			<span>Volume:</span>
+			<input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"/>
+		</div>
+		<div>
+			Display: 
+				<a onclick="onDisplay(0)">Normal</a> >
+				<a onclick="onDisplay(1)">Simple</a> >
+				<a onclick="onDisplay(2)">Time</a>
+				<a onclick="onSleep()" class="right red">Sleep!</a>				
+		</div>
+		<p>Play or Add New Station</p>
+		<div>
+			<span class="label">URL/Frequency: </span>
+			<input type="text" id="urlfreq"/><button onclick="onPlay()">Play</button>
+			<span class="label">Station Name: </span>
+			<input type="text" id="namenew"/><button onclick="onAdd()">Add</button>
+		</div>
+		<p>Preset Play List</p>
 		<table id="playlist">
 		</table>
 	</div>
@@ -62,12 +52,12 @@
 
 		var listIndex;
 		var listCache;
+		var sigvolt = document.getElementById('sigvolt')
 		var statusLabel = document.getElementById('status')
 		var sourceType = document.getElementById('sourceType')
 		var sourceName = document.getElementById('sourceName')
 		var sourceTitle = document.getElementById('sourceTitle')
 		var sourceVol = document.getElementById('sourceVol')
-		var sourceVolTitle = document.getElementById('sourceVolTitle')
 		var playlist = document.getElementById('playlist')
 		var urlfreq = document.getElementById('urlfreq')
 		var namenew = document.getElementById('namenew')
@@ -117,21 +107,20 @@
 				try {
 					const obj = JSON.parse(message.payloadString);
 					statusLabel.innerHTML = obj["status"];
+					sigvolt.innerHTML = parseFloat(obj["voltage"])+"v ("+obj["rssi"]+")";
+
 					sourceType.innerHTML = obj["source"].toUpperCase();
 					sourceName.innerHTML = obj["name"];
 					if (obj["title"]) sourceTitle.innerHTML = " (" + obj["title"] + ")";
 					else sourceTitle.innerHTML = "";
 
 					if (sourceType.innerHTML == "WEB") {
-						sourceVolTitle.innerHTML = "WEB Volume"
 						sourceVol.max = 21;
 						sourceVol.value = obj["webvol"];
 					} else if (sourceType.innerHTML == "FM") {
-						sourceVolTitle.innerHTML = "FM Volume"
 						sourceVol.max = 30;
 						sourceVol.value = obj["fmvol"];
 					} else {
-						sourceVolTitle.innerHTML = "Volume"
 						sourceVol.max = 0;
 						sourceVol.value = 0;
 					}
@@ -142,7 +131,7 @@
 				}
 			} else if (message.destinationName == (topic_prefix + "list")) {
 				if (message.payloadString == "-") {
-					listCache = "<tr><th>Channel No</th><th>Station Name</th><th>URL / Frequency</th><th></th><tr>";
+					listCache = "";
 					listIndex = 0;
 					playlist.classList.add('updating')
 				} else if (message.payloadString == "+") {
@@ -154,15 +143,14 @@
 					row = ""
 					if (parts[0] == "1") row += "<tr class='curr'><td>"
 					else row += "<tr><td>"
-					row += '<a onclick="onUp('+ listIndex +')">&#129093</a> '
+					row += '<a onclick="onUp('+ listIndex +')">▲</a><div>'
 					row += listIndex
-					row += ' <a onclick="onDown('+ listIndex +')">&#129095</a>'
-					row += "</td><td>"
-					row += ' <a onclick="onPlay(\'' + source + '\')">' + parts[3] + '</a>'
-					row += "</td><td>"
+					row += '</div><a onclick="onDown('+ listIndex +')">▼</a>'
+					row += '</td><td class="wide" onclick="onPlay(\'' + source + '\')"><div>' + parts[3] + '</div>'
+					row += "<span>"
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
-					row += "</td><td>"
-					row += '<a href="#" onclick="onRemove('+ listIndex +')">Remove</a>'
+					row += "</span></td><td>"
+					row += '<a href="#" onclick="onRemove('+ listIndex +')">Del</a>'
 					row += "</td></tr>"
 					listCache += row
 					listIndex++;

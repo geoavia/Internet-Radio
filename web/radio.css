@@ -1,33 +1,202 @@
-
 html {
-    background-color: lightgrey;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background-color: lightgrey;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .radio {
-    background-color: white;
-    border-style: solid;
-    border-radius: 10px;
-    margin: 10px;
-    padding: 10px;
+	background-color: white;
+	border-style: solid;
+	border-radius: 10px;
+	margin: 10px;
+	padding: 10px;
 	border-color: orange;
 }
 
+.radio>div {
+	padding: 10px;
+}
+
 .title {
-    display: block;
-    background-color: orange;
-    padding: 10px;
-    font-weight: bold;
+	display: block;
+	background-color: orange;
+	border-radius: 10px;
+	margin: 10px;
+	padding: 10px;
+	font-weight: bold;
 }
 
 .title>span {
-    background-color: orange;
-    padding: 10px;
-    font-weight: normal;
+	margin-left: 10px;
+	font-weight: normal;
 }
 
-.radio .curr {
-    background-color: orange
+input[type=text] {
+	height: 24px;
+	border-radius: 5px;
+	border: 1px solid royalblue;
+	width: 200px;
+}
+
+
+input[type=range] {
+	-webkit-appearance: none;
+	max-width: 7rem;
+	background: transparent;
+}
+
+input[type=range]:focus {
+	outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+	height: 0.9rem;
+	margin: 0;
+	cursor: pointer;
+	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
+}
+
+input[type=range]::-moz-range-track {
+	height: 0.9rem;
+	margin: 0;
+	cursor: pointer;
+	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
+}
+
+input[type=range]::-ms-track {
+	height: 0.9rem;
+	margin: 0;
+	cursor: pointer;
+	color: transparent;
+	border: 0;
+	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
+}
+
+input[type=range]::-ms-fill-lower {
+	background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 1.5rem;
+	width: 0.5rem;
+	background: #ffffff;
+	border: 1px solid;
+	margin-top: -5px;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+	box-shadow: 0px 0px 7px 3px orange;
+}
+
+input[type=range]::-moz-range-thumb {
+	-webkit-appearance: none;
+	height: 1.5rem;
+	width: 0.5rem;
+	background: #ffffff;
+	border: 1px solid;
+	border-radius: 3px;
+	cursor: pointer;
+	margin-top: 0;
+}
+
+input[type=range]:focus::-moz-range-thumb {
+	box-shadow: 0px 0px 7px 3px orange;
+}
+
+input[type=range]::-ms-thumb {
+	-webkit-appearance: none;
+	height: 0.75rem;
+	width: 0.5rem;
+	background: #ffffff;
+	border: 1px solid;
+	margin-top: 0;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+input[type=range]:focus::-ms-thumb {
+	box-shadow: 0px 0px 7px 3px orange;
+}
+
+button {
+	padding: 7px 20px;
+	margin-left: 10px;
+	border: 0;
+	cursor: pointer;
+	background: lightgray;
+	border-radius: 5px;
+	outline: 0;
+	box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
+	min-width: 100px;
+}
+
+button:hover {
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+button:active {
+	background: orange;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+p {
+	color: orange;
+	font-weight: bold;
+	font-size: 18px;
+	padding-left: 50px;
+	margin-bottom: 5px;
+}
+
+table {
+	border-spacing: 0;
+}
+
+th {
+	color: orange;
+	text-wrap: nowrap;
+}
+
+td.wide {
+	width: 100%;
+}
+
+td {
+	padding: 0px 5px 0px 5px;
+	text-align: left;
+	border-top: 1px solid orange;
+}
+
+td:nth-child(1) {
+	text-align: center;
+}
+
+td:nth-child(1) div {
+	border: 1px solid orange;
+	padding: 0px 6px 2px 5px;
+	border-radius: 12px;
+	background-color: white;
+	font-weight: bold;
+	color: darkorange;
+}
+
+td:nth-child(2) div {
+	font-weight: bold;
+	font-size: 16px;
+}
+
+td:nth-child(2) span {
+	font-size: 12px;
+}
+
+td:nth-child(2):hover {
+	color: darkorange;
+	cursor: pointer;
+}
+
+.curr {
+	background-color: orange;
 }
 
 a {
@@ -38,20 +207,6 @@ a {
 a:hover {
 	color: coral;
 	cursor: pointer;
-}
-
-button {
-	display: block;
-	padding: 4px 20px;
-	border: 0;
-	cursor: pointer;
-	background: lightgray;
-	border-radius: 5px;
-	outline: 0
-}
-
-button:active {
-	background: #cf181c;
 }
 
 .updating {
@@ -65,4 +220,19 @@ button:active {
 
 .hidden {
 	display: none;
+}
+
+.red {
+	color: red;
+}
+
+.label {
+	display: flex;
+	font-size: 14px;
+	color: darkorange;
+}
+
+.current {
+	border: 1px solid orange;
+	border-radius: 5px;
 }
