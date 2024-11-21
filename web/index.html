@@ -146,9 +146,9 @@
 					row = ""
 					if (parts[0] == "1") row += "<tr class='curr'><td>"
 					else row += "<tr><td>"
-					row += '<a onclick="onUp('+ listIndex +')">▲</a><div>'
+					row += '<img src="up.svg" onclick="onUp('+ listIndex +')"/><div>'
 					row += listIndex
-					row += '</div><a onclick="onDown('+ listIndex +')">▼</a>'
+					row += '</div><img src="down.svg" onclick="onDown('+ listIndex +')"/>'
 					row += '</td><td class="wide" onclick="onPlay(\'' + source + '\')"><div>' + parts[3] + '</div>'
 					row += "<span>"
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)

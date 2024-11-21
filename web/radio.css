@@ -170,6 +170,22 @@ td:nth-child(1) {
 	text-align: center;
 }
 
+td:nth-child(1) img
+{
+	width: 20px;
+	cursor: pointer;
+	margin: 0;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 5px;
+}
+
+td:nth-child(1) img:hover
+{
+	background-color: orange;
+	border: 2px solid white;
+}
+
 td:nth-child(1) div {
 	border: 1px solid orange;
 	padding: 0px 6px 2px 5px;
