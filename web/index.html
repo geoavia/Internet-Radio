@@ -9,7 +9,7 @@
 </head>
 
 <body>
-	<div class="title">WEB Radio:<span id="status">Loading...</span><span id="sigvolt"></span></div>
+	<div class="title">WEB / FM Radio:<span id="status">Loading...</span><span id="sigvolt"></span></div>
 	<div id="radio" class='radio hidden'>
 		<div class="current">
 			<div><span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></div>
@@ -50,6 +50,7 @@
 			onFailure: onFail
 		}
 
+		var newborn = true;
 		var listIndex;
 		var listCache;
 		var sigvolt = document.getElementById('sigvolt')
@@ -63,18 +64,12 @@
 		var namenew = document.getElementById('namenew')
 		var radio = document.getElementById('radio')
 
-		function getStatus() {
-			msg = '{ "status": 1 }';
+		function sendCommand(msg)
+		{
 			Message = new Paho.MQTT.Message(msg);
 			Message.destinationName = topic_prefix + "command";
 			client.send(Message);
-		}
-
-		function getList() {
-			msg = '{ "list": 1 }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			console.log(Message.destinationName+": "+Message.payloadString);
 		}
 
 		function onConnect() {
@@ -82,12 +77,9 @@
 			client.subscribe(topic_prefix + "status");
 			client.subscribe(topic_prefix + "list");
 			statusLabel.innerHTML = "Waiting for device..."
-			setTimeout(() => {
-				getStatus();	
-				setTimeout(() => {
-					getList();		
-				}, 1000);
-			}, 1000);
+
+			sendCommand('{ "status": 1 }');
+			sendCommand('{ "list": 1 }');
 		}
 		function onFail() {
 			statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
@@ -104,15 +96,18 @@
 			setTimeout(startConnect, 5000);
 		}
 		function onMessageArrived(message) {
-			show(radio)
 			console.log("Message arrived: " + message.payloadString);
+			if (newborn) {
+				show(radio);
+				newborn = false;
+			}
 			if (message.destinationName == (topic_prefix + "status")) {
 				try {
 					const obj = JSON.parse(message.payloadString);
-					statusLabel.innerHTML = obj["status"];
-					sigvolt.innerHTML = parseFloat(obj["voltage"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
+					statusLabel.innerHTML = "Ready";
+					sigvolt.innerHTML = parseFloat(obj["volt"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
 
-					sourceType.innerHTML = obj["source"].toUpperCase();
+					sourceType.innerHTML = obj["src"];
 					sourceName.innerHTML = obj["name"];
 					if (obj["title"]) sourceTitle.innerHTML = " (" + obj["title"] + ")";
 					else sourceTitle.innerHTML = "";
@@ -127,10 +122,10 @@
 						sourceVol.max = 0;
 						sourceVol.value = 0;
 					}
-
 				} catch (e) {
 					console.log(e)
-					statusLabel.innerHTML = message.payloadString
+					console.log(message.payloadString)
+					statusLabel.innerHTML = "Data Error"
 				}
 			} else if (message.destinationName == (topic_prefix + "list")) {
 				if (message.payloadString == "-") {
@@ -163,16 +158,10 @@
 
 		function onVolume() {
 			if (sourceType.innerHTML == "WEB") {
-				msg = '{ "webvol": ' + sourceVol.value + ' }';
-				Message = new Paho.MQTT.Message(msg);
-				Message.destinationName = topic_prefix + "command";
-				client.send(Message);
+				sendCommand('{ "webvol": ' + sourceVol.value + ' }');
 			} else if (sourceType.innerHTML == "FM") {
-				msg = '{ "fmvol": ' + sourceVol.value + ' }';
-				Message = new Paho.MQTT.Message(msg);
-				Message.destinationName = topic_prefix + "command";
-				client.send(Message);
-			}			
+				sendCommand('{ "fmvol": ' + sourceVol.value + ' }');
+			}
 		}
 
 		function onPlay(source) {
@@ -182,10 +171,7 @@
 				freq = parseFloat(source) * 10;
 				if (freq >= 870 && freq < 1080) source = freq;
 			}
-			msg = '{ "play": "' + source + '" }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "play": "' + source + '" }');
 		}
 
 		function onAdd() {
@@ -194,44 +180,27 @@
 			if (freq >= 870 && freq < 1080) source = freq;
 			msg = '{ "add": "' + source + '"';
 			msg += ', "name": "' + namenew.value +'" }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand(msg)
 		}
 
 		function onUp(index) {
-			msg = '{ "up": ' + index + ' }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "up": ' + index + ' }')
 		}
 
 		function onDown(index) {
-			msg = '{ "down": ' + index + ' }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "down": ' + index + ' }')
 		}
 
 		function onRemove(index) {
-			msg = '{ "remove": ' + index + ' }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "remove": ' + index + ' }')
 		}
 
 		function onDisplay(mode) {
-			msg = '{ "display": ' + mode + ' }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "display": ' + mode + ' }')
 		}
 
 		function onSleep() {
-			msg = '{ "sleep": 1 }';
-			Message = new Paho.MQTT.Message(msg);
-			Message.destinationName = topic_prefix + "command";
-			client.send(Message);
+			sendCommand('{ "sleep": 1 }')
 			statusLabel.innerHTML = "Going to sleep..."
 			setTimeout(() => { document.location.reload() }, 2000)
 		}

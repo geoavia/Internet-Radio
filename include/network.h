@@ -23,6 +23,8 @@ PubSubClient pubsub(mqtt_server, mqtt_port, espClient);
 unsigned long lastReconnectTime = 0;
 bool isConnected = false;
 
+#define NOWIFI_SHUTDOWN_TIMEOUT_MS 300000 // 5 min
+
 void shutdown()
 {
 	digitalWrite(PWR_PIN, LOW);
@@ -231,7 +233,11 @@ bool want_display_ui()
 		else tft.setTextColor(TFT_WHITE, TFT_BLACK);
 		tft.println("2. Display UI Setup");
 		
-		while (!GetRemoteCode() || IsRepeat) delay(10); 
+		while (!GetRemoteCode() || IsRepeat) 
+		{
+			delay(10); 
+			if (millis() > NOWIFI_SHUTDOWN_TIMEOUT_MS) shutdown();
+		}
 		if (IsCode(KEY_CH)) break;
 		else if (IsCode(KEY_PLAYPAUSE)) shutdown();
 		else dui = !dui;
@@ -276,8 +282,11 @@ bool get_network_ui()
 			DisplayRSSI(5, 20+(y+1)*16, WiFi.RSSI(y0 + y), ((yc == y) ? TFT_BLACK : TFT_WHITE));
 		}
 		
-
-		while (!GetRemoteCode() || IsRepeat) delay(10); 
+		while (!GetRemoteCode() || IsRepeat)
+		{
+			delay(10);
+			if (millis() > NOWIFI_SHUTDOWN_TIMEOUT_MS) shutdown();
+		}
 		if (IsCode(KEY_PLUS) || IsCode(KEY_NEXT) || IsCode (KEY_CH_PLUS))
 		{
 			if (yc > 0) yc--;
@@ -380,6 +389,7 @@ bool get_network_ui()
 				if (IsCode(KEY_PLAYPAUSE)) shutdown();
 			}
 			delay(100);
+			if (millis() > NOWIFI_SHUTDOWN_TIMEOUT_MS) shutdown();
 		}
 	}
 
@@ -485,18 +495,6 @@ void start_ap_server()
 	tft.printf("IP: %s\n", WiFi.softAPIP().toString().c_str());	
 }
 
-String getStatus()
-{
-	static char r[32];
-	ulong m = millis()/60000;
-	uint h = m/60;
-	uint d = h/24;
-	if (d > 0) sprintf(r, "Ready (%d day %d hr %ld min)", d, h%24, m%60);
-	else if (h > 0) sprintf(r, "Ready (%d hr %ld min)", h%24, m%60);
-	else sprintf(r, "Ready (%ld min)", m%60);
-	return String(r);
-}
-
 void initTopics()
 {
 	strcpy(topic_command, MQTT_ID);
@@ -510,22 +508,17 @@ void initTopics()
 
 void publishStatus()
 {
-	String json = "{ \"status\":\"" +  getStatus() + "\"";
-	json += ",\"voltage\":";
+	String json = "{ \"volt\":";
 	json += getVbat();
-	json += ",\"ssid\":\"";
-	json += WiFi.SSID();
-	json += "\",\"rssi\":";
+	json += ",\"rssi\":";
 	json += WiFi.RSSI();
 	json += ",\"webvol\":";
 	json += WebVolume;
 	json += ",\"fmvol\":";
 	json += FMVolume;
 	if (CurrentRadio == WEB_RADIO) {
-		json += ",\"source\":\"web\"";
-		json += ",\"url\":\"";
-		json += WebStation.url;
-		json += "\",\"name\":\"";
+		json += ",\"src\":\"WEB\"";
+		json += ",\"name\":\"";
 		json += WebStation.name;
 		json += "\",\"title\":\"";
 		json += WebStation.title;
@@ -533,15 +526,15 @@ void publishStatus()
 	} 
 	else 
 	{
-		json += ",\"source\":\"fm\"";
-		json += ",\"freq\":";
-		json += FMStation.freq;
+		json += ",\"src\":\"FM\"";
 		json += ",\"name\":\"";
 		json += FMStation.name;
 		json += "\"";
 	}
 	json += "}";
 	pubsub.publish(topic_status, json.c_str());
+	Serial.print("publish: ");
+	Serial.println(topic_status);
 }
 
 void publishList()
@@ -560,6 +553,8 @@ void publishList()
 		pubsub.publish(topic_list, line.c_str());
 	}
 	pubsub.publish(topic_list, "+");
+	Serial.print("publish: ");
+	Serial.println(topic_list);
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -709,7 +704,11 @@ void connect_network()
 			{
 				// run web based Wifi setup
 				start_ap_server();
-				while (curnet.ssid == "") server.handleClient();
+				while (curnet.ssid == "") 
+				{
+					server.handleClient();
+					if (millis() > NOWIFI_SHUTDOWN_TIMEOUT_MS) shutdown();
+				}
 				server.handleClient();
 				server.stop();
 				WiFi.mode(WIFI_STA);
@@ -747,6 +746,7 @@ void NetworkInit()
 
 void NetworkJob()
 {
+	if (!WiFi.isConnected()) WiFi.reconnect();
 	if (!pubsub.connected()) 
 	{
 		isConnected = false;
