@@ -82,9 +82,12 @@
 			client.subscribe(topic_prefix + "status");
 			client.subscribe(topic_prefix + "list");
 			statusLabel.innerHTML = "Waiting for device..."
-
-			getStatus();
-			getList();
+			setTimeout(() => {
+				getStatus();	
+				setTimeout(() => {
+					getList();		
+				}, 1000);
+			}, 1000);
 		}
 		function onFail() {
 			statusLabel.innerHTML = "Failed to connect, trying again in 5 sec..."
