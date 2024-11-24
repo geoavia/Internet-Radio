@@ -508,29 +508,31 @@ void initTopics()
 
 void publishStatus()
 {
-	String json = "{ \"volt\":";
+	uint src = CurrentRadio;
+	String json = "{ \"vlt\":";
 	json += getVbat();
 	json += ",\"rssi\":";
 	json += WiFi.RSSI();
-	json += ",\"webvol\":";
-	json += WebVolume;
-	json += ",\"fmvol\":";
-	json += FMVolume;
+	json += ",\"vol\":";
 	if (CurrentRadio == WEB_RADIO) {
-		json += ",\"src\":\"WEB\"";
+		json += WebVolume;
 		json += ",\"name\":\"";
 		json += WebStation.name;
 		json += "\",\"title\":\"";
 		json += WebStation.title;
 		json += "\"";
+		if (GetStationIndexByUrl(WebStation.url) != -1) src += 10;
 	} 
 	else 
 	{
-		json += ",\"src\":\"FM\"";
+		json += FMVolume;
 		json += ",\"name\":\"";
 		json += FMStation.name;
 		json += "\"";
+		if (GetStationIndexByFreq(FMStation.freq) != -1) src += 10;
 	}
+	json += ",\"src\":";
+	json += src;
 	json += "}";
 	pubsub.publish(topic_status, json.c_str());
 	Serial.print("publish: ");
@@ -614,20 +616,54 @@ void callback(char *topic, byte *payload, unsigned int length)
 		}
 		if (!doc["add"].isNull())
 		{
-			String src = doc["add"];
-			uint freq = src.toInt();
+			uint index = doc["add"];
+			if (CurrentRadio == WEB_RADIO)
+			{
+				if (GetStationIndexByUrl(WebStation.url) == -1)
+				{
+					AddStation(0, WebStation.url, WebStation.name);
+					SaveRadioStations();
+					publishList();
+				}
+			}
+			else
+			{
+				if (GetStationIndexByFreq(FMStation.freq) == -1)
+				{
+					AddStation(FMStation.freq, "", FMStation.name);
+					SaveRadioStations();
+					publishList();
+				}
+			}
+		}
+		if (!doc["rename"].isNull())
+		{
+			int index = doc["rename"];
 			String name = doc["name"];
 			name.trim();
-			if (name == "") name = "Station " + n_stations;
-			if (freq >= MIN_FREQ && freq <= MAX_FREQ)
+			if (index < 0)
 			{
-				AddStation(freq, "", name);
-				SaveRadioStations();
-				publishList();
+				if (CurrentRadio == WEB_RADIO)
+				{
+					WebStation.name = name;
+					index = GetStationIndexByUrl(WebStation.url);
+				}
+				else
+				{
+					FMStation.name = name;
+					index = GetStationIndexByFreq(FMStation.freq);
+				}
+				publishStatus();
+				if (index >= 0)
+				{
+					RenameStation(index, name);
+					SaveRadioStations();
+					publishList();
+				}
 			}
-			else if (src.length() > 0)
+			else 
 			{
-				AddStation(0, src, name);
+				RenameStation(index, name);
 				SaveRadioStations();
 				publishList();
 			}

@@ -255,6 +255,11 @@ a:hover {
 	color: darkorange;
 }
 
+.label2 {
+	font-weight: 500;
+	color: darkorange;
+}
+
 .current {
 	border: 1px solid orange;
 	border-radius: 5px;

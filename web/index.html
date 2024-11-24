@@ -12,7 +12,7 @@
 	<div class="title">WEB / FM Radio:<span id="status">Loading...</span><span id="sigvolt"></span></div>
 	<div id="radio" class='radio hidden'>
 		<div class="current">
-			<div><span id="sourceType"></span> Station: <b><span id="sourceName"></span></b></div>
+			<div><span id="sourceType" class="label2"></span><span class="label2"> Station: </span><b><span id="sourceName"></span></b></div>
 			<div><span id="sourceTitle"></span></div>
 		</div>
 		<div>
@@ -24,7 +24,7 @@
 				<a onclick="onDisplay(0)">Normal</a>,
 				<a onclick="onDisplay(1)">Simple</a>,
 				<a onclick="onDisplay(2)">Time</a>
-				<a onclick="onSleep()" class="right red">Sleep!</a>				
+				<a onclick="onSleep()" class="right red">Sleep!</a>
 		</div>
 		<p>Play or Add New Station</p>
 		<div>
@@ -105,23 +105,18 @@
 				try {
 					const obj = JSON.parse(message.payloadString);
 					statusLabel.innerHTML = "Ready";
-					sigvolt.innerHTML = parseFloat(obj["volt"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
-
-					sourceType.innerHTML = obj["src"];
+					sigvolt.innerHTML = parseFloat(obj["vlt"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
+					src = obj["src"];
 					sourceName.innerHTML = obj["name"];
-					if (obj["title"]) sourceTitle.innerHTML = " (" + obj["title"] + ")";
-					else sourceTitle.innerHTML = "";
-
-					if (sourceType.innerHTML == "WEB") {
+					sourceTitle.innerHTML = (obj["title"] ? obj["title"] : "");
+					if (src%10 == 1) {
+						sourceType.innerHTML = "WEB"
 						sourceVol.max = 21;
-						sourceVol.value = obj["webvol"];
-					} else if (sourceType.innerHTML == "FM") {
-						sourceVol.max = 30;
-						sourceVol.value = obj["fmvol"];
 					} else {
-						sourceVol.max = 0;
-						sourceVol.value = 0;
+						sourceType.innerHTML = "FM"
+						sourceVol.max = 30;
 					}
+					sourceVol.value = obj["vol"];
 				} catch (e) {
 					console.log(e)
 					console.log(message.payloadString)
@@ -144,7 +139,8 @@
 					row += '<img src="up.svg" onclick="onUp('+ listIndex +')"/><div>'
 					row += listIndex
 					row += '</div><img src="down.svg" onclick="onDown('+ listIndex +')"/>'
-					row += '</td><td class="wide" onclick="onPlay(\'' + source + '\')"><div>' + parts[3] + '</div>'
+					row += '</td><td class="wide" ondblclick="onRename(' + listIndex + ')"'
+					row += ' onclick="onPlay(\'' + source + '\')"><div>' + parts[3] + '</div>'
 					row += "<span>"
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
 					row += "</span></td><td>"
@@ -175,12 +171,11 @@
 		}
 
 		function onAdd() {
-			source = urlfreq.value
-			freq = parseFloat(source) * 10;
-			if (freq >= 870 && freq < 1080) source = freq;
-			msg = '{ "add": "' + source + '"';
-			msg += ', "name": "' + namenew.value +'" }';
-			sendCommand(msg)
+			sendCommand('{ "add": 1 }')
+		}
+
+		function onRename(index) {
+			console.log(event.target)
 		}
 
 		function onUp(index) {

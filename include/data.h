@@ -36,13 +36,19 @@ void AddStation(uint freq, String url, String name = "")
 	if (n_stations < MAX_STATIONS)
 		if ((freq >= MIN_FREQ && freq <= MAX_FREQ) || url.length() > 0)
 		{
-			url.trim();
-			name.trim();
 			Stations[n_stations].freq = freq;
 			Stations[n_stations].url = url;
 			Stations[n_stations].name = name;
 			n_stations++;
 		}
+}
+
+void RenameStation(uint index, String name)
+{
+	if (index < n_stations)
+	{
+		Stations[index].name = name;
+	}
 }
 
 void ShiftStation(uint index, int delta)
@@ -115,9 +121,9 @@ void SaveRadioStations()
 	file.close();
 }
 
-bool IsType(int i, RADIO_TYPE t)
+bool IsType(uint i, RADIO_TYPE t)
 {
-	return ((t == FM_RADIO && Stations[i].freq > 0) || (t == WEB_RADIO && Stations[i].freq == 0));
+	return (i < n_stations && ((t == FM_RADIO && Stations[i].freq > 0) || (t == WEB_RADIO && Stations[i].freq == 0)));
 }
 
 int GetStationIndexByUrl(String url)
