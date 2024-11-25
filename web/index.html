@@ -113,7 +113,7 @@
 					statusLabel.innerHTML = "Ready";
 					sigvolt.innerHTML = parseFloat(obj["vlt"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
 					src = obj["src"];
-					renameBut.classList.add('hidden')
+					if (document.activeElement !== sourceName) renameBut.classList.add('hidden')
 					sourceName.tag = 0;
 					sourceName.value = obj["name"];
 					sourceTitle.innerHTML = (obj["title"] ? obj["title"] : "");
@@ -149,11 +149,12 @@
 					row += '<img src="up.svg" onclick="onUp('+ listIndex +')"/><div>'
 					row += listIndex
 					row += '</div><img src="down.svg" onclick="onDown('+ listIndex +')"/>'
-					row += '</td><td class="wide" onclick="onPlay(\'' + source + '\')">'
-					row += '<div>' + parts[3] + '</div><span>'
+					row += '</td><td class="wide"'
+					if (parts[0] == "0") row += ' onclick="onPlay(\'' + source + '\')"'
+					row += '><div>' + parts[3] + '</div><span>'
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
 					row += "</span></td><td>"
-					row += '<a href="#" onclick="onRemove('+ listIndex +')">Del</a>'
+					row += '<img src="remove.svg" onclick="onRemove('+ listIndex +')"/>'
 					row += "</td></tr>"
 					listCache += row
 					listIndex++;
