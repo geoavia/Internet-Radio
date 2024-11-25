@@ -23,9 +23,31 @@ html {
 	font-weight: bold;
 }
 
+.title img {
+	position: absolute;
+	right: 14px;
+	top: 14px;
+	height: 30px;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.title img:hover {
+	background-color: white;
+	border-radius: 10px;
+}
+
 .title>span {
-	margin-left: 10px;
+	margin-left: 5px;
 	font-weight: normal;
+}
+
+#sigvolt {
+	font-size: 12px;
+	position: absolute;
+	top: 12px;
+	right: 50px;
+	text-align: right;
 }
 
 input[type=text] {
@@ -231,14 +253,6 @@ a:hover {
 
 .right {
 	float: right;
-}
-
-#sigvolt {
-	font-size: 12px;
-	position: absolute;
-	top: 14px;
-	right: 25px;
-	text-align: right;
 }
 
 .hidden {

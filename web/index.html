@@ -9,11 +9,16 @@
 </head>
 
 <body>
-	<div class="title">WEB / FM Radio:<span id="status">Loading...</span><span id="sigvolt"></span></div>
+	<div class="title"><img id="sleep" src="off.svg" onclick="onSleep()" class="hidden"/>WEB Radio<span id="status">Loading...</span><span id="sigvolt"></span></div>
 	<div id="radio" class='radio hidden'>
+		<span class="right">Rename</span>
+		<span class="label">Now Playing</span>
 		<div class="current">
 			<div><span id="sourceType" class="label2"></span><span class="label2"> Station: </span><b><span id="sourceName"></span></b></div>
 			<div><span id="sourceTitle"></span></div>
+			<div>
+				<input title="Station Name" type="text" id="namenew"/>
+			</div>
 		</div>
 		<div>
 			<span>Volume:</span>
@@ -24,14 +29,12 @@
 				<a onclick="onDisplay(0)">Normal</a>,
 				<a onclick="onDisplay(1)">Simple</a>,
 				<a onclick="onDisplay(2)">Time</a>
-				<a onclick="onSleep()" class="right red">Sleep!</a>
+				
 		</div>
-		<p>Play or Add New Station</p>
+		<p>New Station</p>
 		<div>
-			<span class="label">URL/Frequency </span>
+			<span class="label">URL/Frequency</span>
 			<input title="URL/Frequency" type="text" id="urlfreq"/><button onclick="onPlay()">Play</button>
-			<span class="label">Station Name </span>
-			<input title="Station Name" type="text" id="namenew"/><button onclick="onAdd()">Add</button>
 		</div>
 		<p>Preset Play List</p>
 		<table id="playlist">
@@ -63,6 +66,8 @@
 		var urlfreq = document.getElementById('urlfreq')
 		var namenew = document.getElementById('namenew')
 		var radio = document.getElementById('radio')
+		var sleepBut = document.getElementById('sleep')
+		var addBut = document.getElementById('add')
 
 		function sendCommand(msg)
 		{
@@ -99,6 +104,7 @@
 			console.log("Message arrived: " + message.payloadString);
 			if (newborn) {
 				show(radio);
+				show(sleepBut);
 				newborn = false;
 			}
 			if (message.destinationName == (topic_prefix + "status")) {
