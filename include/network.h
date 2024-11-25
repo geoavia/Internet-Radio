@@ -624,6 +624,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 					AddStation(0, WebStation.url, WebStation.name);
 					SaveRadioStations();
 					publishList();
+					publishStatus();
 				}
 			}
 			else
@@ -633,6 +634,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 					AddStation(FMStation.freq, "", FMStation.name);
 					SaveRadioStations();
 					publishList();
+					publishStatus();
 				}
 			}
 		}
@@ -688,6 +690,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 			RemoveStation(index);
 			SaveRadioStations();
 			publishList();
+			publishStatus();
 		}
 		if (!doc["sleep"].isNull())
 		{

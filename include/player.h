@@ -218,6 +218,8 @@ void SwitchOutput(RADIO_TYPE op)
 
 void PlayWebStation(String url, String name)
 {
+	url.replace("http://", "");
+	url.replace("https://", "");
 	url.trim();
 	name.trim();
 	SwitchOutput(WEB_RADIO);

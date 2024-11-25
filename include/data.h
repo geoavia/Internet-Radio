@@ -14,6 +14,8 @@ void LoadRadioStations()
 		{
 			Stations[n_stations].freq = file.readStringUntil(',').toInt();
 			Stations[n_stations].url = file.readStringUntil(',');
+			Stations[n_stations].url.replace("http://", "");
+			Stations[n_stations].url.replace("https://", "");
 			Stations[n_stations].url.trim();
 			Stations[n_stations].name = file.readStringUntil('\n');
 			Stations[n_stations].name.trim();
