@@ -9,16 +9,16 @@
 </head>
 
 <body>
-	<div class="title"><img id="sleep" src="off.svg" onclick="onSleep()" class="hidden"/>WEB Radio<span id="status">Loading...</span><span id="sigvolt"></span></div>
+	<div class="header"><img id="sleep" src="off.svg" onclick="onSleep()" class="hidden"/>WEB Radio<span id="status">Loading...</span><span id="sigvolt"></span></div>
 	<div id="radio" class='radio hidden'>
-		<span class="right">Rename</span>
-		<span class="label">Now Playing</span>
+		<span class="label">Now Playing:&nbsp;<b><span id="sourceType"></span>&nbsp;Station</b></span>
 		<div class="current">
-			<div><span id="sourceType" class="label2"></span><span class="label2"> Station: </span><b><span id="sourceName"></span></b></div>
-			<div><span id="sourceTitle"></span></div>
 			<div>
-				<input title="Station Name" type="text" id="namenew"/>
+				<input title="Station Name" type="text" id="sourceName" onchange="onNameChange()" onfocus="onNameStart()" onblur="onNameEnd()"/>
+				<img id="rename" src="edit.svg" onclick="onRename()" class="hidden"/>
+				<img id="add" src="add.svg" onclick="onAdd()" class="hidden"/>
 			</div>
+			<div><span id="sourceTitle"></span></div>
 		</div>
 		<div>
 			<span>Volume:</span>
@@ -64,10 +64,10 @@
 		var sourceVol = document.getElementById('sourceVol')
 		var playlist = document.getElementById('playlist')
 		var urlfreq = document.getElementById('urlfreq')
-		var namenew = document.getElementById('namenew')
 		var radio = document.getElementById('radio')
 		var sleepBut = document.getElementById('sleep')
 		var addBut = document.getElementById('add')
+		var renameBut = document.getElementById('rename')
 
 		function sendCommand(msg)
 		{
@@ -103,8 +103,8 @@
 		function onMessageArrived(message) {
 			console.log("Message arrived: " + message.payloadString);
 			if (newborn) {
-				show(radio);
-				show(sleepBut);
+				radio.classList.remove('hidden')
+				sleepBut.classList.remove('hidden')
 				newborn = false;
 			}
 			if (message.destinationName == (topic_prefix + "status")) {
@@ -113,7 +113,9 @@
 					statusLabel.innerHTML = "Ready";
 					sigvolt.innerHTML = parseFloat(obj["vlt"])+"v<br/>RSSI: "+obj["rssi"]+"dBm";
 					src = obj["src"];
-					sourceName.innerHTML = obj["name"];
+					renameBut.classList.add('hidden')
+					sourceName.tag = 0;
+					sourceName.value = obj["name"];
 					sourceTitle.innerHTML = (obj["title"] ? obj["title"] : "");
 					if (src%10 == 1) {
 						sourceType.innerHTML = "WEB"
@@ -122,6 +124,8 @@
 						sourceType.innerHTML = "FM"
 						sourceVol.max = 30;
 					}
+					if (src < 10) addBut.classList.remove('hidden')
+					else addBut.classList.add('hidden')
 					sourceVol.value = obj["vol"];
 				} catch (e) {
 					console.log(e)
@@ -145,9 +149,8 @@
 					row += '<img src="up.svg" onclick="onUp('+ listIndex +')"/><div>'
 					row += listIndex
 					row += '</div><img src="down.svg" onclick="onDown('+ listIndex +')"/>'
-					row += '</td><td class="wide" ondblclick="onRename(' + listIndex + ')"'
-					row += ' onclick="onPlay(\'' + source + '\')"><div>' + parts[3] + '</div>'
-					row += "<span>"
+					row += '</td><td class="wide" onclick="onPlay(\'' + source + '\')">'
+					row += '<div>' + parts[3] + '</div><span>'
 					row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
 					row += "</span></td><td>"
 					row += '<a href="#" onclick="onRemove('+ listIndex +')">Del</a>'
@@ -180,8 +183,23 @@
 			sendCommand('{ "add": 1 }')
 		}
 
-		function onRename(index) {
-			console.log(event.target)
+		function onNameStart() {
+			renameBut.classList.remove('hidden')
+		}
+
+		function onNameEnd() {
+			sendCommand('{ "status": 1 }');
+		}
+
+		function onNameChange()
+		{
+			sourceName.tag = 1;
+		}
+
+		function onRename() {
+			sourceName.value = sourceName.value.trim();
+			if (sourceName.tag == 1 && sourceName.value.length > 0) sendCommand('{ "rename": -1, "name": "' + sourceName.value + '" }');
+			//console.log(event.target)
 		}
 
 		function onUp(index) {
@@ -213,13 +231,6 @@
 			client.onMessageArrived = onMessageArrived;
 			client.connect(mqtt_options);
 		}
-
-		const hide = el => {
-			el.classList.add('hidden')
-		}
-		const show = el => {
-			el.classList.remove('hidden')
-		}		
 
 		startConnect();
 

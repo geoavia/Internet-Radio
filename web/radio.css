@@ -3,18 +3,11 @@ html {
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.radio {
-	background-color: white;
-	border: 2px solid orange;
-	border-radius: 10px;
-	padding: 10px;
-}
-
 .radio>div {
 	margin-bottom: 10px;
 }
 
-.title {
+.header {
 	display: block;
 	background-color: orange;
 	border-radius: 10px;
@@ -23,21 +16,20 @@ html {
 	font-weight: bold;
 }
 
-.title img {
+.header img {
 	position: absolute;
 	right: 14px;
 	top: 14px;
 	height: 30px;
-	vertical-align: middle;
 	cursor: pointer;
 }
 
-.title img:hover {
+.header img:hover {
 	background-color: white;
 	border-radius: 10px;
 }
 
-.title>span {
+.header>span {
 	margin-left: 5px;
 	font-weight: normal;
 }
@@ -50,13 +42,19 @@ html {
 	text-align: right;
 }
 
+.radio {
+	background-color: white;
+	border: 2px solid orange;
+	border-radius: 10px;
+	padding: 10px;
+}
+
 input[type=text] {
 	height: 24px;
 	border-radius: 5px;
 	border: 1px solid royalblue;
 	width: 200px;
 }
-
 
 input[type=range] {
 	-webkit-appearance: none;
@@ -161,14 +159,6 @@ button:active {
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
-p {
-	color: orange;
-	font-weight: bold;
-	font-size: 18px;
-	padding-left: 50px;
-	margin-bottom: 5px;
-}
-
 table {
 	border-spacing: 0;
 }
@@ -236,6 +226,14 @@ td:nth-child(2):hover {
 	background-color: orange;
 }
 
+p {
+	color: orange;
+	font-weight: bold;
+	font-size: 18px;
+	padding-left: 50px;
+	margin-bottom: 5px;
+}
+
 a {
 	text-decoration: none;
 	color: royalblue;
@@ -277,5 +275,45 @@ a:hover {
 .current {
 	border: 1px solid orange;
 	border-radius: 5px;
-	padding: 10px;
+	padding: 5px;
 }
+
+#sourceTitle {
+	display: block;
+	padding: 4px;
+}
+
+#sourceName {
+	border: 0;
+	padding: 4px;
+	font-size: 18px;
+	width: 80%;
+	font-weight: bold;
+}
+
+#rename {
+	position: relative;
+	float: right;
+	height: 20px;
+	padding: 6px;
+	cursor: pointer;
+}
+
+#rename:hover {
+	background-color: orange;
+	border-radius: 5px;
+}
+
+#add {
+	position: relative;
+	float: right;
+	height: 20px;
+	padding: 6px;
+	cursor: pointer;
+}
+
+#add:hover {
+	background-color: orange;
+	border-radius: 5px;
+}
+
