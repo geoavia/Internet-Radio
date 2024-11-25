@@ -209,11 +209,11 @@ td:nth-child(1) div {
 
 td:nth-child(2) div {
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 18px;
 }
 
 td:nth-child(2) span {
-	font-size: 12px;
+	font-size: 14px;
 	word-break: break-all;
 }
 
@@ -304,7 +304,7 @@ a:hover {
 #sourceName {
 	border: 0;
 	padding: 4px;
-	font-size: 16px;
+	font-size: 18px;
 	width: 80%;
 	font-weight: bold;
 }
