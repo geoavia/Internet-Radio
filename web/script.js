@@ -126,7 +126,7 @@ function onMessageArrived(message) {
             row += '><div>' + parts[3] + '</div><span>'
             row += (parts[1] == "0") ? (parts[2]) : (parseFloat(parts[1]) / 10)
             row += "</span></td><td>"
-            row += '<img src="remove.svg" onclick="onRemove(' + listIndex + ')"/>'
+            row += '<img src="remove.svg" onclick="onRemove(' + listIndex + ',this)"/>'
             row += "</td></tr>"
             listCache += row
             listIndex++;
@@ -181,8 +181,8 @@ function onDown(index) {
     sendCommand('{ "down": ' + index + ' }')
 }
 
-function onRemove(index) {
-    if (confirm("Remove from list?")) sendCommand('{ "remove": ' + index + ' }')
+function onRemove(index, obj) {
+    if (confirm('Remove "'+obj.parentNode.previousSibling.childNodes[0].innerHTML+'"?')) sendCommand('{ "remove": ' + index + ' }')
 }
 
 function onDisplay(mode) {
