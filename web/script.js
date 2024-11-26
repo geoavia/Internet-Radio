@@ -182,7 +182,7 @@ function onDown(index) {
 }
 
 function onRemove(index) {
-    sendCommand('{ "remove": ' + index + ' }')
+    if (confirm("Remove from list?")) sendCommand('{ "remove": ' + index + ' }')
 }
 
 function onDisplay(mode) {
