@@ -190,9 +190,11 @@ function onDisplay(mode) {
 }
 
 function onSleep() {
-    sendCommand('{ "sleep": 1 }')
-    statusLabel.innerHTML = "Going to sleep..."
-    setTimeout(() => { document.location.reload() }, 2000)
+	if (confirm('Turn off radio?')) {
+		sendCommand('{ "sleep": 1 }')
+		statusLabel.innerHTML = "Going to sleep..."
+		setTimeout(() => { document.location.reload() }, 2000)
+	}
 }
 
 function startConnect() {

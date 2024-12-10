@@ -3,6 +3,12 @@ html {
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body {
+	max-width: 600px;
+	min-width: 320px;
+	margin: auto;
+}
+
 .radio>div {
 	margin-bottom: 10px;
 }
@@ -11,22 +17,10 @@ html {
 	display: block;
 	background-color: orange;
 	border-radius: 10px;
-	margin-bottom: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	padding: 10px;
 	font-weight: bold;
-}
-
-.header img {
-	position: absolute;
-	right: 14px;
-	top: 14px;
-	height: 30px;
-	cursor: pointer;
-}
-
-.header img:hover {
-	background-color: white;
-	border-radius: 10px;
 }
 
 .header>span {
@@ -34,12 +28,26 @@ html {
 	font-weight: normal;
 }
 
+#sleep {
+	float: right;
+	position: relative;
+	top: -4px;
+	height: 30px;
+	cursor: pointer;
+}
+
+#sleep:hover {
+	background-color: white;
+	border-radius: 10px;
+}
+
 #sigvolt {
+	float: right;
+	position: relative;
+	top: -5px;
 	font-size: 12px;
-	position: absolute;
-	top: 12px;
-	right: 50px;
 	text-align: right;
+	margin-right: 5px;
 }
 
 .radio {
@@ -49,93 +57,75 @@ html {
 	padding: 10px;
 }
 
+.volume {
+	text-align: center;
+	color: darkorange;
+}
+
+.volume img:nth-child(1)
+{
+	height: 20px;
+	float: left;
+}
+
+.volume img:nth-child(2)
+{
+	height: 20px;
+	float: right;
+}
+
 input[type=text] {
 	height: 24px;
 	border-radius: 5px;
-	border: 1px solid royalblue;
+	border: 1px solid orange;
 	width: 200px;
 }
 
-input[type=range] {
-	-webkit-appearance: none;
-	max-width: 7rem;
-	background: transparent;
-}
-
-input[type=range]:focus {
-	outline: none;
-}
-
-input[type=range]::-webkit-slider-runnable-track {
-	height: 0.9rem;
+input[type='range'] {
 	margin: 0;
-	cursor: pointer;
-	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
-}
-
-input[type=range]::-moz-range-track {
-	height: 0.9rem;
-	margin: 0;
-	cursor: pointer;
-	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
-}
-
-input[type=range]::-ms-track {
-	height: 0.9rem;
-	margin: 0;
-	cursor: pointer;
-	color: transparent;
-	border: 0;
-	background: linear-gradient(to bottom right, transparent 50%, royalblue 50%);
-}
-
-input[type=range]::-ms-fill-lower {
-	background: transparent;
-}
-
-input[type=range]::-webkit-slider-thumb {
+	height: 30px;
+	overflow: hidden;
+	width: 100%;
 	-webkit-appearance: none;
-	height: 1.5rem;
-	width: 0.5rem;
-	background: #ffffff;
-	border: 1px solid;
-	margin-top: -5px;
-	border-radius: 3px;
+	background-color: lightgray;
 	cursor: pointer;
+	border-radius: 10px;
+	border: 1px solid transparent;
 }
 
-input[type=range]:focus::-webkit-slider-thumb {
-	box-shadow: 0px 0px 7px 3px orange;
+input[type='range']:hover {
+	border: 1px solid orange;
 }
 
-input[type=range]::-moz-range-thumb {
+input[type='range']::-webkit-slider-runnable-track {
 	-webkit-appearance: none;
-	height: 1.5rem;
-	width: 0.5rem;
-	background: #ffffff;
-	border: 1px solid;
-	border-radius: 3px;
-	cursor: pointer;
-	margin-top: 0;
+	color: orange;
+	margin-top: -1px;
 }
 
-input[type=range]:focus::-moz-range-thumb {
-	box-shadow: 0px 0px 7px 3px orange;
-}
-
-input[type=range]::-ms-thumb {
+input[type='range']::-webkit-slider-thumb {
+	width: 10px;
 	-webkit-appearance: none;
-	height: 0.75rem;
-	width: 0.5rem;
-	background: #ffffff;
-	border: 1px solid;
-	margin-top: 0;
-	border-radius: 3px;
-	cursor: pointer;
+	height: 10px;
+	background: orange;
+	box-shadow: -600px 0 0 600px orange;
 }
 
-input[type=range]:focus::-ms-thumb {
-	box-shadow: 0px 0px 7px 3px orange;
+input[type="range"]::-moz-range-progress {
+	background-color: orange;
+}
+
+input[type="range"]::-moz-range-track {
+	background-color: lightgray;
+}
+
+/* IE*/
+input[type="range"]::-ms-fill-lower {
+	background-color: royalblue;
+}
+
+input[type="range"]::-ms-fill-upper {
+	background-color: lightgray;
 }
 
 button {
@@ -182,8 +172,7 @@ td:nth-child(1) {
 	text-align: center;
 }
 
-td:nth-child(1) img
-{
+td:nth-child(1) img {
 	width: 20px;
 	cursor: pointer;
 	margin: 0;
@@ -192,8 +181,7 @@ td:nth-child(1) img
 	border-radius: 5px;
 }
 
-td:nth-child(1) img:hover
-{
+td:nth-child(1) img:hover {
 	background-color: orange;
 	border-color: white;
 }
@@ -334,4 +322,3 @@ a:hover {
 	background-color: orange;
 	border-radius: 5px;
 }
-

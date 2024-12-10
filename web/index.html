@@ -10,7 +10,11 @@
 </head>
 
 <body onload="onLoad()">
-	<div class="header"><img id="sleep" src="off.svg" onclick="onSleep()" class="hidden"/>WEB Radio<span id="status">Loading...</span><span id="sigvolt"></span></div>
+	<div class="header">
+		WEB Radio<span id="status">Loading...</span>
+		<img id="sleep" src="off.svg" onclick="onSleep()" class="hidden"/>
+		<span id="sigvolt"></span>
+	</div>
 	<div id="radio" class='radio hidden'>
 		<span class="label">Now Playing:&nbsp;<b><span id="sourceType"></span>&nbsp;Station</b></span>
 		<div class="current">
@@ -21,14 +25,15 @@
 			</div>
 			<div><span id="sourceTitle"></span></div>
 		</div>
-		<div>
-			Volume: 
+		<div class="volume">Volume
+			<img src="vminus.svg" />
+			<img src="vplus.svg" />
 			<input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"/>
 		</div>
 		<div>
-			Display: 
-			<a onclick="onDisplay(0)">Normal</a>,
-			<a onclick="onDisplay(1)">Simple</a>,
+			Display:&nbsp;
+			<a onclick="onDisplay(0)">Normal</a>,&nbsp;
+			<a onclick="onDisplay(1)">Simple</a>,&nbsp;
 			<a onclick="onDisplay(2)">Time</a>
 		</div>
 		<p>New Station</p>
