@@ -31,7 +31,7 @@ body {
 #sleep {
 	float: right;
 	position: relative;
-	top: -4px;
+	top: -5px;
 	height: 30px;
 	cursor: pointer;
 }
@@ -78,7 +78,7 @@ input[type=text] {
 	height: 24px;
 	border-radius: 5px;
 	border: 1px solid orange;
-	width: 200px;
+	width: 70%;
 }
 
 input[type='range'] {
@@ -129,7 +129,7 @@ input[type="range"]::-ms-fill-upper {
 }
 
 button {
-	padding: 7px 10px;
+	padding: 7px 20px;
 	margin-left: 10px;
 	border: 0;
 	cursor: pointer;
