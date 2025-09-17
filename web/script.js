@@ -151,8 +151,16 @@ function onPlay(source) {
     sendCommand('{ "play": "' + source + '" }');
 }
 
+function onPrev() {
+    sendCommand('{ "next": -1 }')
+}
+
+function onNext() {
+    sendCommand('{ "next": 1 }')
+}
+
 function onAdd() {
-    sendCommand('{ "add": 1 }')
+	if (confirm('Add "'+ sourceName.value.trim() + '" to play list?')) sendCommand('{ "add": 1 }')
 }
 
 function onNameStart() {
@@ -160,7 +168,7 @@ function onNameStart() {
 }
 
 function onNameEnd() {
-    sendCommand('{ "status": 1 }');
+    sendCommand('{ "status": 1 }')
 }
 
 function onNameChange() {

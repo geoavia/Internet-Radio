@@ -30,16 +30,18 @@
 			<img src="vplus.svg" />
 			<input type="range" id="sourceVol" min="0" max="0" value="0" onchange="onVolume()"/>
 		</div>
-		<div>
-			Display:&nbsp;
-			<a onclick="onDisplay(0)">Normal</a>,&nbsp;
-			<a onclick="onDisplay(1)">Simple</a>,&nbsp;
-			<a onclick="onDisplay(2)">Time</a>
+		<div class="current">
+			<button onclick="onPrev()">&#9664; Prev</button>
+			<button onclick="onNext()">&#9654; Next</button>
+			
+			<button onclick="onDisplay(0)" class="flat right">Normal</button>
+			<button onclick="onDisplay(1)" class="flat right">Simple</button>
+			<button onclick="onDisplay(2)" class="flat right">Time</button>
 		</div>
 		<p>New Station</p>
 		<div>
 			<span class="label">URL/Frequency</span>
-			<input title="URL/Frequency" type="text" id="urlfreq"/><button onclick="onPlay()">Play</button>
+			<input title="URL/Frequency" type="text" id="urlfreq"/><button onclick="onPlay()">&#9654; Play</button>
 		</div>
 		<p>Preset Play List</p>
 		<table id="playlist">

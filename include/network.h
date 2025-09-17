@@ -553,6 +553,7 @@ void publishList()
 		line += ",";
 		line += Stations[i].name;
 		pubsub.publish(topic_list, line.c_str());
+		delay(100);
 	}
 	pubsub.publish(topic_list, "+");
 	Serial.print("publish: ");
@@ -613,6 +614,10 @@ void callback(char *topic, byte *payload, unsigned int length)
 			{
 				PlayWebStation(src, DefaultWebStationName);
 			}
+		}
+		if (!doc["next"].isNull())
+		{
+			NextStation(doc["next"]);
 		}
 		if (!doc["add"].isNull())
 		{

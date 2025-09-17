@@ -130,7 +130,7 @@ input[type="range"]::-ms-fill-upper {
 
 button {
 	padding: 7px 20px;
-	margin-left: 10px;
+	margin: 6px;
 	border: 0;
 	cursor: pointer;
 	background: lightgray;
@@ -138,6 +138,17 @@ button {
 	outline: 0;
 	box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
 	min-width: 60px;
+}
+
+button.flat {
+	background: transparent;
+	border: 1px solid gray;
+	margin-left: 5px;
+	margin-right: 0;
+	box-shadow: none;
+	color: black;
+	padding: 7px 5px;
+	min-width: auto;
 }
 
 button:hover {

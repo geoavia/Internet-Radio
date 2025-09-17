@@ -154,5 +154,6 @@ void TuneFMStation(uint freq, String name, bool fout);
 void SetWebVolume(uint8_t vol, bool pub);
 void SetFMVolume(uint vol, bool pub);
 bool IsPlaying();
+void NextStation(int);
 
 #endif // __IRADIO_MAIN__
